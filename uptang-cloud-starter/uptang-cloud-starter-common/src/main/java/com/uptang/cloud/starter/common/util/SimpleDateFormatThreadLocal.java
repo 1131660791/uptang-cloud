@@ -15,7 +15,7 @@ public class SimpleDateFormatThreadLocal {
     private static ThreadLocal<Map<String, SimpleDateFormat>> simpleDateFormatThreadLocal = new ThreadLocal<Map<String, SimpleDateFormat>>() {
         @Override
         protected synchronized Map<String, SimpleDateFormat> initialValue() {
-            return new HashMap<>();
+            return new HashMap<>(16);
         }
     };
 

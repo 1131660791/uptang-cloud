@@ -1,12 +1,10 @@
 package com.uptang.cloud.starter.web.util;
 
-import com.uptang.cloud.starter.common.util.NumberUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
-import java.util.regex.Pattern;
 
 /**
  * @author Jiang Chuan
@@ -33,45 +31,6 @@ public class HostUtils extends com.uptang.cloud.starter.common.util.HostUtils {
             log.error("Can not get ip of local machine", ex);
             return null;
         }
-    }
-
-    /**
-     * 将IP转换成数字
-     *
-     * @param ip 字符串IP
-     * @return 数字IP
-     */
-    public static Long ip2Num(String ip) {
-        Long ipNum = 0L;
-        if (StringUtils.isBlank(ip) || !Pattern.matches(IP_REGEX, StringUtils.trimToEmpty(ip))) {
-            return ipNum;
-        }
-
-        String[] sections = StringUtils.split(ip, IP_SEPARATOR);
-        for (int i = IP_SECTION_COUNT; i >= 0; i--) {
-            ipNum |= Long.parseLong(sections[IP_SECTION_COUNT - i]) << (i * 8);
-        }
-
-        return ipNum;
-    }
-
-    /**
-     * 将数字的IP转换成正常的字符串
-     *
-     * @param ipNum 数字IP
-     * @return 字符串IP
-     */
-    public static String num2Ip(Long ipNum) {
-        if (NumberUtils.isNotPositive(ipNum)) {
-            return StringUtils.EMPTY;
-        }
-
-        StringBuilder result = new StringBuilder(15);
-        for (int i = 0; i < IP_SECTION_COUNT + 1; i++) {
-            result.insert(0, Long.toString(ipNum & 0xff)).insert(0, IP_SEPARATOR);
-            ipNum = ipNum >> 8;
-        }
-        return result.deleteCharAt(0).toString();
     }
 
     /**

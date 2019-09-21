@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final String PACKAGE_PREFIX = "com.uptang.cloud";
+    private static final String INNER_API_PREFIX = "inner";
 
     /**
      * 参数校验异常统一处理
@@ -125,7 +126,7 @@ public class GlobalExceptionHandler {
             debugMsgPair = Pair.of(ex.getMessage(), StringUtils.EMPTY);
             responseCode = ResponseCodeEnum.LOGIN_FAILED;
             message = "请登录";
-        } else if (ex instanceof IllegalArgumentException && StringUtils.contains(ex.getMessage(), "/inner/")) {
+        } else if (ex instanceof IllegalArgumentException && StringUtils.contains(ex.getMessage(), INNER_API_PREFIX)) {
             message = "调用内部服务参数异常";
             debugMsgPair = getCause(ex);
         } else {
@@ -133,7 +134,7 @@ public class GlobalExceptionHandler {
         }
 
         // 解决内部服务反序列化失败问题
-        if (StringUtils.isNotEmpty(debugMsgPair.getRight()) && StringUtils.contains(ex.getMessage(), "Inner")) {
+        if (StringUtils.isNotEmpty(debugMsgPair.getRight()) && StringUtils.contains(ex.getMessage(), INNER_API_PREFIX)) {
             log.error("调用内部服务({})失败", debugMsgPair.getRight());
             return null;
         }

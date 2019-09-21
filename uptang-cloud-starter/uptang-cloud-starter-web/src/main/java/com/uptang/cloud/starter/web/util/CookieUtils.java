@@ -29,7 +29,7 @@ public final class CookieUtils {
     public static Cookie get(HttpServletRequest request, String name) {
         Objects.requireNonNull(request);
         Objects.requireNonNull(name, "Cookie 名字不能为空");
-        Cookie cookies[] = request.getCookies();
+        Cookie[] cookies = request.getCookies();
         if (ArrayUtils.isEmpty(cookies)) {
             return null;
         }

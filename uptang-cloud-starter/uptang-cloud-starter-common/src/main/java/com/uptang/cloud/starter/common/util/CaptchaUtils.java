@@ -19,6 +19,7 @@ import java.util.Random;
  */
 @Slf4j
 public class CaptchaUtils {
+    private static final int MAX_COLOR_RANGE = 255;
     private static final Random RANDOM = new Random();
 
     /**
@@ -54,9 +55,11 @@ public class CaptchaUtils {
 
         //绘制干扰线
         Random random = new Random();
+        int maxLineCount = 20;
+
         // 设置线条的颜色
         gd.setColor(getRandColor(160, 200));
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < maxLineCount; i++) {
             int x = random.nextInt(width - 1);
             int y = random.nextInt(height - 1);
             int xl = random.nextInt(6) + 1;
@@ -93,11 +96,12 @@ public class CaptchaUtils {
     }
 
     private static Color getRandColor(int fc, int bc) {
-        if (fc > 255) {
-            fc = 255;
+        if (fc > MAX_COLOR_RANGE) {
+            fc = MAX_COLOR_RANGE;
         }
-        if (bc > 255) {
-            bc = 255;
+
+        if (bc > MAX_COLOR_RANGE) {
+            bc = MAX_COLOR_RANGE;
         }
         int r = fc + RANDOM.nextInt(bc - fc);
         int g = fc + RANDOM.nextInt(bc - fc);
@@ -116,9 +120,10 @@ public class CaptchaUtils {
     }
 
     private static int[] getRandomRgb() {
-        int[] rgb = new int[3];
-        for (int i = 0; i < 3; i++) {
-            rgb[i] = RANDOM.nextInt(255);
+        int colourCount = 3;
+        int[] rgb = new int[colourCount];
+        for (int i = 0; i < colourCount; i++) {
+            rgb[i] = RANDOM.nextInt(MAX_COLOR_RANGE);
         }
         return rgb;
     }

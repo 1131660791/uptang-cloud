@@ -1,6 +1,5 @@
 package com.uptang.cloud.starter.web.config;
 
-import com.uptang.cloud.starter.web.converter.CustomHttpMessageConverter;
 import com.uptang.cloud.starter.web.interceptor.UserContextInterceptor;
 import com.uptang.cloud.starter.web.json.JsonResultHandler;
 import com.uptang.cloud.starter.web.util.UserTokenUtils;
@@ -27,15 +26,17 @@ import java.util.List;
 @Aspect
 @Configuration
 public class CustomConfiguration implements WebMvcConfigurer {
+    private static final String DEV_ENV = "DEV";
+
     /**
      * 获取当前环境
      */
-    @Value("${spring.profiles:dev}")
+    @Value("${spring.profiles:DEV}")
     private String springProfiles;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        if (StringUtils.containsIgnoreCase(springProfiles, "dev")) {
+        if (StringUtils.containsIgnoreCase(springProfiles, DEV_ENV)) {
             registry.addMapping("/**")
                     .allowedMethods(
                             RequestMethod.GET.name(),
@@ -50,8 +51,8 @@ public class CustomConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 解析 Token
-         registry.addInterceptor(new UserContextInterceptor(userTokenUtils()))
-                 .addPathPatterns("/**").excludePathPatterns("/inner/**");
+        registry.addInterceptor(new UserContextInterceptor(userTokenUtils()))
+                .addPathPatterns("/**").excludePathPatterns("/inner/**");
     }
 
     @Override

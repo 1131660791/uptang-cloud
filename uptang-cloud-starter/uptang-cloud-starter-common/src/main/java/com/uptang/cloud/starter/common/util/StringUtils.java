@@ -15,7 +15,6 @@ import java.util.stream.IntStream;
  */
 @Slf4j
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
-    // 下划线字符
     private static final char UNDERLINE = '_';
 
     /**
@@ -103,7 +102,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
                     String pinyin = PinyinHelper.toHanyuPinyinStringArray(chars[idx], formatter)[0];
                     pinyinBuilder.append(firstCharOnly ? pinyin.charAt(0) : pinyin);
                 } catch (Exception ex) {
-                    // log.warn(ex.getMessage());
+                    log.warn(ex.getMessage());
                 }
             } else {
                 pinyinBuilder.append(chars[idx]);

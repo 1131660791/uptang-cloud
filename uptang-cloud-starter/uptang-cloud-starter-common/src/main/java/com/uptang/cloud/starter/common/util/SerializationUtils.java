@@ -108,8 +108,6 @@ public class SerializationUtils {
     public static <T> byte[] serialize(T obj) {
         LinkedBuffer linkedBuffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         try {
-            // return ProtostuffIOUtil.toByteArray(SerializerWrapper.builder(obj), WRAPPER_SCHEMA, linkedBuffer);
-
             Class<T> clazz = (Class<T>) obj.getClass();
             Object serializeObject = obj;
             Schema schema = WRAPPER_SCHEMA;
@@ -137,12 +135,6 @@ public class SerializationUtils {
      */
     public static <T> T deserialize(byte[] data, Class<T> clazz) {
         try {
-           /*
-            SerializerWrapper<T> wrapper = new SerializerWrapper<>();
-            ProtostuffIOUtil.mergeFrom(data, wrapper, WRAPPER_SCHEMA);
-            return wrapper.getData();
-            */
-
             if (WRAPPER_CLASSES.contains(clazz)) {
                 SerializerWrapper<T> wrapper = new SerializerWrapper<>();
                 ProtostuffIOUtil.mergeFrom(data, wrapper, WRAPPER_SCHEMA);
@@ -168,12 +160,6 @@ public class SerializationUtils {
      */
     public static <T> T deserialize(InputStream data, Class<T> clazz) {
         try {
-            /*
-            SerializerWrapper<T> wrapper = new SerializerWrapper<>();
-            ProtostuffIOUtil.mergeFrom(data, wrapper, WRAPPER_SCHEMA);
-            return wrapper.getData();
-            */
-
             if (WRAPPER_CLASSES.contains(clazz)) {
                 SerializerWrapper<T> wrapper = new SerializerWrapper<>();
                 ProtostuffIOUtil.mergeFrom(data, wrapper, WRAPPER_SCHEMA);

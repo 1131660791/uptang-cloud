@@ -1,6 +1,5 @@
 package com.uptang.cloud.behavior.pojo.vo;
 
-import com.uptang.cloud.pojo.model.user.UserInfo;
 import com.uptang.cloud.starter.common.util.Validator;
 import com.uptang.cloud.starter.common.validation.GroupCreate;
 import com.uptang.cloud.starter.common.validation.GroupUpdate;
@@ -16,7 +15,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * @author Jiang Chuan
