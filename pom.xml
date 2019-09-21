@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.uptang.cloud</groupId>
+    <artifactId>uptang-cloud</artifactId>
+    <name>uptang-cloud</name>
+    <version>4.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <inceptionYear>2019</inceptionYear>
+    <description>学唐云</description>
+
+    <developers>
+        <developer>
+            <id>jiang.chuan</id>
+            <name>姜川</name>
+            <email>jc@uptang.com.cn</email>
+            <roles>
+                <role>Owner</role>
+                <role>System Architect</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <modules>
+        <module>uptang-cloud-bom</module>
+        <module>uptang-cloud-pojo</module>
+        <module>uptang-cloud-starter</module>
+        <module>uptang-cloud-provider</module>
+
+        <module>uptang-cloud-sequence</module>
+        <module>uptang-cloud-behavior</module>
+    </modules>
+</project>
