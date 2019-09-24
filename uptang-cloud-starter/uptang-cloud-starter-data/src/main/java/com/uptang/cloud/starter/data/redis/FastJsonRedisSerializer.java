@@ -14,7 +14,7 @@ import java.nio.charset.Charset;
  * @date 2019-09-19
  */
 public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
-    private static final Charset DEFAULT_CHARSET = Charset.forName(Constants.DEFAULT_CHAR_SET);
+    private static final Charset DEFAULT_CHARSET = Constants.DEFAULT_CHAR_SET;
     private Class<T> clazz;
 
     public FastJsonRedisSerializer(Class<T> clazz) {
