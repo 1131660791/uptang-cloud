@@ -1,5 +1,6 @@
 package com.uptang.cloud.starter.common;
 
+import java.nio.charset.Charset;
 import java.util.Date;
 
 /**
@@ -16,7 +17,8 @@ public interface Constants {
     /**
      * 系统默认编码
      */
-    String DEFAULT_CHAR_SET = "UTF-8";
+    String DEFAULT_CHAR_SET_VALUE = "UTF-8";
+    Charset DEFAULT_CHAR_SET = Charset.forName(DEFAULT_CHAR_SET_VALUE);
 
     /**
      * 日期格式

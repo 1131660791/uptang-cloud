@@ -64,7 +64,7 @@ public abstract class BaseSwaggerConfig implements WebMvcConfigurer {
      *
      * @return 参数列表
      */
-    protected final List<Parameter> getGlobalHeaderParameters() {
+    private final List<Parameter> getGlobalHeaderParameters() {
         List<Parameter> parameters = new ArrayList<>();
         parameters.add(new ParameterBuilder()
                 .name(Constants.TOKEN_PARA_NAME).description("授权令牌")

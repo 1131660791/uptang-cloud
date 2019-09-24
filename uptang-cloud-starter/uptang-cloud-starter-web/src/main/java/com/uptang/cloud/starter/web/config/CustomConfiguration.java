@@ -1,14 +1,17 @@
 package com.uptang.cloud.starter.web.config;
 
+import com.uptang.cloud.starter.web.interceptor.PreventRepeatSubmitInterceptor;
 import com.uptang.cloud.starter.web.interceptor.UserContextInterceptor;
 import com.uptang.cloud.starter.web.json.JsonResultHandler;
 import com.uptang.cloud.starter.web.util.UserTokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -27,6 +30,9 @@ import java.util.List;
 @Configuration
 public class CustomConfiguration implements WebMvcConfigurer {
     private static final String DEV_ENV = "DEV";
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     /**
      * 获取当前环境
@@ -51,6 +57,10 @@ public class CustomConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 解析 Token
+        registry.addInterceptor(new PreventRepeatSubmitInterceptor(redisTemplate))
+                .addPathPatterns("/v1/**").excludePathPatterns("/inner/**");
+
+        // 防止重复提交
         registry.addInterceptor(new UserContextInterceptor(userTokenUtils()))
                 .addPathPatterns("/**").excludePathPatterns("/inner/**");
     }
@@ -76,7 +86,6 @@ public class CustomConfiguration implements WebMvcConfigurer {
     public CustomHttpMessageConverter customHttpMessageConverter() {
         return new CustomHttpMessageConverter();
     }*/
-
     @Bean
     public UserTokenUtils userTokenUtils() {
         return new UserTokenUtils();

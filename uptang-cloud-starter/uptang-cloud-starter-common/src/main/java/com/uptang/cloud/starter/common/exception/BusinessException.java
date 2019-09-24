@@ -36,7 +36,7 @@ public class BusinessException extends RuntimeException {
      * @param responseCode 异常状态码
      */
     public BusinessException(final ResponseCodeEnum responseCode) {
-        super(String.valueOf(responseCode.getCode()));
+        super(String.valueOf(responseCode.getCode()), null, true, false);
         this.responseCode = responseCode;
         this.message = responseCode.getDesc();
     }
