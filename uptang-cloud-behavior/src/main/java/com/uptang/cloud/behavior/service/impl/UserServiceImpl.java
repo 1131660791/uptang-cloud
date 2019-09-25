@@ -26,6 +26,9 @@ public class UserServiceImpl extends ServiceImpl<UserInfoRepository, UserInfo> i
     public List<UserInfo> listUsers(String searchTerm) {
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
 
+        // 可以单独指定要查询哪些字段
+        queryWrapper.select(UserInfo::getId, UserInfo::getUserName, UserInfo::getSchoolName);
+
         // 关键字查询
         if (StringUtils.isNotBlank(searchTerm)) {
             queryWrapper.and(query -> query.like(UserInfo::getMobile, searchTerm)

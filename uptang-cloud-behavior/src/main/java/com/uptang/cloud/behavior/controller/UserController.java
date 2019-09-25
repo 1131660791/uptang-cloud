@@ -49,6 +49,11 @@ import java.util.stream.Collectors;
 @Api(value = "UserController", tags = {"用户展示"})
 @PreventRepeatSubmit(timeout = 60, prefix = "user")
 public class UserController extends BaseController {
+    /**
+     * 需要排除的字段, 字段名不区分大小写，以半角逗号隔开
+     */
+    private static final String EXCLUDE_FIELDS = "userCode, createdTime";
+
     private final UserService userService;
     private final RedisUtils redisUtils;
 
@@ -73,7 +78,7 @@ public class UserController extends BaseController {
             @ApiImplicitParam(name = "pageSize", value = "每页数据量", defaultValue = "10", example = "10", dataType = "int")
     })
     @PreventRepeatSubmit(2)
-    @JsonResult(type = UserInfoVO.class, exclude = {"userCode", "createdTime"}, shortDateFormat = true)
+    @JsonResult(type = UserInfoVO.class, exclude = EXCLUDE_FIELDS, shortDateFormat = true)
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ApiOut<List<UserInfoVO>> listAllUsers(
             @RequestParam(name = "q", required = false) String keyword,
@@ -86,6 +91,7 @@ public class UserController extends BaseController {
 
         return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(userInfos, this::toVos));
     }
+
 
     /**
      * <pre>
