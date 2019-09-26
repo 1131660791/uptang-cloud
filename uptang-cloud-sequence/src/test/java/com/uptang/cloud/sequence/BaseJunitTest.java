@@ -190,7 +190,7 @@ public abstract class BaseJunitTest {
 
         return actions
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code", Matchers.is(ResponseCodeEnum.SUCCESS.getCode())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.is(ResponseCodeEnum.SUCCESS.getCode())))
                 .andReturn().getResponse();
     }
 
