@@ -10,6 +10,7 @@ import com.uptang.cloud.starter.common.util.CollectionUtils;
 import com.uptang.cloud.starter.common.validation.GroupUpdate;
 import com.uptang.cloud.starter.data.redis.RedisUtils;
 import com.uptang.cloud.starter.web.annotation.JsonResult;
+import com.uptang.cloud.starter.web.annotation.PreventRepeatSubmit;
 import com.uptang.cloud.starter.web.controller.BaseController;
 import com.uptang.cloud.starter.web.domain.ApiOut;
 import com.uptang.cloud.starter.web.util.PageableEntitiesConverter;
@@ -46,7 +47,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/v1/users")
 @Api(value = "UserController", tags = {"用户展示"})
+@PreventRepeatSubmit(timeout = 60, prefix = "user")
 public class UserController extends BaseController {
+    /**
+     * 需要排除的字段, 字段名不区分大小写，以半角逗号隔开
+     */
+    private static final String EXCLUDE_FIELDS = "userCode, createdTime";
+
     private final UserService userService;
     private final RedisUtils redisUtils;
 
@@ -70,7 +77,8 @@ public class UserController extends BaseController {
             @ApiImplicitParam(name = "pageIndex", value = "当前页码", defaultValue = "1", example = "1", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页数据量", defaultValue = "10", example = "10", dataType = "int")
     })
-    @JsonResult(type = UserInfoVO.class, exclude = {"userCode", "createdTime"}, shortDateFormat = true)
+    @PreventRepeatSubmit(2)
+    @JsonResult(type = UserInfoVO.class, exclude = EXCLUDE_FIELDS, shortDateFormat = true)
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ApiOut<List<UserInfoVO>> listAllUsers(
             @RequestParam(name = "q", required = false) String keyword,
@@ -83,6 +91,7 @@ public class UserController extends BaseController {
 
         return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(userInfos, this::toVos));
     }
+
 
     /**
      * <pre>
@@ -101,6 +110,7 @@ public class UserController extends BaseController {
      * @param userInfoVO 用户信息
      * @return ApiOut
      */
+    @PreventRepeatSubmit(timeout = 30, prefix = "user")
     @ApiOperation(value = "修改用户", response = Boolean.class)
     @PutMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ApiOut<Boolean> updateUserInfo(@PathVariable("userId") String userId,

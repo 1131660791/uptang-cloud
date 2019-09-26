@@ -86,4 +86,17 @@ public class CacheKeys {
     public static String getUserContextKey(long userId) {
         return getKey(String.join(SEPARATOR, "user", "sso", "context"), userId);
     }
+
+    /**
+     * 生成防止重复提交的缓存Key
+     *
+     * @param prefix  指定防重提交的前缀
+     * @param lockKey 根据一系列参数生成的Hash字符串
+     * @return 缓存Key, eg: submit:0c86b5bf64c4e7c339d60c57b805f149ef028fe2
+     */
+    public static String getPreventRepeatSubmitKey(String prefix, String lockKey) {
+        return StringUtils.isBlank(prefix)
+                ? "submit" + SEPARATOR + lockKey
+                : "submit" + SEPARATOR + prefix.trim().toLowerCase() + SEPARATOR + lockKey;
+    }
 }

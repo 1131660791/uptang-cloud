@@ -142,7 +142,7 @@ public abstract class BaseController {
     protected String decodeString(String searchTerm) {
         if (StringUtils.isNotBlank(searchTerm)) {
             try {
-                return URLDecoder.decode(searchTerm.trim(), Constants.DEFAULT_CHAR_SET);
+                return URLDecoder.decode(searchTerm.trim(), Constants.DEFAULT_CHAR_SET_VALUE);
             } catch (UnsupportedEncodingException ex) {
                 log.warn("字符串(" + searchTerm + ")解码错误", ex);
             }

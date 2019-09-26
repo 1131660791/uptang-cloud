@@ -40,6 +40,7 @@ public enum ResponseCodeEnum {
     PARAMETER_FORMAT_ERROR(97_020, "参数格式错误", "参数[%s]格式不正确"),
     PARAMETER_RANGE_ERROR(97_030, "数据范围错误"),
     PARAMETER_VALUE_ERROR(97_040, "参数值错误", "(%s)"),
+    REPEAT_SUBMIT(97_050, "数据重复提交", "(%s)"),
 
     // 增删改查
     CREATE_FAILED(96_010, "增加失败", "[%s]失败"),
