@@ -22,7 +22,6 @@ import java.util.Objects;
 @Slf4j
 @Repository
 public class PaperRepository {
-    private String examCode = "xty_20190617150608344";
     private static final String SQL = "SELECT `id`, `zkzh`, `kmdm`, 'image_path' AS path FROM `xty_scan` WHERE `id` > %s LIMIT %s";
 
     /**
@@ -50,7 +49,7 @@ public class PaperRepository {
                         .build());
             }
             return papers;
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             throw new DataAccessException(ex.getMessage(), ex);
         } finally {
             try {

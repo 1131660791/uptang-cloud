@@ -1,9 +1,6 @@
 package com.uptang.cloud.task;
 
-import com.uptang.cloud.task.mode.PaperScan;
-import com.uptang.cloud.task.repository.PaperRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -11,12 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * 试卷图片处理
@@ -27,32 +22,23 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @EnableAsync
+@EnableScheduling
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.uptang.cloud")
 @ComponentScan(basePackages = "com.uptang.cloud")
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class})
 public class PaperImageTask implements CommandLineRunner {
-    @Autowired
-    private PaperRepository repository;
-
     public static void main(String[] args) {
         SpringApplication.run(PaperImageTask.class, args);
     }
 
+    @Autowired
+    private  StringRedisTemplate redisTemplate;
+    private static final String EXAM_TASK_KEY = "task:exam:paper";
+
+
     @Override
     public void run(String... args) throws Exception {
-        String examCode = "xty_20190617150608344";
-        int prevId = 0, count = 100;
-        List<PaperScan> papers;
-        do {
-            papers = repository.getPapers(examCode, prevId, 100);
-            if (CollectionUtils.isNotEmpty(papers)) {
-                prevId = papers.get(papers.size() - 1).getId();
-                papers.forEach(paper -> {
-                    log.error("Exam:{}, {}", examCode, paper);
-                });
-            }
-            TimeUnit.SECONDS.sleep(5);
-        } while (papers.size() >= count);
+        redisTemplate.opsForSet().add(EXAM_TASK_KEY, "xty_20190617150608344", "xty_20191011112438446", "xty_20181109174002602", "uptang_base", "xty");
+        //redisTemplate.opsForSet().add(EXAM_TASK_KEY,  "uptang_base", "xty");
     }
 }
