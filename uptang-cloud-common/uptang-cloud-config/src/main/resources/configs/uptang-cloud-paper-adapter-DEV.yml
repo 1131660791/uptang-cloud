@@ -1,0 +1,109 @@
+spring:
+  # 注册中心
+  cloud:
+    consul:
+      discovery:
+        register: true
+        enabled: true
+        prefer-ip-address: true
+        service-name: ${spring.application.name}
+        health-check-critical-timeout: 5m
+        health-check-interval: 15s
+        tags: profile=${spring.profiles.active}
+        instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}:${random.int[1000,9999]}
+        health-check-url: http://${spring.cloud.client.ip-address}:${server.port}/actuator/health
+    httpclientfactories.ok.enabled: false
+  main:
+    allow-bean-definition-overriding: true
+
+
+  # 数数库
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    name: xtyun_base
+    url: jdbc:mysql://192.168.0.210:3306/db_paper_v2?useUnicode=true&useSSL=false&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+    username: uptang
+    password: uptang408*
+    hikari:
+      auto-commit: true
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 10
+      pool-name: HikariCPPool
+      minimum-idle: 10
+      validation-timeout: 60000
+      connection-test-query: "SELECT 1"
+      leak-detection-threshold: 30000
+      register-mbeans: true
+
+  # 缓存
+  redis:
+    database: 0
+    timeout: 3000
+    port: 52199
+    host: xfs_redis.weave.local
+    password: uptang123
+    lettuce:
+      pool:
+        max-idle: 10
+        min-idle: 1
+        max-active: 10
+        max-wait: 1000
+
+  # Kafka, 可以是多个地址
+  kafka:
+    bootstrap-servers: svc_kafka.weave.local:9092
+
+    # 生产者
+    producer:
+      client-id: ${spring.application.name}_${random.int[1000,9999]}
+      acks: all
+      retries: 1
+      batch-size: 16KB
+      buffer-memory: 32MB
+      compression-type: gzip
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      # transaction-id-prefix: @project.name@
+      properties:
+        partitioner.class: org.apache.kafka.clients.producer.internals.DefaultPartitioner
+        enable.idempotence: true
+
+    # 消费者
+    consumer:
+      group-id: paper-image-process
+      enable-auto-commit: true
+      auto-commit-interval: 100
+      auto-offset-reset: latest
+      fetch-min-size: 1
+      heartbeat-interval: 3000ms
+      max-poll-records: 50
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+    # 并发监听
+    listener:
+      type: batch
+      concurrency: 5
+
+# feign 配置
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
+logging:
+  path: D:/app-logs
+  level:
+    root: INFO
+    api: DEBUG
+    service: DEBUG
+    repository: DEBUG

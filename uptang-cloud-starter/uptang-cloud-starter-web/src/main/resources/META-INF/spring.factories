@@ -1,5 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.uptang.cloud.starter.web.config.CustomConfiguration,\
-  com.uptang.cloud.starter.web.config.JacksonConfig,\
-  com.uptang.cloud.starter.web.config.ThreadPoolConfig,\
-  com.uptang.cloud.starter.web.handler.GlobalExceptionHandler
