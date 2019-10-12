@@ -1,6 +1,5 @@
 package com.uptang.cloud.task;
 
-import com.uptang.cloud.sequence.feign.SequenceProvider;
 import com.uptang.cloud.task.mode.PaperScan;
 import com.uptang.cloud.task.repository.PaperRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -36,10 +35,6 @@ public class PaperImageTask implements CommandLineRunner {
     @Autowired
     private PaperRepository repository;
 
-    @Autowired
-    private SequenceProvider sequenceProvider;
-
-
     public static void main(String[] args) {
         SpringApplication.run(PaperImageTask.class, args);
     }
@@ -54,7 +49,7 @@ public class PaperImageTask implements CommandLineRunner {
             if (CollectionUtils.isNotEmpty(papers)) {
                 prevId = papers.get(papers.size() - 1).getId();
                 papers.forEach(paper -> {
-                    log.error("Exam:{}, ID:{}  {}", examCode, sequenceProvider.getSequence(), paper);
+                    log.error("Exam:{}, {}", examCode, paper);
                 });
             }
             TimeUnit.SECONDS.sleep(5);
