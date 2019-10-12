@@ -1,16 +1,14 @@
 package com.uptang.cloud.task.repository;
 
-import com.google.common.collect.Lists;
 import com.uptang.cloud.core.exception.DataAccessException;
-import com.uptang.cloud.task.mode.PaperScan;
+import com.uptang.cloud.task.mode.PaperFormat;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,34 +19,31 @@ import java.util.Objects;
  */
 @Slf4j
 @Repository
-public class PaperRepository {
-    private static final String SQL = "SELECT `id`, `zkzh`, `kmdm`, '/21/20191010/7/7_18120190918114540270.jpg' AS path FROM `xty_scan` WHERE `id` > %s LIMIT %s";
+public class PaperFormatRepository {
+    private static final String SQL = "SELECT `item_num`, `area`, `pic_num` FROM `tb_paper_cat` ORDER BY `pic_num`";
 
     /**
-     * 获取扫描的答题卡
+     * 得到所有试卷格式
      *
      * @param examCode 考试代码
-     * @param prevId   最后一次查询的ID
-     * @param count    查询数量
-     * @return 答题卡
+     * @return 试卷格式
      */
-    public List<PaperScan> getPapers(String examCode, int prevId, int count) {
+    public List<PaperFormat> getAllFormats(String examCode) {
         Statement statement = null;
         ResultSet resultSet = null;
         try (Connection connection = ConnectionManager.getInstance().getConnection(examCode)) {
             statement = connection.createStatement();
-            resultSet = statement.executeQuery(String.format(SQL, prevId, count));
+            resultSet = statement.executeQuery(SQL);
 
-            List<PaperScan> papers = Lists.newArrayListWithCapacity(count);
+            List<PaperFormat> formats = new ArrayList<>();
             while (resultSet.next()) {
-                papers.add(PaperScan.builder()
-                        .id(resultSet.getInt("id"))
-                        .ticketNumber(resultSet.getString("zkzh"))
-                        .subjectCode(resultSet.getString("kmdm"))
-                        .imagePath(resultSet.getString("path"))
+                formats.add(PaperFormat.builder()
+                        .itemNum(resultSet.getString("item_num"))
+                        .format(resultSet.getString("area"))
+                        .rank(resultSet.getInt("pic_num"))
                         .build());
             }
-            return papers;
+            return formats;
         } catch (Exception ex) {
             throw new DataAccessException(ex.getMessage(), ex);
         } finally {

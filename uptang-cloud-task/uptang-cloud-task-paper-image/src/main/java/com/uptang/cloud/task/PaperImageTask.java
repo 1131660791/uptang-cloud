@@ -38,7 +38,7 @@ public class PaperImageTask implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        redisTemplate.opsForSet().add(EXAM_TASK_KEY, "xty_20190617150608344", "xty_20191011112438446", "xty_20181109174002602", "uptang_base", "xty");
+        redisTemplate.opsForSet().add(EXAM_TASK_KEY, "xty_20190617150608344", "xty_20191011112438446", "xty_20190927140900970", "uptang_base", "xty");
         //redisTemplate.opsForSet().add(EXAM_TASK_KEY,  "uptang_base", "xty");
     }
 }

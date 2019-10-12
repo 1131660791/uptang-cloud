@@ -4,12 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.uptang.cloud.pojo.model.BaseModel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.io.Serializable;
 
 /**
  * @author Jiang Chuan
@@ -17,11 +18,11 @@ import lombok.ToString;
  * @date 2019-10-10
  */
 @Data
+@ToString
 @NoArgsConstructor
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode
 @TableName("xty_scan")
-public class PaperScan extends BaseModel {
+public class PaperScan implements Serializable, Cloneable {
     private static final long serialVersionUID = -2830203141783860322L;
 
     /**

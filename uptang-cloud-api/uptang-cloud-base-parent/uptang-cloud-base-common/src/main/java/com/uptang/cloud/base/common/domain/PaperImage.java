@@ -25,7 +25,7 @@ public class PaperImage implements Serializable {
     /**
      * 学生ID
      */
-    private Integer studentId;
+    private String studentId;
 
     /**
      * 考试代码
@@ -54,7 +54,7 @@ public class PaperImage implements Serializable {
     private List<PaperImageSource> sources;
 
     @Builder
-    public PaperImage(Integer studentId, String examCode, String subjectCode, String itemNum,
+    public PaperImage(String studentId, String examCode, String subjectCode, String itemNum,
                       Boolean vertically, List<PaperImageSource> sources) {
         this.studentId = studentId;
         this.examCode = examCode;

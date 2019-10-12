@@ -74,7 +74,7 @@ public class KafkaSender {
 
     private PaperImage generatePaperImage(Integer studentId) {
         return PaperImage.builder()
-                .studentId(studentId)
+                .studentId(String.valueOf(studentId))
                 .examCode("xty_20190918111914561")
                 .subjectCode("1")
                 .vertically(true)
