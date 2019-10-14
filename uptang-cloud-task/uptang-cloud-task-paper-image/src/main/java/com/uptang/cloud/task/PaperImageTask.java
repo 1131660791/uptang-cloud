@@ -1,5 +1,6 @@
 package com.uptang.cloud.task;
 
+import com.uptang.cloud.task.util.CacheKeys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -32,13 +33,12 @@ public class PaperImageTask implements CommandLineRunner {
     }
 
     @Autowired
-    private  StringRedisTemplate redisTemplate;
-    private static final String EXAM_TASK_KEY = "task:exam:paper";
-
+    private StringRedisTemplate redisTemplate;
 
     @Override
     public void run(String... args) throws Exception {
-        redisTemplate.opsForSet().add(EXAM_TASK_KEY, "xty_20190617150608344", "xty_20191011112438446", "xty_20190927140900970", "uptang_base", "xty");
-        //redisTemplate.opsForSet().add(EXAM_TASK_KEY,  "uptang_base", "xty");
+        String cacheKey = CacheKeys.getExamExtractTaskKey();
+        redisTemplate.opsForSet().add(cacheKey, "xty_20190617150608344", "xty_20191011112438446", "xty_20190927140900970", "uptang_base", "xty");
+        //redisTemplate.opsForSet().add(cacheKey,  "uptang_base", "xty");
     }
 }
