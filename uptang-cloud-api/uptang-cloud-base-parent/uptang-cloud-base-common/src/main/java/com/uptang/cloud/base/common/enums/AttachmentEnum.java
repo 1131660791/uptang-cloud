@@ -29,6 +29,11 @@ public enum AttachmentEnum implements IEnumType {
     EXAM_PAPER(21, "考试试卷"),
 
     /**
+     * 考试试卷格式文件
+     */
+    EXAM_PAPER_FORMAT(22, "考试试卷格式文件"),
+
+    /**
      * 其它
      */
     OTHER(99, "其它");
