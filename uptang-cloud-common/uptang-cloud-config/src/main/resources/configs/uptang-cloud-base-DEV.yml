@@ -1,5 +1,6 @@
 server:
   servlet:
+    context-path: /base
     application-display-name: ${spring.application.name}
   compression:
     enabled: true
