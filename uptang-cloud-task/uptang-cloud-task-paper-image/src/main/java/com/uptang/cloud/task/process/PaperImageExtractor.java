@@ -1,12 +1,15 @@
 package com.uptang.cloud.task.process;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.uptang.cloud.base.common.domain.PaperImage;
 import com.uptang.cloud.base.common.domain.PaperImageFormat;
 import com.uptang.cloud.base.common.domain.PaperImageSource;
 import com.uptang.cloud.core.util.CollectionUtils;
 import com.uptang.cloud.core.util.NumberUtils;
 import com.uptang.cloud.core.util.StringUtils;
+import com.uptang.cloud.task.common.Constants;
 import com.uptang.cloud.task.mode.PaperFormat;
 import com.uptang.cloud.task.mode.PaperScan;
 import com.uptang.cloud.task.repository.PaperFormatRepository;
@@ -18,6 +21,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -45,7 +49,7 @@ public class PaperImageExtractor {
     /**
      * 每隔五分钟检查一次，是否有新的考试项目需要处理
      */
-    private static final int TASK_INTERVAL_MILLS = 1000 * 60 * 5;
+    private static final int TASK_INTERVAL_MILLS = 1000 * 60 * 1;
 
     /**
      * 每次提取试卷的数量
@@ -60,14 +64,17 @@ public class PaperImageExtractor {
     private final PaperRepository paperRepository;
     private final PaperFormatRepository formatRepository;
     private final StringRedisTemplate redisTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final ThreadPoolTaskExecutor taskExecutor;
 
     @Autowired
     public PaperImageExtractor(PaperRepository paperRepository, PaperFormatRepository formatRepository,
-                               StringRedisTemplate redisTemplate, ThreadPoolTaskExecutor taskExecutor) {
+                               StringRedisTemplate redisTemplate, KafkaTemplate<String, String> kafkaTemplate,
+                               ThreadPoolTaskExecutor taskExecutor) {
         this.paperRepository = paperRepository;
         this.formatRepository = formatRepository;
         this.redisTemplate = redisTemplate;
+        this.kafkaTemplate = kafkaTemplate;
         this.taskExecutor = taskExecutor;
     }
 
@@ -101,31 +108,44 @@ public class PaperImageExtractor {
      * 获取考试题目的格式
      *
      * @param examCode 考试代码
-     * @return 题目格式
+     * @return 题目格式, 1st key: formatId, 2nd key: itemNum
      */
-    private Map<String, List<PaperImageFormat>> getItemFormatMap(String examCode) {
+    private Map<Integer, Map<String, List<PaperImageFormat>>> getGroupedFormatMap(String examCode) {
         try {
-            List<PaperFormat> formats = formatRepository.getAllFormats(examCode);
-            if (CollectionUtils.isEmpty(formats)) {
+            List<PaperFormat> paperFormats = formatRepository.getAllFormats(examCode);
+            if (CollectionUtils.isEmpty(paperFormats)) {
                 log.warn("Can not find any formats for exam {}", examCode);
                 return null;
             }
 
-            List<PaperImageFormat> paperImageFormats = formats.stream()
-                    .map(itemFormat -> {
-                        PaperImageFormat format = PaperFormatParser.parse(itemFormat.getFormat());
-                        Optional.ofNullable(format).ifPresent(f -> format.setItemNum(itemFormat.getItemNum()));
-                        return format;
-                    }).filter(Objects::nonNull).collect(Collectors.toList());
+            // 解析格式
+            Map<Integer, PaperImageFormat> paperFormatMap = Maps.newHashMapWithExpectedSize(paperFormats.size());
+            for (PaperFormat paperFormat : paperFormats) {
+                if (Objects.isNull(paperFormat)) {
+                    continue;
+                }
 
-            if (CollectionUtils.isEmpty(paperImageFormats)) {
+                PaperImageFormat itemFormat = PaperFormatParser.parse(paperFormat.getFormatContent());
+                if (Objects.isNull(itemFormat)) {
+                    continue;
+                }
+
+                itemFormat.setItemNum(paperFormat.getItemNum());
+                paperFormatMap.put(paperFormat.getId(), itemFormat);
+            }
+
+            if (MapUtils.isEmpty(paperFormatMap)) {
                 log.warn("Failed to parse item format for exam {}", examCode);
                 return null;
             }
-            PaperFormatParser.updateFilenameSuffix(paperImageFormats, "a", "b");
 
-            // 按题目分组
-            return paperImageFormats.stream().collect(Collectors.groupingBy(PaperImageFormat::getItemNum));
+            // 修正图片路径
+            PaperFormatParser.updateFilenameSuffix(paperFormatMap.values(), Constants.PAPER_IMAGE_SUFFIXES);
+
+            // 格式分组，1st key is formatId, 2nd key is itemNum
+            return paperFormats.stream().collect(Collectors.groupingBy(PaperFormat::getFormatId,
+                    Collectors.groupingBy(PaperFormat::getItemNum,
+                            Collectors.mapping(itemFormat -> paperFormatMap.get(itemFormat.getId()), Collectors.toList()))));
         } catch (Exception ex) {
             log.warn("Failed to parse format of exam {}", examCode);
             return null;
@@ -135,20 +155,23 @@ public class PaperImageExtractor {
     /**
      * 处理试卷参数，将其发送至消息队列
      *
-     * @param examCode             考试代码
-     * @param papers               答题卡
-     * @param itemGroupedFormatMap 题目格式
+     * @param examCode         考试代码
+     * @param papers           答题卡
+     * @param groupedFormatMap 题目格式， 1st key: formatId, 2nd key: itemNum
      */
-    private void processPapers(String examCode, List<PaperScan> papers, Map<String, List<PaperImageFormat>> itemGroupedFormatMap) {
+    private void processPapers(String examCode, List<PaperScan> papers,
+                               Map<Integer, Map<String, List<PaperImageFormat>>> groupedFormatMap) {
+        Set<Integer> ids = Sets.newHashSetWithExpectedSize(papers.size());
         for (PaperScan paper : papers) {
             log.debug("Process paper {} of exam {}", paper, examCode);
-            if (StringUtils.isBlank(paper.getImagePath())) {
+            if (StringUtils.isBlank(paper.getImagePath()) || NumberUtils.isNotPositive(paper.getFormatId())) {
                 continue;
             }
 
+            Map<String, List<PaperImageFormat>> itemGroupedFormatMap = groupedFormatMap.get(paper.getFormatId());
             itemGroupedFormatMap.forEach((itemNum, formats) -> {
                 PaperImage paperImage = PaperImage.builder()
-                        .vertically(true).studentId(paper.getTicketNumber())
+                        .vertically(Constants.DEFAULT_CROP_VERTICALLY).studentId(paper.getTicketNumber())
                         .examCode(examCode).subjectCode(paper.getSubjectCode()).itemNum(itemNum)
                         .build();
 
@@ -162,8 +185,17 @@ public class PaperImageExtractor {
 
                 // TODO 向消息队列中发消息
                 String message = JSON.toJSONString(paperImage);
+                this.kafkaTemplate.send(Constants.PAPER_IMAGE_TOPIC, paperImage.getStudentId(), message);
                 log.info("开始发送消息: {}", message);
             });
+
+            // 需要更新状态的ID
+            ids.add(paper.getId());
+        }
+
+        // 更新状态
+        if (CollectionUtils.isNotEmpty(ids)) {
+            paperRepository.updatePaperCropState(examCode, 1, ids);
         }
     }
 
@@ -209,13 +241,16 @@ public class PaperImageExtractor {
 
                 // 解析试卷格式文件
                 String taskKey = CacheKeys.getExamExtractTaskKey();
-                Map<String, List<PaperImageFormat>> itemGroupedFormatMap = getItemFormatMap(examCode);
-                if (MapUtils.isEmpty(itemGroupedFormatMap)) {
+
+                // 获取格式文件
+                Map<Integer, Map<String, List<PaperImageFormat>>> groupedFormatMap = getGroupedFormatMap(examCode);
+                if (MapUtils.isEmpty(groupedFormatMap)) {
                     log.warn("Failed to parse format of exam {}", examCode);
                     redisTemplate.opsForSet().remove(taskKey, examCode);
                     return;
                 }
 
+                // 处理进度记录
                 String progressKey = CacheKeys.getExamExtractProgressKey();
 
                 // 将任务标记为正在执行
@@ -237,7 +272,7 @@ public class PaperImageExtractor {
                         prevId = papers.get(papers.size() - 1).getId();
 
                         // 准备裁切参数，将其发送到消息队列
-                        processPapers(examCode, papers, itemGroupedFormatMap);
+                        processPapers(examCode, papers, groupedFormatMap);
 
                         // 设置恢复点
                         redisTemplate.opsForValue().set(crashKey, String.valueOf(prevId), 7, TimeUnit.DAYS);
@@ -256,7 +291,11 @@ public class PaperImageExtractor {
                 } while (papers.size() >= TASK_FETCH_SIZE);
 
                 // 任务处理完成
-                redisTemplate.opsForSet().remove(taskKey, examCode);
+                // redisTemplate.opsForSet().remove(taskKey, examCode);
+
+                // 第N轮处理完成，还需要再次处理没有图片的
+                redisTemplate.opsForValue().set(crashKey, "0", 7, TimeUnit.DAYS);
+
                 log.info("All of papers({}) are processed for exam {}. It's took: {}ms\n{}",
                         counter.intValue(), examCode, stopWatch.getTotalTimeMillis(), stopWatch.prettyPrint());
             } catch (Exception ex) {

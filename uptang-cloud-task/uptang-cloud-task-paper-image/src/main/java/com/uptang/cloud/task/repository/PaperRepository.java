@@ -4,13 +4,14 @@ import com.google.common.collect.Lists;
 import com.uptang.cloud.core.exception.DataAccessException;
 import com.uptang.cloud.task.mode.PaperScan;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,7 +23,7 @@ import java.util.Objects;
 @Slf4j
 @Repository
 public class PaperRepository {
-    private static final String SQL = "SELECT `id`, `zkzh`, `kmdm`, '/21/20191010/7/7_18120190918114540270.jpg' AS path FROM `xty_scan` WHERE `id` > %s LIMIT %s";
+    private static final String QUERY_SQL = "SELECT `id`, `zkzh`, `kmdm`, `format_id`, `path` FROM `xty_scan` WHERE `id` > ? AND path IS NOT NULL AND `crop_state` = 0 LIMIT ?";
 
     /**
      * 获取扫描的答题卡
@@ -33,11 +34,13 @@ public class PaperRepository {
      * @return 答题卡
      */
     public List<PaperScan> getPapers(String examCode, int prevId, int count) {
-        Statement statement = null;
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
         try (Connection connection = ConnectionManager.getInstance().getConnection(examCode)) {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(String.format(SQL, prevId, count));
+            statement = connection.prepareStatement(QUERY_SQL);
+            statement.setInt(1, prevId);
+            statement.setInt(2, count);
+            resultSet = statement.executeQuery();
 
             List<PaperScan> papers = Lists.newArrayListWithCapacity(count);
             while (resultSet.next()) {
@@ -45,6 +48,7 @@ public class PaperRepository {
                         .id(resultSet.getInt("id"))
                         .ticketNumber(resultSet.getString("zkzh"))
                         .subjectCode(resultSet.getString("kmdm"))
+                        .formatId(resultSet.getInt("format_id"))
                         .imagePath(resultSet.getString("path"))
                         .build());
             }
@@ -56,6 +60,37 @@ public class PaperRepository {
                 if (Objects.nonNull(resultSet)) {
                     resultSet.close();
                 }
+                if (Objects.nonNull(statement)) {
+                    statement.close();
+                }
+            } catch (Exception ex) {
+                // Noting
+            }
+        }
+    }
+
+
+    /**
+     * 更新答题卡裁剪状态
+     *
+     * @param examCode 考试代码
+     * @param state    更新后的状态
+     * @param ids      需要更新的试卷ID
+     * @return 更新成功的行数
+     */
+    public Integer updatePaperCropState(String examCode, Integer state, Collection<Integer> ids) {
+        StringBuilder sqlBuilder = new StringBuilder(100);
+        sqlBuilder.append("UPDATE `xty_scan` SET `crop_state` = ").append(state);
+        sqlBuilder.append(" WHERE `id` IN (").append(StringUtils.join(ids, ", ")).append(")");
+
+        Statement statement = null;
+        try (Connection connection = ConnectionManager.getInstance().getConnection(examCode)) {
+            statement = connection.createStatement();
+            return statement.executeUpdate(sqlBuilder.toString());
+        } catch (Exception ex) {
+            throw new DataAccessException(ex.getMessage(), ex);
+        } finally {
+            try {
                 if (Objects.nonNull(statement)) {
                     statement.close();
                 }

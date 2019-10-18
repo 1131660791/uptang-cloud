@@ -198,10 +198,10 @@ public class AttachmentController extends BaseController implements AttachmentPr
      * @param multipartRequest 附件
      * @return 上传成功的附件
      */
-    @ApiOperation(value = "上传附件", response = AttachmentVO.class)
+    @ApiOperation(value = "上传附件", produces = MediaType.MULTIPART_FORM_DATA_VALUE, response = AttachmentVO.class)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "附件类型, 支持[EXAM_PAPER, OTHER]"),
-            @ApiImplicitParam(name = "keepOriginalFilename", value = "是否保持原来的文件名", example = "false"),
+            @ApiImplicitParam(name = "type", value = "附件类型, 支持[EXAM_PAPER, EXAM_PAPER_FORMAT, OTHER]"),
+            @ApiImplicitParam(name = "keepOriginalFilename", value = "是否保持原来的文件名", example = "false", dataTypeClass = Boolean.class),
             @ApiImplicitParam(name = "multipartRequest", value = "附件")
     })
     @JsonResult(type = AttachmentVO.class, include = {"id", "srcName", "relativePath", "fullPath"})

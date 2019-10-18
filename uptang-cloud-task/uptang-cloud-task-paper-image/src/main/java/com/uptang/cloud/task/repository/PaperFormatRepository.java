@@ -20,7 +20,7 @@ import java.util.Objects;
 @Slf4j
 @Repository
 public class PaperFormatRepository {
-    private static final String SQL = "SELECT `item_num`, `area`, `pic_num` FROM `tb_paper_cat` ORDER BY `pic_num`";
+    private static final String SQL = "SELECT `id`, `format_id`, `item_num`, `area` FROM `xty_paper_cat` WHERE`item_type` = 2 ORDER BY `id`";
 
     /**
      * 得到所有试卷格式
@@ -38,9 +38,10 @@ public class PaperFormatRepository {
             List<PaperFormat> formats = new ArrayList<>();
             while (resultSet.next()) {
                 formats.add(PaperFormat.builder()
+                        .id(resultSet.getInt("id"))
                         .itemNum(resultSet.getString("item_num"))
-                        .format(resultSet.getString("area"))
-                        .rank(resultSet.getInt("pic_num"))
+                        .formatId(resultSet.getInt("format_id"))
+                        .formatContent(resultSet.getString("area"))
                         .build());
             }
             return formats;

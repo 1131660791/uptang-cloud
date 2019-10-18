@@ -1,6 +1,8 @@
 package com.uptang.cloud.task.mode;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Builder;
 import lombok.Data;
@@ -19,8 +21,14 @@ import java.io.Serializable;
 @ToString
 @NoArgsConstructor
 @EqualsAndHashCode
-@TableName("tb_paper_cat")
+@TableName("xty_paper_cat")
 public class PaperFormat implements Serializable, Cloneable {
+    /**
+     * PK
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+
     /**
      * 题号
      */
@@ -28,21 +36,22 @@ public class PaperFormat implements Serializable, Cloneable {
     private String itemNum;
 
     /**
-     * 格式
+     * 格式ID
      */
-    @TableField(value = "area")
-    private String format;
+    @TableField(value = "format_id")
+    private Integer formatId;
 
     /**
-     * 格式文件顺序
+     * 格式内容
      */
-    @TableField(value = "pic_num")
-    private Integer rank;
+    @TableField(value = "area")
+    private String formatContent;
 
     @Builder
-    public PaperFormat(String itemNum, String format, Integer rank) {
+    public PaperFormat(Integer id, String itemNum, Integer formatId, String formatContent) {
+        this.id = id;
         this.itemNum = itemNum;
-        this.format = format;
-        this.rank = rank;
+        this.formatId = formatId;
+        this.formatContent = formatContent;
     }
 }

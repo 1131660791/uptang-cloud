@@ -44,16 +44,23 @@ public class PaperScan implements Serializable, Cloneable {
     private String subjectCode;
 
     /**
+     * 格式ID
+     */
+    @TableField(value = "format_id")
+    private Integer formatId;
+
+    /**
      * 科目代码
      */
     @TableField(value = "path")
     private String imagePath;
 
     @Builder
-    public PaperScan(Integer id, String ticketNumber, String subjectCode, String imagePath) {
+    public PaperScan(Integer id, String ticketNumber, String subjectCode, Integer formatId, String imagePath) {
         this.id = id;
         this.ticketNumber = ticketNumber;
         this.subjectCode = subjectCode;
+        this.formatId = formatId;
         this.imagePath = imagePath;
     }
 }

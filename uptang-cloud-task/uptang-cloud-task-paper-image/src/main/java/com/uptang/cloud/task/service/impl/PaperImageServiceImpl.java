@@ -65,6 +65,10 @@ public class PaperImageServiceImpl implements PaperImageService {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(image, "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+            // 判断图片路径是否已经存在
+            // getObsClient().doesObjectExist()
+
             getObsClient().putObject(properties.getBucketName(), processor.getObsKey(relativePath), is);
             log.info("学生:{}, 考试码:{}, 科目码:{}, 题号:{}, 图片:{}", paperImage.getStudentId(),
                     paperImage.getExamCode(), paperImage.getSubjectCode(), paperImage.getItemNum(), relativePath);
