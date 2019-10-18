@@ -4,10 +4,8 @@ import com.obs.services.ObsClient;
 import com.uptang.cloud.base.common.domain.ObsProperties;
 import com.uptang.cloud.base.common.domain.PaperImage;
 import com.uptang.cloud.base.common.support.PaperImageProcessor;
-import com.uptang.cloud.core.util.StringUtils;
 import com.uptang.cloud.task.service.PaperImageService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -16,8 +14,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * @author Jiang Chuan
@@ -61,7 +57,7 @@ public class PaperImageServiceImpl implements PaperImageService {
      */
     private void uploadImage(PaperImage paperImage, BufferedImage image) {
         try {
-            String relativePath = generateUrlPath(paperImage);
+            String relativePath = processor.generateUrlPath(paperImage);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(image, "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
@@ -77,29 +73,6 @@ public class PaperImageServiceImpl implements PaperImageService {
         }
     }
 
-
-    /**
-     * 生成处理后的文件路径
-     * /考试代码/科目代码/SHA1(密号-考试代码-科目代码-题号).png
-     *
-     * @param paperImage 生成路径需要的信息
-     * @return 生成的文件路径
-     */
-    private String generateUrlPath(PaperImage paperImage) {
-        String[] keyFactor = {
-                String.valueOf(paperImage.getStudentId()),
-                paperImage.getExamCode(),
-                paperImage.getSubjectCode(),
-                paperImage.getItemNum()
-        };
-        Arrays.sort(keyFactor);
-        String fileName = DigestUtils.sha1Hex(StringUtils.join(keyFactor, "-"));
-        char mode = Optional.ofNullable(paperImage.getVertically()).map(ver -> ver ? 'v' : 'h').orElse('v');
-
-        // 考试代码/科目代码/A-Z0-9/SHA1(密号-考试代码-科目代码-题号).png
-        return String.format("/%s/%s/%s/%s-%s.png", paperImage.getExamCode(),
-                paperImage.getSubjectCode(), fileName.charAt(0), fileName, mode).toLowerCase();
-    }
 
     /**
      * 获致 OSS Client

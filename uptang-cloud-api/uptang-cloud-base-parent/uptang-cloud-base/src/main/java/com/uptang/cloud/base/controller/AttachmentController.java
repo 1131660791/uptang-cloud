@@ -4,6 +4,7 @@ import com.uptang.cloud.base.common.converter.AttachmentConverter;
 import com.uptang.cloud.base.common.domain.PaperImageSource;
 import com.uptang.cloud.base.common.enums.AttachmentEnum;
 import com.uptang.cloud.base.common.model.Attachment;
+import com.uptang.cloud.base.common.support.PaperImageProcessor;
 import com.uptang.cloud.base.common.vo.AttachmentVO;
 import com.uptang.cloud.base.feign.AttachmentProvider;
 import com.uptang.cloud.base.service.AttachmentService;
@@ -41,6 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,10 +63,12 @@ import java.util.stream.Collectors;
 @Api(value = "AttachmentController", tags = {"附件管理"})
 public class AttachmentController extends BaseController implements AttachmentProvider {
     private final AttachmentService attachmentService;
+    private final PaperImageProcessor processor;
 
     @Autowired
-    public AttachmentController(AttachmentService attachmentService) {
+    public AttachmentController(AttachmentService attachmentService, PaperImageProcessor processor) {
         this.attachmentService = attachmentService;
+        this.processor = processor;
     }
 
     /**
@@ -109,6 +113,99 @@ public class AttachmentController extends BaseController implements AttachmentPr
     }
 
 
+    @ApiOperation(value = "计算图片路径", response = String.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "examCode", value = "考试项目代码", paramType = "path", example = "xty_20191011112438446"),
+            @ApiImplicitParam(name = "subjectCode", value = "科目代码", paramType = "path", example = "4"),
+            @ApiImplicitParam(name = "itemNum", value = "题目号", paramType = "path", example = "90"),
+            @ApiImplicitParam(name = "studentId", value = "学生ID或准考证号", paramType = "path", example = "001131701"),
+            @ApiImplicitParam(name = "mode", value = "拼接模式（horizontally:横拼, vertically:竖拼）", paramType = "query", defaultValue = "vertically")
+    })
+    @GetMapping(path = "/{examCode}/{subjectCode}/{itemNum}/{studentId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ApiOut<String> getImageUrl(@NotBlank @PathVariable String examCode, @NotBlank @PathVariable String subjectCode,
+                                      @NotBlank @PathVariable String itemNum, @NotBlank @PathVariable String studentId,
+                                      @RequestParam(name = "mode", defaultValue = "vertically", required = false) String mode) {
+        return ApiOut.newSuccessResponse(processor.generateUrlPath(examCode, subjectCode, itemNum, studentId, "vertically".equalsIgnoreCase(mode)));
+    }
+
+
+    /**
+     * http://localhost:8103/v1/attachments/xty_20191011112438446/4/90/001131701?debug=false&mode=vertically
+     *
+     * @param response     HttpServletResponse
+     * @param examCode     考试项目代码
+     * @param subjectCode  科目代码
+     * @param itemNum      题目号
+     * @param studentId    学生ID或准考证号
+     * @param mode         拼接模式（horizontally:横拼, vertically:竖拼）
+     * @param imageSources <pre>
+     *                                              [{
+     *                                                "height": 476,
+     *                                                "path": "/21/20191010/7/7_18120190918114540270_a.jpg",
+     *                                                "width": 1427,
+     *                                                "x": 110,
+     *                                                "y": 1297
+     *                                              }, {
+     *                                                "height": 458,
+     *                                                "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
+     *                                                "width": 1409,
+     *                                                "x": 116,
+     *                                                "y": 161
+     *                                              }, {
+     *                                                "height": 1101,
+     *                                                "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
+     *                                                "width": 1398,
+     *                                                "x": 131,
+     *                                                "y": 645
+     *                                              }, {
+     *                                                "height": 1132,
+     *                                                "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
+     *                                                "width": 1430,
+     *                                                "x": 111,
+     *                                                "y": 641
+     *                                              }]
+     *                                         </pre>
+     * @throws Exception 生成图片的异常
+     */
+    @ApiOperation(value = "处理图片 裁切/接接", response = Void.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "examCode", value = "考试项目代码", paramType = "path", example = "xty_20191011112438446"),
+            @ApiImplicitParam(name = "subjectCode", value = "科目代码", paramType = "path", example = "4"),
+            @ApiImplicitParam(name = "itemNum", value = "题目号", paramType = "path", example = "90"),
+            @ApiImplicitParam(name = "studentId", value = "学生ID或准考证号", paramType = "path", example = "001131701"),
+            @ApiImplicitParam(name = "mode", value = "拼接模式（horizontally:横拼, vertically:竖拼）", paramType = "query", defaultValue = "vertically"),
+            @ApiImplicitParam(name = "imageSources", value = "拼接参数")
+    })
+    @PostMapping(path = "/{examCode}/{subjectCode}/{itemNum}/{studentId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public void getImage(HttpServletResponse response, @NotBlank @PathVariable String examCode, @NotBlank @PathVariable String subjectCode,
+                         @NotBlank @PathVariable String itemNum, @NotBlank @PathVariable String studentId,
+                         @RequestParam(name = "mode", defaultValue = "vertically", required = false) String mode,
+                         @RequestBody @Validated PaperImageSource[] imageSources) throws Exception {
+
+        boolean vertically = "vertically".equalsIgnoreCase(mode);
+        String imageUrl = processor.generateUrlPath(examCode, subjectCode, itemNum, studentId, vertically);
+        BufferedImage bufferedImage = null;
+        try {
+            bufferedImage = ImageIO.read(new URL(attachmentService.generateFullUrl(imageUrl)));
+            response.addHeader("img-src", "offline");
+        } catch (Exception ex) {
+            log.error("获取物理裁切图片({})失败！", imageUrl);
+        }
+
+        // 如果没有获取到物理裁切图片
+        if (Objects.isNull(bufferedImage)) {
+            // 校验参数
+            verifyParameters(imageSources);
+
+            // 生成图片
+            bufferedImage = attachmentService.processImage(vertically, imageSources);
+            response.addHeader("img-src", "realtime");
+        }
+
+        // 输出图片
+        outputImage(response, bufferedImage);
+    }
+
     /**
      * 处理图片，剪裁/接接
      * <pre>
@@ -150,45 +247,11 @@ public class AttachmentController extends BaseController implements AttachmentPr
     public void getImage(HttpServletResponse response,
                          @RequestParam(name = "mode", defaultValue = "vertically", required = false) String mode,
                          @RequestBody @Validated PaperImageSource[] imageSources) throws Exception {
+        // 校验参数
+        verifyParameters(imageSources);
 
-        if (ArrayUtils.isEmpty(imageSources)) {
-            throw new BusinessException(ResponseCodeEnum.PARAMETER_REQUIRED.getCode(), "图片ID或图片路径");
-        }
-
-        // 检查图片参数
-        Arrays.stream(imageSources).forEach(source -> {
-            if (NumberUtils.isNotPositive(source.getId()) && StringUtils.isBlank(source.getPath())) {
-                throw new BusinessException(ResponseCodeEnum.PARAMETER_REQUIRED.getCode(), "图片ID或图片路径");
-            }
-
-            if (NumberUtils.isNotPositive(source.getWidth()) || NumberUtils.isNotPositive(source.getHeight())) {
-                throw new BusinessException(ResponseCodeEnum.PARAMETER_REQUIRED.getCode(), "图片裁切范围");
-            }
-        });
-
-        // Set to expire far in the past.
-        response.setDateHeader("Expires", 0);
-
-        // Set standard HTTP/1.1 no-cache headers.
-        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-
-        // Set IE extended HTTP/1.1 no-cache headers (use addHeader).
-        response.addHeader("Cache-Control", "post-check=0, pre-check=0");
-
-        // Set standard HTTP/1.0 no-cache header.
-        response.setHeader("Pragma", "no-cache");
-
-        // return a png
-        response.setContentType("image/png");
-
-        ServletOutputStream outStream = response.getOutputStream();
-        BufferedImage image = attachmentService.processImage("vertically".equalsIgnoreCase(mode), imageSources);
-
-        // write the data out
-        ImageIO.write(image, "png", outStream);
-        outStream.flush();
-        outStream.close();
-        response.setStatus(HttpServletResponse.SC_OK);
+        // 输出图片
+        outputImage(response, attachmentService.processImage("vertically".equalsIgnoreCase(mode), imageSources));
     }
 
     /**
@@ -220,6 +283,64 @@ public class AttachmentController extends BaseController implements AttachmentPr
 
         List<Attachment> attachments = attachmentService.upload(attachmentType, keepOriginalFilename, buildMultipartFiles(multipartRequest));
         return ApiOut.newSuccessResponse(toVos(attachments));
+    }
+
+    /**
+     * 对参数进行校验
+     *
+     * @param imageSources 实时裁剪拼接参数
+     */
+    private void verifyParameters(PaperImageSource[] imageSources) {
+        if (ArrayUtils.isEmpty(imageSources)) {
+            throw new BusinessException(ResponseCodeEnum.PARAMETER_REQUIRED.getCode(), "图片ID或图片路径");
+        }
+
+        // 检查图片参数
+        Arrays.stream(imageSources).forEach(source -> {
+            if (NumberUtils.isNotPositive(source.getId()) && StringUtils.isBlank(source.getPath())) {
+                throw new BusinessException(ResponseCodeEnum.PARAMETER_REQUIRED.getCode(), "图片ID或图片路径");
+            }
+
+            if (NumberUtils.isNotPositive(source.getWidth()) || NumberUtils.isNotPositive(source.getHeight())) {
+                throw new BusinessException(ResponseCodeEnum.PARAMETER_REQUIRED.getCode(), "图片裁切范围");
+            }
+        });
+    }
+
+    /**
+     * 将图片以流的方式输出到前端
+     *
+     * @param response      HttpServletResponse
+     * @param bufferedImage 生成的图片
+     * @throws Exception 产生图片异常
+     */
+    private void outputImage(HttpServletResponse response, BufferedImage bufferedImage) throws Exception {
+        if (Objects.isNull(response) || Objects.isNull(bufferedImage)) {
+            return;
+        }
+
+        // Set to expire far in the past.
+        response.setDateHeader("Expires", 0);
+
+        // Set standard HTTP/1.1 no-cache headers.
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+
+        // Set IE extended HTTP/1.1 no-cache headers (use addHeader).
+        response.addHeader("Cache-Control", "post-check=0, pre-check=0");
+
+        // Set standard HTTP/1.0 no-cache header.
+        response.setHeader("Pragma", "no-cache");
+
+        // return a png
+        response.setContentType("image/png");
+
+        ServletOutputStream outStream = response.getOutputStream();
+
+        // write the data out
+        ImageIO.write(bufferedImage, "png", outStream);
+        outStream.flush();
+        outStream.close();
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     /**

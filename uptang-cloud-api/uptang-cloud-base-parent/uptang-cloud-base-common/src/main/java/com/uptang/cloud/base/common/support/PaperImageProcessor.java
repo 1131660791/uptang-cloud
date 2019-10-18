@@ -11,8 +11,10 @@ import com.uptang.cloud.base.common.domain.PaperImage;
 import com.uptang.cloud.base.common.domain.PaperImageSource;
 import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.core.util.CollectionUtils;
+import com.uptang.cloud.core.util.StringUtils;
 import com.uptang.cloud.starter.common.enums.ResponseCodeEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
@@ -21,6 +23,7 @@ import javax.imageio.ImageIO;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -176,6 +179,43 @@ public final class PaperImageProcessor {
         return canvasImage;
     }
 
+
+    /**
+     * 根据考试和学生信息生成图片路径
+     *  => /考试代码/科目代码/a-z0-9/SHA1(密号-考试代码-科目代码-题号).png
+     *
+     * @param paperImage 处理图片的参数
+     * @return 图片相对路径
+     */
+    public final String generateUrlPath(PaperImage paperImage) {
+        return generateUrlPath(paperImage.getExamCode(), paperImage.getSubjectCode(),
+                paperImage.getItemNum(), paperImage.getStudentId(), paperImage.getVertically());
+    }
+
+    /**
+     * 根据考试和学生信息生成图片路径
+     *  => /考试代码/科目代码/a-z0-9/SHA1(密号-考试代码-科目代码-题号).png
+     *
+     * @param examCode    考试项目代码
+     * @param subjectCode 学科代码
+     * @param itemNum     题目号
+     * @param studentId   学生ID/准考证号
+     * @param vertically  竖拼
+     * @return 图片相对路径
+     */
+    public final String generateUrlPath(String examCode, String subjectCode, String itemNum, String studentId, Boolean vertically) {
+        if (StringUtils.isAnyBlank(examCode, subjectCode, itemNum, studentId)) {
+            return null;
+        }
+
+        String[] keyFactor = {examCode, subjectCode, itemNum, studentId};
+        Arrays.sort(keyFactor);
+        String fileName = DigestUtils.sha1Hex(StringUtils.join(keyFactor, "-"));
+        char mode = Optional.ofNullable(vertically).map(ver -> ver ? 'v' : 'h').orElse('v');
+
+        // 考试代码/科目代码/A-Z0-9/SHA1(密号-考试代码-科目代码-题号).png
+        return String.format("/%s/%s/%s/%s-%s.png", examCode, subjectCode, fileName.charAt(0), fileName, mode).toLowerCase();
+    }
 
     /**
      * 获致 OSS Client

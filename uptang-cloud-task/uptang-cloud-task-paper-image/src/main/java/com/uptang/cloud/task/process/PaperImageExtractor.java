@@ -330,6 +330,7 @@ public class PaperImageExtractor {
 
                 // 任务处理完成
                 // redisTemplate.opsForSet().remove(taskKey, examCode);
+                RUNNING_EXAMS.remove(examCode);
 
                 // 第N轮处理完成，还需要再次处理没有图片的
                 redisTemplate.opsForValue().set(crashKey, "0", 7, TimeUnit.DAYS);
