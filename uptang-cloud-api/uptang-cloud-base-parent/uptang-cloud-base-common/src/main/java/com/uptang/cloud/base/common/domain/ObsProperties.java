@@ -2,9 +2,7 @@ package com.uptang.cloud.base.common.domain;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 /**
  * @author Jiang Chuan
@@ -27,4 +25,9 @@ public class ObsProperties {
      * 自定义域名
      */
     private String domain;
+
+    /**
+     * 图片裁切/拼接模式:  横拼:horizontally, 竖拼:vertically, 两者:both
+     */
+    private String cropMode;
 }

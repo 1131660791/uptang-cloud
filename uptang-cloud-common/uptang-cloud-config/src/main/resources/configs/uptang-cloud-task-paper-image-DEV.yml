@@ -108,6 +108,7 @@ obs:
   end-point: https://obs.cn-north-1.myhuaweicloud.com
   bucket-name: uptang-cloud
   domain: https://uptang-cloud.obs.cn-north-1.myhuaweicloud.com
+  crop-mode: both # 横拼:horizontally, 竖拼:vertically, 两者:both
 
 logging:
   path: D:/app-logs

@@ -3,9 +3,11 @@ package com.uptang.cloud.task.process;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.uptang.cloud.base.common.domain.ObsProperties;
 import com.uptang.cloud.base.common.domain.PaperImage;
 import com.uptang.cloud.base.common.domain.PaperImageFormat;
 import com.uptang.cloud.base.common.domain.PaperImageSource;
+import com.uptang.cloud.base.common.enums.ImageCropModeEnum;
 import com.uptang.cloud.core.util.CollectionUtils;
 import com.uptang.cloud.core.util.NumberUtils;
 import com.uptang.cloud.core.util.StringUtils;
@@ -66,16 +68,20 @@ public class PaperImageExtractor {
     private final StringRedisTemplate redisTemplate;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ThreadPoolTaskExecutor taskExecutor;
+    private final ObsProperties properties;
+
+    private static volatile Set<ImageCropModeEnum> imageCropModes;
 
     @Autowired
     public PaperImageExtractor(PaperRepository paperRepository, PaperFormatRepository formatRepository,
                                StringRedisTemplate redisTemplate, KafkaTemplate<String, String> kafkaTemplate,
-                               ThreadPoolTaskExecutor taskExecutor) {
+                               ThreadPoolTaskExecutor taskExecutor, ObsProperties properties) {
         this.paperRepository = paperRepository;
         this.formatRepository = formatRepository;
         this.redisTemplate = redisTemplate;
         this.kafkaTemplate = kafkaTemplate;
         this.taskExecutor = taskExecutor;
+        this.properties = properties;
     }
 
 
@@ -161,6 +167,7 @@ public class PaperImageExtractor {
      */
     private void processPapers(String examCode, List<PaperScan> papers,
                                Map<Integer, Map<String, List<PaperImageFormat>>> groupedFormatMap) {
+        final Set<ImageCropModeEnum> cropModes = getCropModes();
         Set<Integer> ids = Sets.newHashSetWithExpectedSize(papers.size());
         for (PaperScan paper : papers) {
             log.debug("Process paper {} of exam {}", paper, examCode);
@@ -170,23 +177,24 @@ public class PaperImageExtractor {
 
             Map<String, List<PaperImageFormat>> itemGroupedFormatMap = groupedFormatMap.get(paper.getFormatId());
             itemGroupedFormatMap.forEach((itemNum, formats) -> {
-                PaperImage paperImage = PaperImage.builder()
-                        .vertically(Constants.DEFAULT_CROP_VERTICALLY).studentId(paper.getTicketNumber())
-                        .examCode(examCode).subjectCode(paper.getSubjectCode()).itemNum(itemNum)
-                        .build();
-
-                paperImage.setSources(formats.stream().map(format -> {
-                    return PaperImageSource.builder()
-                            .path(getFileName(paper.getImagePath(), format.getFilenameSuffix()))
-                            .x(format.getX()).y(format.getY())
-                            .width(format.getWidth()).height(format.getHeight())
+                for (ImageCropModeEnum cropMode : cropModes) {
+                    PaperImage paperImage = PaperImage.builder()
+                            .vertically(ImageCropModeEnum.VERTICALLY.equals(cropMode)).studentId(paper.getTicketNumber())
+                            .examCode(examCode).subjectCode(paper.getSubjectCode()).itemNum(itemNum)
                             .build();
-                }).collect(Collectors.toList()));
 
-                // TODO 向消息队列中发消息
-                String message = JSON.toJSONString(paperImage);
-                this.kafkaTemplate.send(Constants.PAPER_IMAGE_TOPIC, paperImage.getStudentId(), message);
-                log.info("开始发送消息: {}", message);
+                    paperImage.setSources(formats.stream().map(format -> {
+                        return PaperImageSource.builder()
+                                .path(getFileName(paper.getImagePath(), format.getFilenameSuffix()))
+                                .x(format.getX()).y(format.getY())
+                                .width(format.getWidth()).height(format.getHeight())
+                                .build();
+                    }).collect(Collectors.toList()));
+
+                    String message = JSON.toJSONString(paperImage);
+                    this.kafkaTemplate.send(Constants.PAPER_IMAGE_TOPIC, paperImage.getStudentId(), message);
+                    log.info("Sending queue message: {}", message);
+                }
             });
 
             // 需要更新状态的ID
@@ -197,6 +205,36 @@ public class PaperImageExtractor {
         if (CollectionUtils.isNotEmpty(ids)) {
             paperRepository.updatePaperCropState(examCode, 1, ids);
         }
+    }
+
+    /**
+     * 获取图片裁切模式
+     *
+     * @return ImageCropModeEnum
+     */
+    private Set<ImageCropModeEnum> getCropModes() {
+        if (Objects.isNull(imageCropModes)) {
+            synchronized (PaperImageExtractor.class) {
+                if (Objects.isNull(imageCropModes)) {
+                    if (StringUtils.isNotBlank(properties.getCropMode())) {
+                        try {
+                            ImageCropModeEnum mode = ImageCropModeEnum.valueOf(properties.getCropMode().trim().toUpperCase());
+                            imageCropModes = ImageCropModeEnum.BOTH.equals(mode)
+                                    ? Sets.newHashSet(ImageCropModeEnum.VERTICALLY, ImageCropModeEnum.HORIZONTALLY)
+                                    : Sets.newHashSet(mode);
+                        } catch (Exception ex) {
+                            log.warn("Failed to parse image crop mode {}.", properties.getCropMode());
+                        }
+                    }
+
+                    // 没有配置或处理失败，则默认使用竖拼
+                    if (CollectionUtils.isEmpty(imageCropModes)) {
+                        imageCropModes = Sets.newHashSet(ImageCropModeEnum.VERTICALLY);
+                    }
+                }
+            }
+        }
+        return imageCropModes;
     }
 
     /**
