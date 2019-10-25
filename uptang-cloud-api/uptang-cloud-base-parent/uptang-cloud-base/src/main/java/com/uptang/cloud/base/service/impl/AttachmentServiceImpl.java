@@ -135,8 +135,7 @@ public class AttachmentServiceImpl extends ServiceImpl<AttachmentRepository, Att
                 getObsClient().putObject(properties.getBucketName(), processor.getObsKey(relativePath), file.getInputStream());
 
                 return Attachment.builder()
-                        .srcName(file.getOriginalFilename())
-                        .extName(FilenameUtils.getExtension(file.getOriginalFilename()))
+                        .srcName(file.getOriginalFilename()).extName(extName)
                         .relativePath(relativePath).type(type).size(file.getSize())
                         .fullPath(generateFullUrl(relativePath))
                         .state(StateEnum.COM_ACTIVE).build();
