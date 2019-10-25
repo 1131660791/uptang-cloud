@@ -10,25 +10,9 @@
     <inceptionYear>2019</inceptionYear>
     <description>学唐云</description>
 
-    <developers>
-        <developer>
-            <id>jiang.chuan</id>
-            <name>姜川</name>
-            <email>jc@uptang.com.cn</email>
-            <roles>
-                <role>Owner</role>
-                <role>System Architect</role>
-            </roles>
-        </developer>
-    </developers>
-
     <modules>
-        <module>uptang-cloud-bom</module>
-        <module>uptang-cloud-pojo</module>
-        <module>uptang-cloud-starter</module>
-        <module>uptang-cloud-provider</module>
-
-        <module>uptang-cloud-sequence</module>
-        <module>uptang-cloud-behavior</module>
+        <module>uptang-cloud-common</module>
+        <module>uptang-cloud-api</module>
+        <module>uptang-cloud-task</module>
     </modules>
 </project>

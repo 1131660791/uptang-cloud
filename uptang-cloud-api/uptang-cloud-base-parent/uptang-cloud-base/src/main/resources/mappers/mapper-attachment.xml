@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.uptang.cloud.base.repository.AttachmentRepository">
+
+    <!-- 为MyBatis自定义COUNT
+    <select id="selectList_COUNT" resultType="long">
+        select count(1) from user_info
+    </select>
+    -->
+
+    <sql id="tableName">base_attachment</sql>
+
+    <!-- 创建单个或多个附件 -->
+    <insert id="create" parameterType="com.uptang.cloud.base.common.model.Attachment">
+        INSERT INTO
+        <include refid="tableName"/>
+        (`id`, `ext_name`, `src_name`, `description`, `relative_path`, `size`, `type`, `state`)
+        VALUES
+        <foreach item="item" index="index" collection="array" separator=",">
+            (#{item.id}, #{item.extName}, #{item.srcName}, #{item.description}, #{item.relativePath}, #{item.size},
+            #{item.type, typeHandler=com.uptang.cloud.base.repository.handler.EnumAttachmentHandler},
+            #{item.state, typeHandler=com.uptang.cloud.starter.data.mybaits.handler.EnumStateCodeHandler})
+        </foreach>
+    </insert>
+</mapper>

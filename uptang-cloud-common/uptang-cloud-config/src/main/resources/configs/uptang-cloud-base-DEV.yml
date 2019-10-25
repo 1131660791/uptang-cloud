@@ -1,0 +1,139 @@
+server:
+  servlet:
+    context-path: /common
+    application-display-name: ${spring.application.name}
+  compression:
+    enabled: true
+  tomcat:
+    max-connections: 500
+    accept-count: 200
+    max-threads: 200
+    uri-encoding: UTF-8
+
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: true
+
+    # 注册中心
+  cloud:
+    consul:
+      discovery:
+        register: true
+        enabled: true
+        prefer-ip-address: true
+        service-name: ${spring.application.name}
+        health-check-critical-timeout: 5m
+        health-check-interval: 15s
+        tags: profile=${spring.profiles.active}
+        instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}:${random.int[1000,9999]}
+        health-check-url: http://${spring.cloud.client.ip-address}:${server.port}/actuator/health
+    httpclientfactories.ok.enabled: false
+  main:
+    allow-bean-definition-overriding: true
+
+  # 数数库
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    name: xtyun_base
+    url: jdbc:mysql://svc_mysql.weave.local:52198/uptang_base?useUnicode=true&useSSL=false&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+    username: uptang
+    password: uptang408*
+    hikari:
+      auto-commit: true
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 10
+      pool-name: HikariCPPool
+      minimum-idle: 10
+      validation-timeout: 60000
+      connection-test-query: "SELECT 1"
+      leak-detection-threshold: 30000
+      register-mbeans: true
+
+  # 缓存
+  redis:
+    database: 0
+    timeout: 3000
+    port: 52199
+    host: xfs_redis.weave.local
+    password: uptang123
+    lettuce:
+      pool:
+        max-idle: 10
+        min-idle: 1
+        max-active: 10
+        max-wait: 1000
+
+  # 过滤返回值空值
+  #jackson:
+  #  default-property-inclusion: non_null
+
+# feign 配置
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
+# 数据库 ORM
+mybatis-plus:
+  type-aliases-package: com.uptang.cloud.**.model
+  mapper-locations: classpath*:/mappers/**/mapper-*.xml
+  type-enums-package: com.uptang.cloud.pojo.enums
+  global-config:
+    banner: false
+    db-config:
+      table-underline: true
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 分页插件配置
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+
+obs:
+  access-key: U4NQADBPTUUDKFVXBRAJ
+  secret-key: iMdARdabBowyDtNtMHgETtIZtEot9HmT4WvRPg8z
+  end-point: https://obs.cn-north-1.myhuaweicloud.com
+  bucket-name: uptang-cloud
+  domain: https://uptang-cloud.obs.cn-north-1.myhuaweicloud.com
+
+
+# actuator 相关配置
+info.app.author: 兴唐技术
+info.app.profile: DEV
+
+logging:
+  path: D:/app-logs
+  level:
+    root: INFO
+    api: DEBUG
+    service: DEBUG
+    repository: DEBUG
+
+# 默认启动文档
+springfox.documentation.auto-startup: true
+
+management.endpoints.web.exposure.include: '*'
+management.endpoint.health.show-details: always

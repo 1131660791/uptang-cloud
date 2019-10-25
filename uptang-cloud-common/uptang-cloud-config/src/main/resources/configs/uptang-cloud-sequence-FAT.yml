@@ -1,0 +1,63 @@
+server:
+  servlet:
+    application-display-name: ${spring.application.name}
+  compression:
+    enabled: true
+  tomcat:
+    max-connections: 500
+    accept-count: 200
+    max-threads: 200
+    uri-encoding: UTF-8
+
+spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: true
+
+  # 注册中心
+  cloud:
+    consul:
+      discovery:
+        register: true
+        enabled: true
+        prefer-ip-address: true
+        service-name: ${spring.application.name}
+        health-check-critical-timeout: 5m
+        health-check-interval: 15s
+        tags: profile=${spring.profiles.active}, workId=${sequence.work.id}
+        instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}:${random.int[1000,9999]}
+        health-check-url: http://${spring.cloud.client.ip-address}:${server.port}/actuator/health
+  main:
+    allow-bean-definition-overriding: true
+
+# feign 配置
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
+# actuator 相关配置
+info.app.author: 兴唐技术
+info.app.profile: DEV
+
+logging:
+  path: ./app-logs
+  level:
+    root: INFO
+    api: INFO
+    service: INFO
+    repository: INFO
+
+# 默认启动文档
+springfox.documentation.auto-startup: true
+
+management.endpoints.web.exposure.include: '*'
+management.endpoint.health.show-details: always
