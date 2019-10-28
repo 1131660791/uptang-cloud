@@ -54,6 +54,6 @@ spring:
   profiles: PRO
   cloud:
     consul:
-      host: xfs_consul.weave.local
+      host: svc_consul.weave.local
       port: 8500
       enabled: true

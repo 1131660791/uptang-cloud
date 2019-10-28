@@ -39,3 +39,21 @@ spring:
       host: xfs_consul.weave.local
       port: 8500
       enabled: true
+
+---
+spring:
+  profiles: UAT
+  cloud:
+    consul:
+      host: xfs_consul.weave.local
+      port: 8500
+      enabled: true
+
+---
+spring:
+  profiles: PRO
+  cloud:
+    consul:
+      host: svc_consul.weave.local
+      port: 8500
+      enabled: true

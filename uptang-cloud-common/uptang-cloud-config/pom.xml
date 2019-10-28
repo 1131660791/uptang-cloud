@@ -14,8 +14,6 @@
         <!-- maven compiler plugin -->
         <java.version>1.8</java.version>
         <build.encoding>UTF-8</build.encoding>
-        <bom.version>4.0.0-SNAPSHOT</bom.version>
-        <lombok.version>1.18.10</lombok.version>
     </properties>
 
     <build>
