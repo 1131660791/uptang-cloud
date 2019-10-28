@@ -5,6 +5,7 @@ import com.uptang.cloud.core.exception.DataAccessException;
 import com.uptang.cloud.task.mode.PaperScan;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -23,7 +24,15 @@ import java.util.Objects;
 @Slf4j
 @Repository
 public class PaperRepository {
-    private static final String QUERY_SQL = "SELECT `id`, `zkzh`, `kmdm`, `format_id`, `path` FROM `xty_scan` WHERE `id` > ? AND path IS NOT NULL AND `crop_state` = 0 LIMIT ?";
+    private static final String QUERY_SQL = "SELECT `id`, `zkzh`, `kmdm`, `gswj_id`, `cflj` FROM `xty_scan` WHERE `id` > ? AND `cflj` IS NOT NULL AND `cq` = 0 LIMIT ?";
+
+    private final ConnectionManager connectionManager;
+
+    @Autowired
+    public PaperRepository(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
+
 
     /**
      * 获取扫描的答题卡
@@ -36,7 +45,7 @@ public class PaperRepository {
     public List<PaperScan> getPapers(String examCode, int prevId, int count) {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
-        try (Connection connection = ConnectionManager.getInstance().getConnection(examCode)) {
+        try (Connection connection = connectionManager.getConnection(examCode)) {
             statement = connection.prepareStatement(QUERY_SQL);
             statement.setInt(1, prevId);
             statement.setInt(2, count);
@@ -48,8 +57,8 @@ public class PaperRepository {
                         .id(resultSet.getInt("id"))
                         .ticketNumber(resultSet.getString("zkzh"))
                         .subjectCode(resultSet.getString("kmdm"))
-                        .formatId(resultSet.getInt("format_id"))
-                        .imagePath(resultSet.getString("path"))
+                        .formatId(resultSet.getInt("gswj_id"))
+                        .imagePath(resultSet.getString("cflj"))
                         .build());
             }
             return papers;
@@ -80,11 +89,11 @@ public class PaperRepository {
      */
     public Integer updatePaperCropState(String examCode, Integer state, Collection<Integer> ids) {
         StringBuilder sqlBuilder = new StringBuilder(100);
-        sqlBuilder.append("UPDATE `xty_scan` SET `crop_state` = ").append(state);
+        sqlBuilder.append("UPDATE `xty_scan` SET `cq` = ").append(state);
         sqlBuilder.append(" WHERE `id` IN (").append(StringUtils.join(ids, ", ")).append(")");
 
         Statement statement = null;
-        try (Connection connection = ConnectionManager.getInstance().getConnection(examCode)) {
+        try (Connection connection = connectionManager.getConnection(examCode)) {
             statement = connection.createStatement();
             return statement.executeUpdate(sqlBuilder.toString());
         } catch (Exception ex) {

@@ -3,6 +3,7 @@ package com.uptang.cloud.task.repository;
 import com.uptang.cloud.core.exception.DataAccessException;
 import com.uptang.cloud.task.mode.PaperFormat;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -22,6 +23,14 @@ import java.util.Objects;
 public class PaperFormatRepository {
     private static final String SQL = "SELECT `id`, `format_id`, `item_num`, `area` FROM `xty_paper_cat` WHERE`item_type` = 2 ORDER BY `id`";
 
+    private final ConnectionManager connectionManager;
+
+    @Autowired
+    public PaperFormatRepository(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
+
+
     /**
      * 得到所有试卷格式
      *
@@ -31,7 +40,7 @@ public class PaperFormatRepository {
     public List<PaperFormat> getAllFormats(String examCode) {
         Statement statement = null;
         ResultSet resultSet = null;
-        try (Connection connection = ConnectionManager.getInstance().getConnection(examCode)) {
+        try (Connection connection = connectionManager.getConnection(examCode)) {
             statement = connection.createStatement();
             resultSet = statement.executeQuery(SQL);
 
