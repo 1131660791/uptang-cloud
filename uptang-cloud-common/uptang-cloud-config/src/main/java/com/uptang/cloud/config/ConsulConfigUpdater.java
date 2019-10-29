@@ -12,6 +12,8 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -21,8 +23,6 @@ import java.util.concurrent.TimeUnit;
  * @date 2019-10-08
  */
 public class ConsulConfigUpdater {
-    private static final String CONSUL_CONFIG_LOCAL_PATH = "/configs";
-    private static final String CONSUL_CONFIG_BASE_URL = "http://xfs_consul.weave.local:8500/v1/kv/uptang_configs/";
     private static final MediaType MEDIA_TYPE = MediaType.parse("application/json;charset=UTF-8");
     private static final Charset DEFAULT_CHAR_SET = StandardCharsets.UTF_8;
 
@@ -32,23 +32,36 @@ public class ConsulConfigUpdater {
             .readTimeout(30, TimeUnit.SECONDS)
             .build();
 
+    private static final Map<AppEnv, String> CONSUL_APIS = new HashMap<AppEnv, String>() {{
+        put(AppEnv.DEV, "http://xfs_consul.weave.local:8500/v1/kv");
+        put(AppEnv.FAT, "http://xfs_consul.weave.local:8500/v1/kv");
+        put(AppEnv.UAT, "http://xfs_consul.weave.local:8500/v1/kv");
+        put(AppEnv.PRO, "http://114.116.96.98:8500/v1/kv");
+    }};
+
+    /**
+     * 需要初始化的环境
+     */
+    private static final AppEnv APP_ENV = AppEnv.PRO;
+
     public static void main(String[] args) {
         // 获取目录下所有配置文件
-        URL resource = ConsulConfigUpdater.class.getResource(CONSUL_CONFIG_LOCAL_PATH);
+        URL resource = ConsulConfigUpdater.class.getResource("/configs");
         File[] configFiles = new File(resource.getPath()).listFiles();
         if (Objects.isNull(configFiles) || configFiles.length <= 0) {
             return;
         }
 
-        Arrays.stream(configFiles).forEach(file -> {
+        final String consulApi = CONSUL_APIS.get(APP_ENV) + "/uptang_configs/";
+        Arrays.stream(configFiles).filter(file -> file.getName().endsWith(APP_ENV.name() + ".yml")).forEach(file -> {
             String configUrl = file.getName() + "?dc=dc1";
             try {
                 // #1 先删除
-                HTTP_CLIENT.newCall(new Request.Builder().url(CONSUL_CONFIG_BASE_URL + configUrl).delete().build()).execute();
+                HTTP_CLIENT.newCall(new Request.Builder().url(consulApi + configUrl).delete().build()).execute();
 
                 // #2 再增加
                 Request request = new Request.Builder()
-                        .url(CONSUL_CONFIG_BASE_URL + configUrl)
+                        .url(consulApi + configUrl)
                         .put(RequestBody.create(MEDIA_TYPE, FileUtils.readFileToString(file, DEFAULT_CHAR_SET)))
                         .build();
                 Response response = HTTP_CLIENT.newCall(request).execute();
@@ -61,5 +74,9 @@ public class ConsulConfigUpdater {
                 ex.printStackTrace();
             }
         });
+    }
+
+    enum AppEnv {
+        DEV, FAT, UAT, PRO
     }
 }

@@ -13,7 +13,7 @@ import java.util.stream.LongStream;
  * @version 4.0.0
  * @date 2019-09-26
  */
-public class SequenceControllerTests extends BaseJunitTest {
+public class SequenceControllerTest extends BaseJunitTest {
     /**
      * 按逗号把字符串拆分成列
      */
@@ -23,7 +23,7 @@ public class SequenceControllerTests extends BaseJunitTest {
 
     @Test
     public void testGetSequence() throws Exception {
-        MockHttpServletResponse response = httpGetRequest(BASE_API_URL, "");
+        MockHttpServletResponse response = httpRequestResponse(BASE_API_URL, null);
         Assert.assertNotNull("生成的唯一序号", response.getContentAsString());
     }
 
@@ -31,7 +31,7 @@ public class SequenceControllerTests extends BaseJunitTest {
     @Test
     public void testGetSequences() throws Exception {
         int count = 10;
-        MockHttpServletResponse response = httpGetRequest(BASE_API_URL + "/" + count, "");
+        MockHttpServletResponse response = httpRequestResponse(BASE_API_URL + "/" + count, null);
         String responseContent = response.getContentAsString();
         Assert.assertNotNull("生成的唯一序号", responseContent);
 

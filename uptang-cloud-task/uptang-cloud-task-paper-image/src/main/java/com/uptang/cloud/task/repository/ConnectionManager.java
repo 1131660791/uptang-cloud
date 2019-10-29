@@ -3,6 +3,8 @@ package com.uptang.cloud.task.repository;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -17,23 +19,32 @@ import java.util.concurrent.ConcurrentMap;
  * @date 2019-10-10
  */
 @Slf4j
+@Component
 public class ConnectionManager {
-    private final ConcurrentMap<String, DataSource> DATA_SOURCE_MAP = new ConcurrentHashMap<>();
-
-    private ConnectionManager() {
-    }
+    private static final ConcurrentMap<String, DataSource> DATA_SOURCE_MAP = new ConcurrentHashMap<>();
 
     /**
-     * 运用JVM类加载的特点，在主动引用时初始化
+     * 获取数据库配置信息
      */
-    private static class Holder {
-        private static ConnectionManager instance = new ConnectionManager();
-    }
+    @Value("${spring.datasource.host:192.168.0.210}")
+    private String dbHost;
 
-    public static ConnectionManager getInstance() {
-        return Holder.instance;
-    }
+    @Value("${spring.datasource.port:3306}")
+    private String dbPort;
 
+    @Value("${spring.datasource.username:uptang}")
+    private String dbUsername;
+
+    @Value("${spring.datasource.password:uptang408*}")
+    private String dbPassword;
+
+    /**
+     * 获取数据库连接
+     *
+     * @param examCode 考试项目代码
+     * @return 数据库连接
+     * @throws SQLException
+     */
     public Connection getConnection(String examCode) throws SQLException {
         DataSource dataSource = DATA_SOURCE_MAP.get(examCode);
         if (Objects.isNull(dataSource)) {
@@ -45,16 +56,16 @@ public class ConnectionManager {
 
     private DataSource createDataSource(String examCode) {
         HikariConfig config = new HikariConfig();
-        config.setDriverClassName("com.mysql.jdbc.Driver");
-        config.setJdbcUrl("jdbc:mysql://192.168.0.210:3306/" + examCode);
-        config.setUsername("uptang");
-        config.setPassword("uptang408*");
         config.setMaximumPoolSize(5);
-
-        config.addDataSourceProperty("dataSource.databaseName", examCode);
+        config.setDriverClassName("com.mysql.jdbc.Driver");
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
+        String jdbcUrlTpl = "jdbc:mysql://%s:%s/%s?useUnicode=true&useSSL=false&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai";
+        config.setJdbcUrl(String.format(jdbcUrlTpl, dbHost, dbPort, examCode));
+        config.setUsername(dbUsername);
+        config.setPassword(dbPassword);
 
         return new HikariDataSource(config);
     }

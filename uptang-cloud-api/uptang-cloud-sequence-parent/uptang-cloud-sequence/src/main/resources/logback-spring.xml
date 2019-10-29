@@ -9,11 +9,11 @@
 
     <!-- 定义常量 -->
     <springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
-    <springProperty scope="context" name="LOG_HOME_DIR" source="logging.path"/>
-    <springProperty scope="context" name="LOG_LEVEL_ROOT" source="logging.level.root"/>
-    <springProperty scope="context" name="LOG_LEVEL_API" source="logging.level.api"/>
-    <springProperty scope="context" name="LOG_LEVEL_SVC" source="logging.level.service"/>
-    <springProperty scope="context" name="LOG_LEVEL_DAO" source="logging.level.repository"/>
+    <springProperty scope="context" name="LOG_HOME_DIR" source="logging.path" defaultValue="./app-logs"/>
+    <springProperty scope="context" name="LOG_LEVEL_ROOT" source="logging.level.root" defaultValue="INFO"/>
+    <springProperty scope="context" name="LOG_LEVEL_API" source="logging.level.api" defaultValue="ERROR"/>
+    <springProperty scope="context" name="LOG_LEVEL_SVC" source="logging.level.service" defaultValue="ERROR"/>
+    <springProperty scope="context" name="LOG_LEVEL_DAO" source="logging.level.repository" defaultValue="ERROR"/>
 
     <property name="LOG_HOME" value="${LOG_HOME_DIR}/${APP_NAME}"/>
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%line] %msg%n"/>

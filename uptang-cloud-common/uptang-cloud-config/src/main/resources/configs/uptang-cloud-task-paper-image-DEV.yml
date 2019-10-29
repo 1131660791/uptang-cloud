@@ -19,23 +19,11 @@ spring:
 
   # 数数库
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    name: xtyun_base
-    url: jdbc:mysql://xfs_tidb.weave.local:4000/xtyun_base?useUnicode=true&useSSL=false&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+    host: 192.168.0.210
+    port: 3306
     username: uptang
     password: uptang408*
-    hikari:
-      auto-commit: true
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      maximum-pool-size: 10
-      pool-name: HikariCPPool
-      minimum-idle: 10
-      validation-timeout: 60000
-      connection-test-query: "SELECT 1"
-      leak-detection-threshold: 30000
-      register-mbeans: true
+
 
   # 缓存
   redis:
