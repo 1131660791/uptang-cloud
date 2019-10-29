@@ -13,7 +13,7 @@ import java.util.stream.LongStream;
  * @version 4.0.0
  * @date 2019-09-26
  */
-public class SequenceControllerTests extends BaseJunitTest {
+public class SequenceControllerTest extends BaseJunitTest {
     /**
      * 按逗号把字符串拆分成列
      */
