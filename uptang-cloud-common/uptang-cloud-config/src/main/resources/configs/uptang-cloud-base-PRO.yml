@@ -33,7 +33,7 @@ spring:
         health-check-interval: 15s
         tags: profile=${spring.profiles.active}
         instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}:${random.int[1000,9999]}
-        health-check-url: http://${spring.cloud.client.ip-address}:${server.port}/actuator/health
+        health-check-url: http://${spring.cloud.client.ip-address}:${server.port}${server.servlet.context-path}/actuator/health
     httpclientfactories.ok.enabled: false
   main:
     allow-bean-definition-overriding: true
@@ -117,7 +117,8 @@ obs:
   secret-key: iMdARdabBowyDtNtMHgETtIZtEot9HmT4WvRPg8z
   end-point: https://obs.cn-north-1.myhuaweicloud.com
   bucket-name: uptang-cloud
-  domain: https://uptang-cloud.obs.cn-north-1.myhuaweicloud.com
+  # domain: https://uptang-cloud.obs.cn-north-1.myhuaweicloud.com
+  domain: http://image.xtyun.net
 
 
 # actuator 相关配置
