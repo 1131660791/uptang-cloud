@@ -23,7 +23,7 @@ public class SequenceControllerTests extends BaseJunitTest {
 
     @Test
     public void testGetSequence() throws Exception {
-        MockHttpServletResponse response = httpGetRequest(BASE_API_URL, "");
+        MockHttpServletResponse response = httpRequestResponse(BASE_API_URL, null);
         Assert.assertNotNull("生成的唯一序号", response.getContentAsString());
     }
 
@@ -31,7 +31,7 @@ public class SequenceControllerTests extends BaseJunitTest {
     @Test
     public void testGetSequences() throws Exception {
         int count = 10;
-        MockHttpServletResponse response = httpGetRequest(BASE_API_URL + "/" + count, "");
+        MockHttpServletResponse response = httpRequestResponse(BASE_API_URL + "/" + count, null);
         String responseContent = response.getContentAsString();
         Assert.assertNotNull("生成的唯一序号", responseContent);
 
