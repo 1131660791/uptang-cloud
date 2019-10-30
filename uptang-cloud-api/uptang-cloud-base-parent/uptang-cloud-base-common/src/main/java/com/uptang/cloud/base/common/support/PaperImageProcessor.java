@@ -20,7 +20,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
 import javax.imageio.ImageIO;
-import java.awt.Graphics;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -150,7 +151,10 @@ public final class PaperImageProcessor {
 
         // 制作背景图
         BufferedImage canvasImage = generateCanvasImage(vertically, images);
-        Graphics graphics = canvasImage.createGraphics();
+        Graphics2D graphics = canvasImage.createGraphics();
+        graphics.setBackground(Color.WHITE);
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, canvasImage.getWidth(), canvasImage.getHeight());
 
         // 图片拼接
         if (vertically) {
