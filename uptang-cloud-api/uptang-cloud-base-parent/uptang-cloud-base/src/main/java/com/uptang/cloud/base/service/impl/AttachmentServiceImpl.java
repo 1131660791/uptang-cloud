@@ -219,6 +219,9 @@ public class AttachmentServiceImpl extends ServiceImpl<AttachmentRepository, Att
         extName = ('.' == extName.charAt(0)) ? extName.substring(1) : extName;
         fileName = StringUtils.trimToEmpty(fileName).toLowerCase();
 
-        return String.format("/%s/%s/%s/%s.%s", type.getCode(), dateStr, fileName.charAt(0), fileName, extName).toLowerCase();
+        // 只在附件类型为试卷时才需要创建子目录（每天的量可能会非常大）
+        return AttachmentEnum.EXAM_PAPER.equals(type)
+                ? String.format("/%s/%s/%s/%s.%s", type.getCode(), dateStr, fileName.charAt(0), fileName, extName).toLowerCase()
+                : String.format("/%s/%s/%s.%s", type.getCode(), dateStr, fileName, extName).toLowerCase();
     }
 }

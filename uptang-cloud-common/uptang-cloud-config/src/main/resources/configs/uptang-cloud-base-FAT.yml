@@ -33,7 +33,7 @@ spring:
         health-check-interval: 15s
         tags: profile=${spring.profiles.active}
         instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}:${random.int[1000,9999]}
-        health-check-url: http://${spring.cloud.client.ip-address}:${server.port}/actuator/health
+        health-check-url: http://${spring.cloud.client.ip-address}:${server.port}${server.servlet.context-path}/actuator/health
     httpclientfactories.ok.enabled: false
   main:
     allow-bean-definition-overriding: true
@@ -93,7 +93,7 @@ feign:
 mybatis-plus:
   type-aliases-package: com.uptang.cloud.**.model
   mapper-locations: classpath*:/mappers/**/mapper-*.xml
-  type-enums-package: com.uptang.cloud.pojo.enums
+  type-enums-package: com.uptang.cloud.**.enums
   global-config:
     banner: false
     db-config:
