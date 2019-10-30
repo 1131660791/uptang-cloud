@@ -129,7 +129,7 @@ public class AttachmentServiceImpl extends ServiceImpl<AttachmentRepository, Att
                     : DigestUtils.sha1Hex(String.valueOf(sequenceGenerator.generateId()));
 
             // 生成有目录格式的 OBS 文件名
-            String relativePath = generateUrlPath(type, extName, fileName);
+            String relativePath = generateUrlPath(type, keepOriginalFilename, extName, fileName);
             try {
                 // 上传附件
                 getObsClient().putObject(properties.getBucketName(), processor.getObsKey(relativePath), file.getInputStream());
@@ -205,12 +205,13 @@ public class AttachmentServiceImpl extends ServiceImpl<AttachmentRepository, Att
      * /附件类型码/日期/附件名第一个字母/附件名.扩展名
      * generateUrlPath("OTHER","jpg", "12345") => /99/20190814/1/12345.jpg
      *
-     * @param type     附件类型, 如: 用户, 试卷, ...
-     * @param extName  文件扩展名, 如: jpg, png, exe, ...
-     * @param fileName 附件ID, 全系统中唯一的附件序列
+     * @param type                 附件类型, 如: 用户, 试卷, ...
+     * @param keepOriginalFilename 保持原文件名
+     * @param extName              文件扩展名, 如: jpg, png, exe, ...
+     * @param fileName             附件ID, 全系统中唯一的附件序列
      * @return 生成的文件路径
      */
-    private String generateUrlPath(AttachmentEnum type, String extName, String fileName) {
+    private String generateUrlPath(AttachmentEnum type, boolean keepOriginalFilename, String extName, String fileName) {
         if (Objects.isNull(type) || StringUtils.isBlank(extName) || StringUtils.isBlank(fileName)) {
             throw new BusinessException("附件类型或附件扩展名为空！");
         }
@@ -218,7 +219,8 @@ public class AttachmentServiceImpl extends ServiceImpl<AttachmentRepository, Att
         String dateStr = SimpleDateFormatThreadLocal.get(Constants.COMPACT_DATE_FORMAT).format(new Date(SystemClock.now()));
         extName = ('.' == extName.charAt(0)) ? extName.substring(1) : extName;
         fileName = StringUtils.trimToEmpty(fileName).toLowerCase();
+        char subDirName = (keepOriginalFilename ? DigestUtils.sha1Hex(fileName) : fileName).charAt(0);
 
-        return String.format("/%s/%s/%s/%s.%s", type.getCode(), dateStr, fileName.charAt(0), fileName, extName).toLowerCase();
+        return String.format("/%s/%s/%s/%s.%s", type.getCode(), dateStr, subDirName, fileName, extName).toLowerCase();
     }
 }
