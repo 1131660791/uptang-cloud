@@ -47,7 +47,7 @@ public class PreventRepeatSubmitInterceptor extends HandlerInterceptorAdapter {
 
         // 如果是 Debug, 则忽略重复提交检查
         if (BooleanUtils.toBoolean(request.getParameter(Constants.PARA_DEBUG))) {
-            log.info("调试模式，对API({})不需要重复提交检查", request.getRequestURI());
+            log.debug("调试模式，对API({})不需要重复提交检查", request.getRequestURI());
             return true;
         }
 
@@ -60,7 +60,7 @@ public class PreventRepeatSubmitInterceptor extends HandlerInterceptorAdapter {
 
         // 如果没有配置必须检查，则直接放行
         if (Objects.isNull(annotation)) {
-            log.info("对({}-{})不需要重复提交检查", signature, request.getRequestURI());
+            log.debug("对({}-{})不需要重复提交检查", signature, request.getRequestURI());
             return true;
         }
 
