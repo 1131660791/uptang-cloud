@@ -93,7 +93,7 @@ feign:
 mybatis-plus:
   type-aliases-package: com.uptang.cloud.**.model
   mapper-locations: classpath*:/mappers/**/mapper-*.xml
-  type-enums-package: com.uptang.cloud.pojo.enums
+  type-enums-package: com.uptang.cloud.**.enums
   global-config:
     banner: false
     db-config:
