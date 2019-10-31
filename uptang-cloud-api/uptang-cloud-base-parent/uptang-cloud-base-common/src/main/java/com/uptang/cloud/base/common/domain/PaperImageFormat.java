@@ -46,7 +46,7 @@ public class PaperImageFormat implements Serializable, Cloneable {
     private Integer height;
 
     /**
-     * 答题卡页码 （1:正面，2:反面）
+     * 答题卡页码 （1:正面，0:反面）
      */
     private Integer page;
 

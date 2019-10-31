@@ -30,7 +30,7 @@ spring:
     database: 0
     timeout: 3000
     port: 52199
-    host: xfs_redis.weave.local
+    host: svc_redis.weave.local
     password: uptang123
     lettuce:
       pool:
