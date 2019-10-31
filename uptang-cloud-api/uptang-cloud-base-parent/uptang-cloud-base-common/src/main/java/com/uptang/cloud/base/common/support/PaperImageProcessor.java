@@ -20,7 +20,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
 import javax.imageio.ImageIO;
-import java.awt.Graphics;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -150,7 +151,10 @@ public final class PaperImageProcessor {
 
         // 制作背景图
         BufferedImage canvasImage = generateCanvasImage(vertically, images);
-        Graphics graphics = canvasImage.createGraphics();
+        Graphics2D graphics = canvasImage.createGraphics();
+        graphics.setBackground(Color.WHITE);
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, canvasImage.getWidth(), canvasImage.getHeight());
 
         // 图片拼接
         if (vertically) {
@@ -214,7 +218,8 @@ public final class PaperImageProcessor {
         char mode = Optional.ofNullable(vertically).map(ver -> ver ? 'v' : 'h').orElse('v');
 
         // 考试代码/科目代码/A-Z0-9/SHA1(密号-考试代码-科目代码-题号).png
-        return String.format("/%s/%s/%s/%s-%s.png", examCode, subjectCode, fileName.charAt(0), fileName, mode).toLowerCase();
+        String examCodeDir = StringUtils.substring(examCode, examCode.length() - 9);
+        return String.format("/%s/%s/%s/%s-%s.png", examCodeDir, subjectCode, fileName.charAt(0), fileName, mode).toLowerCase();
     }
 
     /**

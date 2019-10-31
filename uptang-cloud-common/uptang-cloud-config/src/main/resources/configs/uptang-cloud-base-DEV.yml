@@ -116,8 +116,8 @@ obs:
   access-key: U4NQADBPTUUDKFVXBRAJ
   secret-key: iMdARdabBowyDtNtMHgETtIZtEot9HmT4WvRPg8z
   end-point: https://obs.cn-north-1.myhuaweicloud.com
-  bucket-name: uptang-cloud
-  domain: https://uptang-cloud.obs.cn-north-1.myhuaweicloud.com
+  bucket-name: uptang-cloud-dev
+  domain: https://uptang-cloud-dev.obs.cn-north-1.myhuaweicloud.com
 
 
 # actuator 相关配置

@@ -66,7 +66,7 @@ spring:
       auto-offset-reset: latest
       fetch-min-size: 1
       heartbeat-interval: 3000ms
-      max-poll-records: 50
+      max-poll-records: 5
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
@@ -94,14 +94,14 @@ obs:
   access-key: U4NQADBPTUUDKFVXBRAJ
   secret-key: iMdARdabBowyDtNtMHgETtIZtEot9HmT4WvRPg8z
   end-point: https://obs.cn-north-1.myhuaweicloud.com
-  bucket-name: uptang-cloud
-  domain: https://uptang-cloud.obs.cn-north-1.myhuaweicloud.com
+  bucket-name: uptang-cloud-dev
+  domain: https://uptang-cloud-dev.obs.cn-north-1.myhuaweicloud.com
   crop-mode: both # 横拼:horizontally, 竖拼:vertically, 两者:both
 
 logging:
-  path: D:/app-logs
+  path: ./app-logs
   level:
     root: INFO
-    api: DEBUG
-    service: DEBUG
-    repository: DEBUG
+    api: INFO
+    service: INFO
+    repository: INFO

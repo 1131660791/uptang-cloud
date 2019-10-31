@@ -49,4 +49,14 @@ public class CacheKeys extends com.uptang.cloud.core.util.CacheKeys {
     public static String getExamExtractCrashPointKey(String examCode) {
         return CacheKeys.getKey(CACHE_KEY_EXTRACT_PREFIX, "crash", StringUtils.trimToEmpty(examCode).trim());
     }
+
+    /**
+     * 根据考试代码生成处理进度缓存Key
+     * => task:exam:process:progress
+     *
+     * @return Cache Key
+     */
+    public static String getExamProcessProgressKey() {
+        return CacheKeys.getKey(CACHE_KEY_PROCESS_PREFIX, "progress");
+    }
 }
