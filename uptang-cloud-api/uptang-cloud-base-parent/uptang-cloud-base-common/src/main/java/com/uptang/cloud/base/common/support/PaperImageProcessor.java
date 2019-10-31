@@ -218,7 +218,8 @@ public final class PaperImageProcessor {
         char mode = Optional.ofNullable(vertically).map(ver -> ver ? 'v' : 'h').orElse('v');
 
         // 考试代码/科目代码/A-Z0-9/SHA1(密号-考试代码-科目代码-题号).png
-        return String.format("/%s/%s/%s/%s-%s.png", examCode, subjectCode, fileName.charAt(0), fileName, mode).toLowerCase();
+        String examCodeDir = StringUtils.substring(examCode, examCode.length() - 9);
+        return String.format("/%s/%s/%s/%s-%s.png", examCodeDir, subjectCode, fileName.charAt(0), fileName, mode).toLowerCase();
     }
 
     /**
