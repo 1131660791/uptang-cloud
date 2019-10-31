@@ -108,7 +108,8 @@ public final class PaperFormatParser {
                     .y(dotObject.getIntValue("y"))
                     .width(dotObject.getIntValue("w"))
                     .height(dotObject.getIntValue("h"))
-                    .page(Math.max(1, Optional.ofNullable(dotObject.getInteger("card_idx")).orElse(1)))
+                    // 答题卡页码 （1:正面，0:反面）
+                    .page(Optional.ofNullable(dotObject.getInteger("front")).orElse(1))
                     .build();
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
@@ -127,7 +128,6 @@ public final class PaperFormatParser {
         if (CollectionUtils.isEmpty(formats) || ArrayUtils.isEmpty(suffixes)) {
             return;
         }
-        final int maxIndex = suffixes.length - 1;
-        formats.forEach(format -> format.setFilenameSuffix(suffixes[Math.min(maxIndex, format.getPage() - 1)]));
+        formats.forEach(format -> format.setFilenameSuffix(suffixes[format.getPage()]));
     }
 }

@@ -9,8 +9,9 @@ public interface Constants extends com.uptang.cloud.core.Constants {
 
     /**
      * 试卷正反面后缀
+     * 0:反面, 1:正面
      */
-    String[] PAPER_IMAGE_SUFFIXES = {"a", "b"};
+    String[] PAPER_IMAGE_SUFFIXES = {"b", "a"};
 
     /**
      * 待处理试卷图片的主题
