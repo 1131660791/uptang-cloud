@@ -115,8 +115,8 @@ public final class PaperImageProcessor {
         // 将任务放到线程池
         stopWatch.start("生成多线程任务");
         Map<String, Future<BufferedImage>> taskMap = Maps.newHashMapWithExpectedSize(paperImage.getSources().size());
-        paperImage.getSources().forEach(source -> {
-            taskMap.put(generateKey(source), THREAD_POOL.submit(() -> {
+        paperImage.getSources().stream().filter(source -> !taskMap.containsKey(source.getPath())).forEach(source -> {
+            taskMap.put(source.getPath(), THREAD_POOL.submit(() -> {
                 GetObjectRequest request = new GetObjectRequest(properties.getBucketName(), getObsKey(source.getPath()));
                 request.setImageProcess(String.format(IMAGE_CROP_TEMPLATE, source.getX(), source.getY(), source.getWidth(), source.getHeight()));
 
@@ -137,7 +137,7 @@ public final class PaperImageProcessor {
         List<BufferedImage> images = paperImage.getSources().stream().map(source -> {
             try {
                 log.debug("Getting image from thread pool for path: {}", source.getPath());
-                return taskMap.get(generateKey(source)).get(30, TimeUnit.SECONDS);
+                return taskMap.get(source.getPath()).get(30, TimeUnit.SECONDS);
             } catch (Exception ex) {
                 log.error(ex.getMessage(), ex);
                 return null;
