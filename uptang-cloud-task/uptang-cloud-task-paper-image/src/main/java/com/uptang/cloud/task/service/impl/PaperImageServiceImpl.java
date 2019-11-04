@@ -69,7 +69,7 @@ public class PaperImageServiceImpl implements PaperImageService {
             log.info("学生:{}, 考试码:{}, 科目码:{}, 题号:{}, 图片:{}", paperImage.getStudentId(),
                     paperImage.getExamCode(), paperImage.getSubjectCode(), paperImage.getItemNum(), relativePath);
         } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
+            log.error("上传图片异常:{}", paperImage, ex);
         }
     }
 
