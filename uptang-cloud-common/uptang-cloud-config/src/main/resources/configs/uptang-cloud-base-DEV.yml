@@ -50,9 +50,9 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
-      maximum-pool-size: 10
-      pool-name: HikariCPPool
-      minimum-idle: 10
+      maximum-pool-size: 5
+      pool-name: hikari-pool
+      minimum-idle: 2
       validation-timeout: 60000
       connection-test-query: "SELECT 1"
       leak-detection-threshold: 30000
