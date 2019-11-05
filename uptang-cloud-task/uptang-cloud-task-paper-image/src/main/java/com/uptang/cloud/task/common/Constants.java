@@ -16,5 +16,5 @@ public interface Constants extends com.uptang.cloud.core.Constants {
     /**
      * 待处理试卷图片的主题
      */
-    String PAPER_IMAGE_TOPIC = "paper-image";
+    String PAPER_IMAGE_TOPIC = "paper-image-tmp";
 }
