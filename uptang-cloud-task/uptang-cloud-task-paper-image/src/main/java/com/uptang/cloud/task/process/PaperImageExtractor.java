@@ -27,7 +27,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -263,8 +262,6 @@ public class PaperImageExtractor {
 
         @Override
         public void run() {
-            StopWatch stopWatch = new StopWatch("extract paper");
-
             // 缓存Key
             String crashKey = CacheKeys.getExamExtractCrashPointKey(examCode);
 
@@ -297,10 +294,11 @@ public class PaperImageExtractor {
                 // 获取恢复点
                 String crashPoint = redisTemplate.opsForValue().get(crashKey);
                 int prevId = StringUtils.isBlank(crashKey) ? 0 : NumberUtils.toInt(crashPoint, 0);
+                long wholeStart = System.currentTimeMillis(), innerStart = 0;
                 List<PaperScan> papers = new ArrayList<>(0);
                 do {
-                    stopWatch.start(String.format("Extract Count:%s, StartID:%s", TASK_FETCH_SIZE, prevId));
                     try {
+                        innerStart = System.currentTimeMillis();
                         papers = paperRepository.getPapers(examCode, prevId, TASK_FETCH_SIZE);
                         if (CollectionUtils.isEmpty(papers)) {
                             continue;
@@ -320,11 +318,9 @@ public class PaperImageExtractor {
 
                         counter.add(papers.size());
                         log.info("Number of {} papers processed for exam: {}. It's took: {}ms",
-                                counter.intValue(), examCode, stopWatch.getLastTaskTimeMillis());
+                                counter.intValue(), examCode, System.currentTimeMillis() - innerStart);
                     } catch (Exception ex) {
                         log.error("Failed to extract {}. {}", examCode, ex.getMessage());
-                    } finally {
-                        stopWatch.stop();
                     }
                 } while (papers.size() >= TASK_FETCH_SIZE);
 
@@ -335,8 +331,8 @@ public class PaperImageExtractor {
                 // 第N轮处理完成，还需要再次处理没有图片的
                 redisTemplate.opsForValue().set(crashKey, "0", 7, TimeUnit.DAYS);
 
-                log.info("All of papers({}) are processed for exam {}. It's took: {}ms\n{}",
-                        counter.intValue(), examCode, stopWatch.getTotalTimeMillis(), stopWatch.prettyPrint());
+                log.info("All of papers({}) are processed for exam {}. It's took: {}ms",
+                        counter.intValue(), examCode, System.currentTimeMillis() - wholeStart);
             } catch (Exception ex) {
                 log.error(ex.getMessage(), ex);
             } finally {
