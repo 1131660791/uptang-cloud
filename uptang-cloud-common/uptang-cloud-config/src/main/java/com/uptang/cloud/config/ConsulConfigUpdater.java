@@ -33,16 +33,16 @@ public class ConsulConfigUpdater {
             .build();
 
     private static final Map<AppEnv, String> CONSUL_APIS = new HashMap<AppEnv, String>() {{
-        put(AppEnv.DEV, "http://xfs_consul.weave.local:8500/v1/kv");
-        put(AppEnv.FAT, "http://xfs_consul.weave.local:8500/v1/kv");
-        put(AppEnv.UAT, "http://xfs_consul.weave.local:8500/v1/kv");
+        put(AppEnv.DEV, "http://svc_consul.weave.local:8500/v1/kv");
+        put(AppEnv.FAT, "http://svc_consul.weave.local:8500/v1/kv");
+        put(AppEnv.UAT, "http://svc_consul.weave.local:8500/v1/kv");
         put(AppEnv.PRO, "http://114.116.96.98:8500/v1/kv");
     }};
 
     /**
      * 需要初始化的环境
      */
-    private static final AppEnv APP_ENV = AppEnv.PRO;
+    private static final AppEnv APP_ENV = AppEnv.DEV;
 
     public static void main(String[] args) {
         // 获取目录下所有配置文件

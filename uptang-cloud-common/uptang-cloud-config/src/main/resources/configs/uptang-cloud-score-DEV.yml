@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /common
+    context-path: /score
     application-display-name: ${spring.application.name}
   compression:
     enabled: true
@@ -41,8 +41,8 @@ spring:
   # 数数库
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    name: xtyun_base
-    url: jdbc:mysql://svc_mysql.weave.local:52198/uptang_base?useUnicode=true&useSSL=false&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+    name: uptang_score
+    url: jdbc:mysql://svc_mysql.weave.local:52198/uptang_score?useUnicode=true&useSSL=false&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
     username: uptang
     password: uptang408*
     hikari:
@@ -63,7 +63,7 @@ spring:
     database: 0
     timeout: 3000
     port: 52199
-    host: xfs_redis.weave.local
+    host: svc_redis.weave.local
     password: uptang123
     lettuce:
       pool:
@@ -111,21 +111,12 @@ pagehelper:
   supportMethodsArguments: true
   params: count=countSql
 
-
-obs:
-  access-key: U4NQADBPTUUDKFVXBRAJ
-  secret-key: iMdARdabBowyDtNtMHgETtIZtEot9HmT4WvRPg8z
-  end-point: https://obs.cn-north-1.myhuaweicloud.com
-  bucket-name: uptang-cloud-dev
-  domain: https://uptang-cloud-dev.obs.cn-north-1.myhuaweicloud.com
-
-
 # actuator 相关配置
 info.app.author: 兴唐技术
 info.app.profile: DEV
 
 logging:
-  path: D:/app-logs
+  path: ./app-logs
   level:
     root: INFO
     api: DEBUG
