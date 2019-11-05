@@ -30,7 +30,12 @@ public enum GenderEnum implements IEnumType {
     /**
      * 女
      */
-    FEMALE(2, "女");
+    FEMALE(2, "女"),
+
+    /**
+     * 未说明
+     */
+    UNSPECIFIED(9, "未说明");
 
 
     private final static Map<Integer, GenderEnum> BY_CODE_MAP =
