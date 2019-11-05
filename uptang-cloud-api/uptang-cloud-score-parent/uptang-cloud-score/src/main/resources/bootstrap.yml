@@ -1,0 +1,59 @@
+server:
+  port: 8104
+
+spring:
+  application:
+    name: @project.name@
+  profiles:
+    active: @env@
+  cloud:
+    consul:
+      config:
+        enabled: true
+        format: FILES
+        watch:
+          enabled: true
+          delay: 10000
+          wait-time: 30
+        fail-fast: false
+        prefix: uptang_configs
+      retry:
+        max-attempts: 3
+  main:
+    allow-bean-definition-overriding: true
+
+---
+spring:
+  profiles: DEV
+  cloud:
+    consul:
+      host: svc_consul.weave.local
+      port: 8500
+      enabled: true
+
+---
+spring:
+  profiles: FAT
+  cloud:
+    consul:
+      host: svc_consul.weave.local
+      port: 8500
+      enabled: true
+
+---
+spring:
+  profiles: UAT
+  cloud:
+    consul:
+      host: svc_consul.weave.local
+      port: 8500
+      enabled: true
+
+---
+spring:
+  profiles: PRO
+  cloud:
+    consul:
+      host: svc_consul.weave.local
+      port: 8500
+      enabled: true
