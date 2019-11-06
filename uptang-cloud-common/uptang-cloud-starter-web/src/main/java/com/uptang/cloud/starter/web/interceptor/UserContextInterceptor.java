@@ -10,6 +10,7 @@ import com.uptang.cloud.starter.web.util.HostUtils;
 import com.uptang.cloud.starter.web.util.UserTokenUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -77,6 +78,9 @@ public class UserContextInterceptor extends HandlerInterceptorAdapter {
 
         // 请求者IP
         UserContextThreadLocal.get().setHost(HostUtils.getRequestIp(request));
+
+        // 检查是否调试模式
+        UserContextThreadLocal.get().setDebug(BooleanUtils.toBoolean(StringUtils.trimToNull(request.getParameter(Constants.PARA_DEBUG))));
 
         return true;
     }

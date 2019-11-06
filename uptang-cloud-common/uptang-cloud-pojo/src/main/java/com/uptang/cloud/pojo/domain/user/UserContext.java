@@ -44,6 +44,11 @@ public class UserContext {
      */
     private String mobile;
 
+    /**
+     * 调试模式
+     */
+    private boolean debug;
+
     @Builder
     public UserContext(String host, String token, Long userId, String userName, Integer userType, String mobile) {
         this.host = host;
