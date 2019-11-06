@@ -12,12 +12,12 @@ import com.uptang.cloud.base.common.domain.PaperImageSource;
 import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.core.util.CollectionUtils;
 import com.uptang.cloud.core.util.StringUtils;
+import com.uptang.cloud.pojo.domain.context.UserContextThreadLocal;
 import com.uptang.cloud.starter.common.enums.ResponseCodeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -94,32 +94,24 @@ public final class PaperImageProcessor {
      * @return BufferedImage
      */
     public final BufferedImage processImage(PaperImage paperImage) {
-        StopWatch stopWatch = new StopWatch("图片处理");
+        long start = System.currentTimeMillis();
 
         // 规范化图片处理参数
-        stopWatch.start("规范参数");
         normalizeImageProcessParameters(paperImage);
-        stopWatch.stop();
 
-        // 答题卡只有一个区域，只需要剪切
+        // 答题卡只有一个区域，不需要剪切
         if (1 == paperImage.getSources().size()) {
-            stopWatch.start("剪裁图片");
             BufferedImage croppedImage = cropPaperImage(paperImage.getSources().get(0));
-            stopWatch.stop();
-
-            log.info("Crop image({}) from Huawei cloud, It's took: {}ms\n{}", paperImage.getSources().get(0).getPath(),
-                    stopWatch.getLastTaskTimeMillis(), stopWatch.prettyPrint());
+            log.info("Crop image({}) from Huawei cloud, It's took: {}ms",
+                    paperImage.getSources().get(0).getPath(), System.currentTimeMillis() - start);
             return croppedImage;
         }
 
         // 将任务放到线程池
-        stopWatch.start("生成多线程任务");
-        Map<String, Future<BufferedImage>> taskMap = Maps.newHashMapWithExpectedSize(paperImage.getSources().size());
-        paperImage.getSources().stream().filter(source -> !taskMap.containsKey(source.getPath())).forEach(source -> {
-            taskMap.put(source.getPath(), THREAD_POOL.submit(() -> {
-                GetObjectRequest request = new GetObjectRequest(properties.getBucketName(), getObsKey(source.getPath()));
-                request.setImageProcess(String.format(IMAGE_CROP_TEMPLATE, source.getX(), source.getY(), source.getWidth(), source.getHeight()));
-
+        Map<String, Future<BufferedImage>> imageMap = Maps.newHashMapWithExpectedSize(paperImage.getSources().size());
+        paperImage.getSources().stream().map(PaperImageSource::getPath).distinct().forEach(imagePath -> {
+            imageMap.put(imagePath, THREAD_POOL.submit(() -> {
+                GetObjectRequest request = new GetObjectRequest(properties.getBucketName(), getObsKey(imagePath));
                 ObsObject obsObject = getObsClient().getObject(request);
                 try (InputStream input = obsObject.getObjectContent()) {
                     return ImageIO.read(input);
@@ -128,25 +120,35 @@ public final class PaperImageProcessor {
                     return null;
                 }
             }));
-            log.info("submit the task for path: {}", source.getPath());
+            log.info("Submit the task of getting image: {}", imagePath);
         });
-        stopWatch.stop();
 
         // 获取图片
-        stopWatch.start("获取图片");
         List<BufferedImage> images = paperImage.getSources().stream().map(source -> {
             try {
-                log.debug("Getting image from thread pool for path: {}", source.getPath());
-                return taskMap.get(source.getPath()).get(30, TimeUnit.SECONDS);
+                log.debug("Getting image from thread pool for[path:{}, x:{}, y:{}, w:{}, h:{}]",
+                        source.getPath(), source.getX(), source.getY(), source.getWidth(), source.getHeight());
+                BufferedImage image = imageMap.get(source.getPath()).get(30, TimeUnit.SECONDS);
+                if (UserContextThreadLocal.get().isDebug()) {
+                    image = image.getSubimage(source.getX(), source.getY(), source.getWidth(), source.getHeight());
+                    Graphics2D graphics = image.createGraphics();
+                    graphics.setColor(Color.BLACK);
+                    graphics.drawString(source.getPath(), 20, 20);
+                    graphics.drawString(String.format("x:%s, y:%s, w:%s, h:%s", source.getX(), source.getY(), source.getWidth(), source.getHeight()),
+                            20, 35);
+                    graphics.dispose();
+                    image.flush();
+                    return image;
+                } else {
+                    return image.getSubimage(source.getX(), source.getY(), source.getWidth(), source.getHeight());
+                }
             } catch (Exception ex) {
                 log.error(ex.getMessage(), ex);
                 return null;
             }
         }).filter(Objects::nonNull).collect(Collectors.toList());
-        stopWatch.stop();
 
         // 画图计时
-        stopWatch.start("合并图片");
         boolean vertically = Optional.ofNullable(paperImage.getVertically()).orElse(true);
 
         // 制作背景图
@@ -176,17 +178,16 @@ public final class PaperImageProcessor {
         // 刷新缓冲区
         graphics.dispose();
         canvasImage.flush();
-        stopWatch.stop();
 
-        log.info("Got {} images from Huawei cloud AND join images, It's took: {}ms\n{}",
-                paperImage.getSources().size(), stopWatch.getTotalTimeMillis(), stopWatch.prettyPrint());
+        log.info("Got {} images from Huawei cloud AND join images, It's took: {}ms",
+                paperImage.getSources().size(), System.currentTimeMillis() - start);
         return canvasImage;
     }
 
 
     /**
      * 根据考试和学生信息生成图片路径
-     *  => /考试代码/科目代码/a-z0-9/SHA1(密号-考试代码-科目代码-题号).png
+     * => /考试代码/科目代码/a-z0-9/SHA1(密号-考试代码-科目代码-题号).png
      *
      * @param paperImage 处理图片的参数
      * @return 图片相对路径
@@ -198,7 +199,7 @@ public final class PaperImageProcessor {
 
     /**
      * 根据考试和学生信息生成图片路径
-     *  => /考试代码/科目代码/a-z0-9/SHA1(密号-考试代码-科目代码-题号).png
+     * => /考试代码/科目代码/a-z0-9/SHA1(密号-考试代码-科目代码-题号).png
      *
      * @param examCode    考试项目代码
      * @param subjectCode 学科代码
