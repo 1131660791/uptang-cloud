@@ -1,53 +1,57 @@
 package com.uptang.cloud.score.common.vo;
 
-import com.uptang.cloud.score.common.enums.LevelEnum;
 import com.uptang.cloud.starter.web.domain.BaseVO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.format.annotation.NumberFormat;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
- * @author Jiang Chuan
- * @version 4.0.0
- * @date 2019-11-05
+ * @author : Lee.m.yin
+ * @createTime : 2019-11-06 10:32:21
+ * @mailTo: lmy@uptang.com.cn
+ * @summary : FIXME
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public class ScoreVO extends BaseVO<ScoreVO> implements Serializable, Cloneable {
-    private static final long serialVersionUID = -5714151051326847900L;
 
     /**
-     * 附件ID
+     * @comment Primary key
      */
-    @ApiModelProperty(notes = "附件ID")
+    @ApiModelProperty(notes = "成绩ID")
     private Long id;
 
     /**
-     * 等级划分
+     * @comment 科目 数学 语文 英语 物理 地理 化学 (0 表示没有科目)
      */
-    @ApiModelProperty(notes = "等级划分")
-    private LevelEnum level;
-
-    @ApiModelProperty(notes = "等级代码")
-    private Integer levelCode;
-
-    @ApiModelProperty(notes = "等级描述")
-    private String levelDesc;
+    @NotNull
+    @ApiModelProperty(notes = "科目编码")
+    private Integer subject;
 
     /**
-     * 创建时间
+     * @comment 科目 数学 语文 英语 物理 地理 化学 (0 表示没有科目)
      */
-    private Date createdTime;
+    @ApiModelProperty(notes = "科目")
+    private String subjectText;
 
     /**
-     * 最后修改时间
+     * @comment 文本成绩 E.g: 合格、不合格
      */
-    private Date updatedTime;
+    @ApiModelProperty(notes = "归档ID")
+    private String scoreText;
+
+    /**
+     * @comment 数字成绩 E.g: 85.2 (0 表示没有成绩)
+     */
+    @ApiModelProperty(notes = "归档ID")
+    private Integer scoreNumber;
 }
+

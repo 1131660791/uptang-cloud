@@ -1,7 +1,7 @@
 package com.uptang.cloud.score.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.uptang.cloud.score.common.model.Score;
+import com.uptang.cloud.score.common.model.Student;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -11,6 +11,5 @@ import org.springframework.stereotype.Repository;
  * @summary : FIXME
  */
 @Repository
-public interface ScoreRepository extends BaseMapper<Score> {
-
+public interface StudentRepository extends BaseMapper<Student> {
 }
