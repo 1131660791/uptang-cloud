@@ -15,10 +15,19 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ScoreTypeEnum implements IEnumType {
 
+    /**
+     * 学业成绩
+     */
     ACADEMIC(0, "学业成绩"),
 
+    /**
+     * 体质健康成绩
+     */
     HEALTH(1, "体质健康成绩"),
 
+    /**
+     * 艺术成绩
+     */
     ART(2, "艺术成绩");
 
     @EnumValue

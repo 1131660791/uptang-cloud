@@ -15,10 +15,19 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ArchiveEnum implements IEnumType {
 
+    /**
+     * 已提交
+     */
     SUBMIT(0, "已提交"),
 
+    /**
+     * 已归档
+     */
     ARCHIVED(1, "已归档"),
 
+    /**
+     * 撤销归档
+     */
     CANCEL(2, "撤销归档");
 
     @EnumValue

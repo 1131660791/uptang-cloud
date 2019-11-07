@@ -47,8 +47,6 @@ public class AcademicResumeController extends BaseController implements Academic
     }
 
 
-
-
     @GetMapping("/{pageNum}/{pageSize}")
     @ApiParam(value = "传入json格式", required = true)
     @ApiOperation(value = "履历列表", response = AcademicResumeVO.class)

@@ -4,11 +4,6 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.uptang.cloud.pojo.enums.IEnumType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author : Lee.m.yin
@@ -20,12 +15,24 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public enum InformationTechnologyEnum implements IEnumType {
 
+    /**
+     * 信息技术等级
+     */
     A(0),
 
+    /**
+     * 信息技术等级
+     */
     B(1),
 
+    /**
+     * 信息技术等级
+     */
     C(2),
 
+    /**
+     * 信息技术等级
+     */
     D(3);
 
     @EnumValue
@@ -34,22 +41,6 @@ public enum InformationTechnologyEnum implements IEnumType {
     @Override
     public String getDesc() {
         return name();
-    }
-
-    private final static Map<Integer, InformationTechnologyEnum> BY_CODE_MAP =
-            Arrays.stream(InformationTechnologyEnum.values())
-                    .collect(Collectors.toMap(InformationTechnologyEnum::getCode, type -> type));
-
-    private final static Map<String, InformationTechnologyEnum> BY_NAME_MAP
-            = Arrays.stream(InformationTechnologyEnum.values())
-            .collect(Collectors.toMap(type -> type.name().toLowerCase(), type -> type));
-
-    public static InformationTechnologyEnum parse(Integer code) {
-        return BY_CODE_MAP.get(code);
-    }
-
-    public static InformationTechnologyEnum parse(String name) {
-        return BY_NAME_MAP.get(StringUtils.trimToEmpty(name).toLowerCase());
     }
 
     public static InformationTechnologyEnum code(int code) {

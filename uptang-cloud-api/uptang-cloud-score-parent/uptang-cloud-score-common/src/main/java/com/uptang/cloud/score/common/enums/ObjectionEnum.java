@@ -15,8 +15,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ObjectionEnum implements IEnumType {
 
+    /**
+     * 无状态
+     */
     NONE(0, "无状态"),
 
+    /**
+     * 异议处理期
+     */
     SHOW(1, "异议处理期");
 
     @EnumValue

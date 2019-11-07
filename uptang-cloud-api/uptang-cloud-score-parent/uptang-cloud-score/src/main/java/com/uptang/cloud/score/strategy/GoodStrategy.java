@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author : Lee.m.yin
- * @createtime : 2019-11-06 14:46
+ * @createTime : 2019-11-06 14:46
  * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
  * @Summary : 75-89分为良好
  */

@@ -15,6 +15,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ShowStatEnum implements IEnumType {
 
+    /**
+     * 无状态
+     */
     NONE(0, "无状态") {
         @Override
         public boolean isShow() {
@@ -22,6 +25,9 @@ public enum ShowStatEnum implements IEnumType {
         }
     },
 
+    /**
+     * 公示期
+     */
     SHOW(1, "公示期") {
         @Override
         public boolean isShow() {
@@ -29,6 +35,9 @@ public enum ShowStatEnum implements IEnumType {
         }
     },
 
+    /**
+     * 撤销公示
+     */
     CANCEL(2, "撤销公示") {
         @Override
         public boolean isShow() {

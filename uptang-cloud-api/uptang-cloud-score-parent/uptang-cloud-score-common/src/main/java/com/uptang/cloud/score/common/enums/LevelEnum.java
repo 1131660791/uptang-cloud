@@ -16,12 +16,24 @@ import lombok.Getter;
 public enum LevelEnum {
 
 
+    /**
+     * 优秀
+     */
     BEST(1),
 
+    /**
+     * 良好
+     */
     GOOD(2),
 
+    /**
+     * 合格
+     */
     QUALIFIED(3),
 
+    /**
+     * 不合格
+     */
     FAILED(4);
 
 
