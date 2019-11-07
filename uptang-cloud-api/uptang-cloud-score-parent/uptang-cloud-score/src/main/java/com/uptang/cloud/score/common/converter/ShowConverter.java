@@ -4,6 +4,7 @@ import com.uptang.cloud.score.common.model.Show;
 import com.uptang.cloud.score.common.vo.ShowVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -45,5 +46,13 @@ public interface ShowConverter {
      * @param show 公示数据
      * @return 转换后实体
      */
+    @Mappings({
+            @Mapping(target = "archive", expression = "java(ArchiveEnum.code(show.getArchive()))"),
+            @Mapping(target = "showStat", expression = "java(ShowStatEnum.code(show.getShowStat()))"),
+            @Mapping(target = "objection", expression = "java(ObjectionEnum.code(show.getObjection()))"),
+            @Mapping(target = "semesterCode", expression = "java(SemesterEnum.code(show.getSemesterCode()))"),
+            @Mapping(target = "scoreType", expression = "java(ScoreTypeEnum.code(show.getScoreType()))"),
+            @Mapping(target = "gender", expression = "java(GenderEnum.parse(show.getGender()))"),
+    })
     Show toModel(ShowVO show);
 }

@@ -4,6 +4,7 @@ import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.common.vo.AcademicResumeVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -38,5 +39,10 @@ public interface AcademicResumeConverter {
      * @param resume 履历表
      * @return 转换后实体
      */
+    @Mappings({
+            @Mapping(target = "semesterCode", expression = "java(SemesterEnum.code(resume.getSemesterCode()))"),
+            @Mapping(target = "scoreType", expression = "java(ScoreTypeEnum.code(resume.getScoreType()))"),
+            @Mapping(target = "gender", expression = "java(GenderEnum.parse(resume.getGender()))"),
+    })
     AcademicResume toModel(AcademicResumeVO resume);
 }

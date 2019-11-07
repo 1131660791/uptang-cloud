@@ -34,6 +34,7 @@ public interface ScoreConverter {
      * @param score 学业成绩
      * @return 转换后实体
      */
+    @Mapping(target = "subject", expression = "java(SubjectEnum.code(score.getSubject()))")
     Score toModel(ScoreVO score);
 
 }

@@ -4,11 +4,6 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.uptang.cloud.pojo.enums.IEnumType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author : Lee.m.yin
@@ -47,22 +42,6 @@ public enum ShowStatEnum implements IEnumType {
     private final String desc;
 
     public abstract boolean isShow();
-
-    private final static Map<Integer, ShowStatEnum> BY_CODE_MAP =
-            Arrays.stream(ShowStatEnum.values())
-                    .collect(Collectors.toMap(ShowStatEnum::getCode, type -> type));
-
-    private final static Map<String, ShowStatEnum> BY_NAME_MAP
-            = Arrays.stream(ShowStatEnum.values())
-            .collect(Collectors.toMap(type -> type.name().toLowerCase(), type -> type));
-
-    public static ShowStatEnum parse(Integer code) {
-        return BY_CODE_MAP.get(code);
-    }
-
-    public static ShowStatEnum parse(String name) {
-        return BY_NAME_MAP.get(StringUtils.trimToEmpty(name).toLowerCase());
-    }
 
     public static ShowStatEnum code(int code) {
         for (ShowStatEnum member : ShowStatEnum.values()) {

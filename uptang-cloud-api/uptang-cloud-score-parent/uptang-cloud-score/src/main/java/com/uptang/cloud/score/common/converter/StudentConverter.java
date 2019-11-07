@@ -1,10 +1,10 @@
 package com.uptang.cloud.score.common.converter;
 
-import com.uptang.cloud.pojo.enums.GenderEnum;
 import com.uptang.cloud.score.common.model.Student;
 import com.uptang.cloud.score.common.vo.StudentVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -37,13 +37,9 @@ public interface StudentConverter {
      * @param student 简略学生信息
      * @return 转换后实体
      */
-    default Student toModel(StudentVO student) {
-        Student student1 = new Student();
-        student1.setClassId(student.getClassId());
-        student1.setClassName(student.getClassName());
-        student1.setCreatedTime(student.getCreatedTime());
-        student1.setUpdatedTime(student.getUpdatedTime());
-        student1.setGender(GenderEnum.parse(student.getGender()));
-        return student1;
-    }
+    @Mappings({
+            @Mapping(target = "semesterCode", expression = "java(SemesterEnum.code(student.getSemesterCode()))"),
+            @Mapping(target = "gender", expression = "java(GenderEnum.parse(student.getGender()))"),
+    })
+    Student toModel(StudentVO student);
 }

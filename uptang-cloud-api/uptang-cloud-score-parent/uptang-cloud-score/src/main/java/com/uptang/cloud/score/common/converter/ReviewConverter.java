@@ -4,6 +4,7 @@ import com.uptang.cloud.score.common.model.Review;
 import com.uptang.cloud.score.common.vo.ReviewVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -41,5 +42,11 @@ public interface ReviewConverter {
      * @param review 审议进度
      * @return 转换后实体
      */
+    @Mappings({
+            @Mapping(target = "type", expression = "java(ScoreTypeEnum.code(review.getType()))"),
+            @Mapping(target = "showStat", expression = "java(ShowStatEnum.code(review.getShowStat()))"),
+            @Mapping(target = "objection", expression = "java(ObjectionEnum.code(review.getObjection()))"),
+            @Mapping(target = "archive", expression = "java(ArchiveEnum.code(review.getArchive()))"),
+    })
     Review toModel(ReviewVO review);
 }

@@ -4,11 +4,6 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.uptang.cloud.pojo.enums.IEnumType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author : Lee.m.yin
@@ -50,22 +45,6 @@ public enum SubjectEnum implements IEnumType {
     private final String desc;
 
     private final String ruleText;
-
-    private final static Map<Integer, SubjectEnum> BY_CODE_MAP =
-            Arrays.stream(SubjectEnum.values())
-                    .collect(Collectors.toMap(SubjectEnum::getCode, type -> type));
-
-    private final static Map<String, SubjectEnum> BY_NAME_MAP
-            = Arrays.stream(SubjectEnum.values())
-            .collect(Collectors.toMap(type -> type.name().toLowerCase(), type -> type));
-
-    public static SubjectEnum parse(Integer code) {
-        return BY_CODE_MAP.get(code);
-    }
-
-    public static SubjectEnum parse(String name) {
-        return BY_NAME_MAP.get(StringUtils.trimToEmpty(name).toLowerCase());
-    }
 
     public static SubjectEnum code(int code) {
         for (SubjectEnum member : SubjectEnum.values()) {

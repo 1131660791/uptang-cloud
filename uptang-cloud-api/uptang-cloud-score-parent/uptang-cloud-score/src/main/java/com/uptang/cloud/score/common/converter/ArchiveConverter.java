@@ -35,5 +35,6 @@ public interface ArchiveConverter {
      * @param archive 归档
      * @return 转换后实体
      */
+    @Mapping(target = "type", expression = "java(ScoreTypeEnum.code(archive.getType()))")
     Archive toModel(ArchiveVO archive);
 }
