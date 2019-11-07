@@ -10,6 +10,8 @@ import java.util.Collection;
  * @createtime : 2019-11-07 14:22
  * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
  * @Summary : 成绩类型 0 学业成绩 academic_score 1 体质健康 health_score 2 艺术成绩 art_score
+ *
+ * 暂时先将表名写死 后续再考虑其他可行方案
  */
 public class ScoreTypeRoutingAlgorithm implements PreciseShardingAlgorithm<Integer> {
 

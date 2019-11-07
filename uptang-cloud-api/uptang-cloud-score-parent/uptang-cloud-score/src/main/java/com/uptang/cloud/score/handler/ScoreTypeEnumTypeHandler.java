@@ -1,13 +1,7 @@
 package com.uptang.cloud.score.handler;
 
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import org.apache.ibatis.type.BaseTypeHandler;
-import org.apache.ibatis.type.JdbcType;
-
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.uptang.cloud.starter.data.mybaits.handler.BaseObjectHandler;
 
 /**
  * @author : Lee.m.yin
@@ -15,25 +9,16 @@ import java.sql.SQLException;
  * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
  * @Summary : FIXME
  */
-public class ScoreTypeEnumTypeHandler extends BaseTypeHandler<ScoreTypeEnum> {
+public class ScoreTypeEnumTypeHandler extends BaseObjectHandler<ScoreTypeEnum> {
+
 
     @Override
-    public void setNonNullParameter(PreparedStatement preparedStatement, int i, ScoreTypeEnum parameter, JdbcType jdbcType) throws SQLException {
-        preparedStatement.setInt(i, parameter.getCode());
+    public int getCode(ScoreTypeEnum enumeration) {
+        return enumeration.getCode();
     }
 
     @Override
-    public ScoreTypeEnum getNullableResult(ResultSet resultSet, String columnName) throws SQLException {
-        return ScoreTypeEnum.code(resultSet.getInt(columnName));
-    }
-
-    @Override
-    public ScoreTypeEnum getNullableResult(ResultSet resultSet, int i) throws SQLException {
-        return ScoreTypeEnum.code(resultSet.getInt(i));
-    }
-
-    @Override
-    public ScoreTypeEnum getNullableResult(CallableStatement callableStatement, int i) throws SQLException {
-        return ScoreTypeEnum.code(callableStatement.getInt(i));
+    public ScoreTypeEnum getObject(int code) {
+        return ScoreTypeEnum.code(code);
     }
 }

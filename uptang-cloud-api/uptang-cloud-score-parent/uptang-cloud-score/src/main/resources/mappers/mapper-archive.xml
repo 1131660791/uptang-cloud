@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uptang.cloud.score.repository.ArchiveRepository">
+
+    <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.Archive">
+        <id property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="detail" column="detail"/>
+    </resultMap>
+
+    <!--字段名 Java属性名-->
+    <sql id="columns">
+       <trim suffixOverrides=",">
+           `id` AS `id`,
+           `type` AS `type`,
+           `detail` AS `detail`,
+       </trim>
+    </sql>
+</mapper>

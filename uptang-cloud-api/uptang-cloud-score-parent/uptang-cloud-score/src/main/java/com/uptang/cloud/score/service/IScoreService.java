@@ -1,8 +1,8 @@
 package com.uptang.cloud.score.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.common.model.Score;
+import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 
 /**
  * @author : Lee.m.yin
@@ -12,14 +12,11 @@ import com.uptang.cloud.score.common.model.Score;
  */
 public interface IScoreService extends IService<Score> {
 
-    Score getDetail(Long id,Integer type);
-
     /**
      * 录入成绩
      *
-     * @param score
-     * @param resume
+     * @param resumeJoinScore
      * @return
      */
-    boolean save(Score score, AcademicResume resume);
+    boolean save(ResumeJoinScoreDTO resumeJoinScore);
 }

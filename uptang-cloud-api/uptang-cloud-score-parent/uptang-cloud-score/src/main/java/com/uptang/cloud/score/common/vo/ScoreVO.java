@@ -54,13 +54,13 @@ public class ScoreVO extends BaseVO<ScoreVO> implements Serializable, Cloneable 
     /**
      * @comment 文本成绩 E.g: 合格、不合格
      */
-    @ApiModelProperty(notes = "归档ID")
+    @ApiModelProperty(notes = "文本成绩")
     private String scoreText;
 
     /**
      * @comment 数字成绩 E.g: 85.2 (0 表示没有成绩)
      */
-    @ApiModelProperty(notes = "归档ID")
-    private Integer scoreNumber;
+    @ApiModelProperty(notes = "数字成绩")
+    private Double scoreNumber;
 }
 

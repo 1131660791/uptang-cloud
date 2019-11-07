@@ -3,6 +3,8 @@ package com.uptang.cloud.score.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.pagehelper.Page;
 import com.uptang.cloud.score.common.model.AcademicResume;
+import com.uptang.cloud.score.dto.ResumeJoinArchiveDTO;
+import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 
 /**
  * @author : Lee.m.yin
@@ -30,4 +32,20 @@ public interface IAcademicResumeService extends IService<AcademicResume> {
      * @return
      */
     Page<AcademicResume> page(Integer pageNum, Integer pageSize, AcademicResume resume);
+
+    /**
+     * 获取归档详情
+     *
+     * @param academicResume 履历
+     * @return
+     */
+    ResumeJoinArchiveDTO getArchiveDetail(AcademicResume academicResume);
+
+    /**
+     * 获取未归档详情
+     *
+     * @param academicResume 履历
+     * @return
+     */
+    ResumeJoinScoreDTO getUnfileDetail(AcademicResume academicResume);
 }

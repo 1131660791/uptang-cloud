@@ -33,4 +33,5 @@ public class AcademicResumeControllerTest extends BaseJunitTest {
         resumeVO.setClassName("Junit update");
         httpPutRequest(Prefix + "/1", token, resumeVO);
     }
+
 }

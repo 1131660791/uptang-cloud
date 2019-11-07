@@ -2,19 +2,21 @@ package com.uptang.cloud.score.controller;
 
 import com.github.pagehelper.Page;
 import com.uptang.cloud.score.common.converter.AcademicResumeConverter;
+import com.uptang.cloud.score.common.converter.ResumeJoinScoreConverter;
+import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.common.vo.AcademicResumeVO;
+import com.uptang.cloud.score.common.vo.ResumeJoinScoreVO;
+import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 import com.uptang.cloud.score.feign.AcademicResumeProvider;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import com.uptang.cloud.starter.web.controller.BaseController;
 import com.uptang.cloud.starter.web.domain.ApiOut;
 import com.uptang.cloud.starter.web.util.PageableEntitiesConverter;
 import io.swagger.annotations.*;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,12 +38,15 @@ public class AcademicResumeController extends BaseController implements Academic
     }
 
     @GetMapping(path = "/{id}")
-    @ApiOperation(value = "履历明细", response = AcademicResumeVO.class)
-    @ApiImplicitParam(name = "id", value = "成绩ID", paramType = "path", required = true)
-    public ApiOut<AcademicResumeVO> getDetail(@PathVariable Long id) {
-        final AcademicResume resume = academicResumeService.getById(id);
-        return ApiOut.newSuccessResponse(AcademicResumeConverter.INSTANCE.toVo(resume));
+    @ApiOperation(value = "履历未归档分数详情", response = AcademicResumeVO.class)
+    @ApiImplicitParam(name = "id", value = "履历ID", paramType = "path", required = true)
+    public ApiOut<ResumeJoinScoreVO> getDetail(@PathVariable Long id) {
+        AcademicResume academicResume = new AcademicResume(id);
+        final ResumeJoinScoreDTO resume = academicResumeService.getUnfileDetail(academicResume);
+        return ApiOut.newSuccessResponse(ResumeJoinScoreConverter.INSTANCE.toVo(resume));
     }
+
+
 
 
     @GetMapping("/{pageNum}/{pageSize}")
@@ -59,7 +64,7 @@ public class AcademicResumeController extends BaseController implements Academic
         Page<AcademicResume> resumes = academicResumeService.page(pageNum, pageSize, resume);
 
         return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(resumes, models -> {
-            if (CollectionUtils.isEmpty(models)) {
+            if (resumes == null || resumes.size() == 0) {
                 return Collections.emptyList();
             }
             return models.stream().map(AcademicResumeConverter.INSTANCE::toVo).collect(Collectors.toList());

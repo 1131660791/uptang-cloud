@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uptang.cloud.score.repository.AcademicResumeRepository">
+
+    <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.AcademicResume">
+        <id property="id" column="id"/>
+        <result property="school" column="school"/>
+        <result property="schoolId" column="school_id"/>
+        <result property="gradeId" column="grade_id"/>
+        <result property="gradeName" column="grade_name"/>
+        <result property="classId" column="class_id"/>
+        <result property="className" column="class_name"/>
+        <result property="semesterCode" column="semester_code"/>
+        <result property="semesterName" column="semester_name"/>
+        <result property="studentName" column="student_name"/>
+        <result property="studentCode" column="student_code"/>
+        <result property="gender" column="gender"/>
+        <result property="scoreId" column="score_id"/>
+        <result property="scoreType" column="score_type"/>
+        <result property="createdFounderId" column="created_founder_id"/>
+        <result property="updatedFounderId" column="updated_founder_id"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <!--字段名 Java属性名-->
+    <sql id="mappings">
+        `id` AS `id`, `school` AS `school`,
+        `school_id` AS `schoolId`, `grade_id` AS `gradeId`,
+        `grade_name` AS `gradeName`, `class_id` AS `classId`,
+        `class_name` AS `className`, `semester_code` AS `semesterCode`,
+        `semester_name` AS `semesterName`, `student_name` AS `studentName`,
+        `student_code` AS `studentCode`, `gender` AS `gender`,
+        `score_id` AS `scoreId`, `score_type` AS `scoreType`,
+        `created_founder_id` AS `createdFounderId`, `updated_founder_id` AS `updatedFounderId`,
+        `created_time` AS `createdTime`, `updated_time` AS `updatedTime`
+    </sql>
+
+    <!--字段名-->
+    <sql id="columns">
+        `id`, `school`, `school_id`, `grade_id`, `grade_name`, `class_id`, `class_name`,
+        `semester_code`, `semester_name`, `student_name`, `student_code`, `gender`, `score_id`,
+        `score_type`, `created_founder_id`, `updated_founder_id`, `created_time`, `updated_time`
+    </sql>
+
+    <!--履历和归档表详情-->
+    <sql id="columnsJoinArchive">
+        ar.`id`, ar.`school`, ar.`school_id` AS `schoolId` ,
+        ar.`grade_id` AS `gradeId`, ar.`grade_name` AS `gradeName`,
+        ar.`class_id` AS `classId`, ar.`class_name` AS `className`,
+        ar.`semester_code` AS `semesterCode`, ar.`semester_name` AS `semesterName`,
+        ar.`student_name` AS `studentName`, ar.`student_code` AS `studentCode`,
+        ar.`gender`, ar.`score_id` AS `scoreId`, ar.`score_type` AS `scoreType`,
+        ar.`created_founder_id` AS `createdFounderId`, ar.`updated_founder_id` AS `updatedFounderId`,
+        ar.`created_time` AS `createdTime`, ar.`updated_time` AS `updatedTime`,
+        archive.`id` AS `archiveId`, archive.`detail` AS `archiveDetail`
+    </sql>
+
+    <!--履历和未归档表详情-->
+    <sql id="columnsJoinUnfiled">
+        ar.`id`, ar.`school`, ar.`school_id` AS `schoolId` ,
+        ar.`grade_id` AS `gradeId`, ar.`grade_name` AS `gradeName`,
+        ar.`class_id` AS `classId`, ar.`class_name` AS `className`,
+        ar.`semester_code` AS `semesterCode`, ar.`semester_name` AS `semesterName`,
+        ar.`student_name` AS `studentName`, ar.`student_code` AS `studentCode`,
+        ar.`gender`, ar.`score_id` AS `scoreId`, ar.`score_type` AS `scoreType`,
+        ar.`created_founder_id` AS `createdFounderId`, ar.`updated_founder_id` AS `updatedFounderId`,
+        ar.`created_time` AS `createdTime`, ar.`updated_time` AS `updatedTime`,
+        score.`subject` AS `subject`, score.`score_text` AS `scoreText`, score.`score_number` AS `scoreNumber`
+    </sql>
+
+    <!--分页查询-->
+    <select id="page" resultMap="ResultMap" parameterType="com.uptang.cloud.score.common.model.AcademicResume">
+        SELECT  <include refid="columns"/> FROM academic_resume
+        <where>
+            <trim suffixOverrides="AND" prefixOverrides="AND">
+                <if test="school != null and school != ''">AND `school`=#{school}</if>
+                <if test="schoolId != null">AND `school_id`=#{schoolId}</if>
+                <if test="gradeId != null">AND `grade_id`=#{gradeId}</if>
+                <if test="gradeName != null and gradeName != ''">AND `grade_name`=#{gradeName}</if>
+                <if test="classId != null">AND `class_id`=#{classId}</if>
+                <if test="className != null and className != ''">AND `class_name`=#{className}</if>
+                <if test="semesterCode != null">AND `semester_code`=#{semesterCode}</if>
+                <if test="semesterName != null and semesterName != ''">AND `semester_name`=#{semesterName}</if>
+                <if test="studentName != null and studentName != ''">AND `student_name`=#{studentName}</if>
+                <if test="studentCode != null and studentCode != ''">AND `student_code`=#{studentCode}</if>
+                <if test="gender != null">AND `gender`=#{gender}</if>
+                <if test="scoreId != null">AND `score_id`=#{scoreId}</if>
+                <if test="scoreType != null">AND `score_type`=#{scoreType}</if>
+                <if test="createdFounderId != null">AND `created_founder_id`=#{createdFounderId}</if>
+                <if test="updatedFounderId != null">AND `updated_founder_id`=#{updatedFounderId}</if>
+                <if test="createdTime != null">AND `created_time`=#{createdTime}</if>
+                <if test="updatedTime != null">AND `updated_time`=#{updatedTime}</if>
+            </trim>
+        </where>
+    </select>
+
+    <!--履历和归档表详情-->
+    <select id="archiveDetail"
+            parameterType="com.uptang.cloud.score.common.model.AcademicResume"
+            resultType="com.uptang.cloud.score.dto.ResumeJoinArchiveDTO">
+
+        SELECT <include refid="columnsJoinArchive"/> FROM academic_resume ar INNER JOIN archive archive on ar.score_id=archive.id and ar.score_type=archive.type
+        <where>
+            <trim suffixOverrides="AND" prefixOverrides="AND">
+                <if test="id != null">AND ar.`id`=#{id}</if>
+                <if test="school != null and school != ''">AND ar.`school`=#{school}</if>
+                <if test="schoolId != null">AND ar.`school_id`=#{schoolId}</if>
+                <if test="gradeId != null">AND ar.`grade_id`=#{gradeId}</if>
+                <if test="gradeName != null and gradeName != ''">AND ar.`grade_name`=#{gradeName}</if>
+                <if test="classId != null">AND ar.`class_id`=#{classId}</if>
+                <if test="className != null and className != ''">AND ar.`class_name`=#{className}</if>
+                <if test="semesterCode != null">AND ar.`semester_code`=#{semesterCode}</if>
+                <if test="semesterName != null and semesterName != ''">AND ar.`semester_name`=#{semesterName}</if>
+                <if test="studentName != null and studentName != ''">AND ar.`student_name`=#{studentName}</if>
+                <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
+                <if test="gender != null">AND ar.`gender`=#{gender}</if>
+                <if test="scoreId != null">AND ar.`score_id`=#{scoreId}</if>
+                <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
+                <if test="createdFounderId != null">AND ar.`created_founder_id`=#{createdFounderId}</if>
+                <if test="updatedFounderId != null">AND ar.`updated_founder_id`=#{updatedFounderId}</if>
+                <if test="createdTime != null">AND ar.`created_time`=#{createdTime}</if>
+                <if test="updatedTime != null">AND ar.`updated_time`=#{updatedTime}</if>
+            </trim>
+        </where>
+    </select>
+
+
+    <!--履历和未归档表详情-->
+    <select id="unfileDetail"
+            parameterType="com.uptang.cloud.score.common.model.AcademicResume"
+            resultType="com.uptang.cloud.score.dto.ResumeJoinScoreDTO">
+
+        SELECT <include refid="columnsJoinUnfiled"/> FROM academic_resume ar INNER JOIN logic_score score on ar.score_id=score.id and ar.score_type=score.type
+        <where>
+            <trim suffixOverrides="AND" prefixOverrides="AND">
+                <if test="id != null">AND ar.`id`=#{id}</if>
+                <if test="school != null and school != ''">AND ar.`school`=#{school}</if>
+                <if test="schoolId != null">AND ar.`school_id`=#{schoolId}</if>
+                <if test="gradeId != null">AND ar.`grade_id`=#{gradeId}</if>
+                <if test="gradeName != null and gradeName != ''">AND ar.`grade_name`=#{gradeName}</if>
+                <if test="classId != null">AND ar.`class_id`=#{classId}</if>
+                <if test="className != null and className != ''">AND ar.`class_name`=#{className}</if>
+                <if test="semesterCode != null">AND ar.`semester_code`=#{semesterCode}</if>
+                <if test="semesterName != null and semesterName != ''">AND ar.`semester_name`=#{semesterName}</if>
+                <if test="studentName != null and studentName != ''">AND ar.`student_name`=#{studentName}</if>
+                <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
+                <if test="gender != null">AND ar.`gender`=#{gender}</if>
+                <if test="scoreId != null">AND ar.`score_id`=#{scoreId}</if>
+                <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
+                <if test="createdFounderId != null">AND ar.`created_founder_id`=#{createdFounderId}</if>
+                <if test="updatedFounderId != null">AND ar.`updated_founder_id`=#{updatedFounderId}</if>
+                <if test="createdTime != null">AND ar.`created_time`=#{createdTime}</if>
+                <if test="updatedTime != null">AND ar.`updated_time`=#{updatedTime}</if>
+            </trim>
+        </where>
+    </select>
+</mapper>

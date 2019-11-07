@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.uptang.cloud.score.common.model.AcademicResume;
+import com.uptang.cloud.score.dto.ResumeJoinArchiveDTO;
+import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 import com.uptang.cloud.score.repository.AcademicResumeRepository;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import org.springframework.stereotype.Service;
@@ -36,5 +38,15 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
     public Page<AcademicResume> page(Integer pageNum, Integer pageSize, AcademicResume resume) {
         PageHelper.startPage(pageNum, pageSize);
         return getBaseMapper().page(resume);
+    }
+
+    @Override
+    public ResumeJoinArchiveDTO getArchiveDetail(AcademicResume academicResume) {
+        return getBaseMapper().archiveDetail(academicResume);
+    }
+
+    @Override
+    public ResumeJoinScoreDTO getUnfileDetail(AcademicResume academicResume) {
+        return getBaseMapper().unfileDetail(academicResume);
     }
 }

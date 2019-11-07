@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uptang.cloud.score.repository.ShowRepository">
+
+    <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.Show">
+        <id property="id" column="id"/>
+        <result property="school" column="school"/>
+        <result property="schoolId" column="school_id"/>
+        <result property="gradeId" column="grade_id"/>
+        <result property="gradeName" column="grade_name"/>
+        <result property="classId" column="class_id"/>
+        <result property="className" column="class_name"/>
+        <result property="semesterCode" column="semester_code"/>
+        <result property="semesterName" column="semester_name"/>
+        <result property="studentName" column="student_name"/>
+        <result property="studentCode" column="student_code"/>
+        <result property="gender" column="gender"/>
+        <result property="scoreId" column="score_id"/>
+        <result property="scoreType" column="score_type"/>
+        <result property="createdFounderId" column="created_founder_id"/>
+        <result property="updatedFounderId" column="updated_founder_id"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+
+        <result property="reviewId" column="review_id"/>
+        <result property="scoreId" column="score_id"/>
+        <result property="type" column="type" typeHandler="com.uptang.cloud.score.handler.ScoreTypeEnumTypeHandler"/>
+        <result property="showStat" column="show_stat" typeHandler="com.uptang.cloud.score.handler.ShowStatEnumTypeHandler"/>
+        <result property="objection" column="objection" typeHandler="com.uptang.cloud.score.handler.ObjectionEnumTypeHandler"/>
+        <result property="objectionDesc" column="objection_desc"/>
+        <result property="archive" column="archive"/>
+    </resultMap>
+
+    <sql id="columns">
+        ar.`id`, ar.`school`, ar.`school_id`, ar.`grade_id`, ar.`grade_name`, ar.`class_id`, ar.`class_name`,
+        ar.`semester_code`, ar.`semester_name`, ar.`student_name`, ar.`student_code`, ar.`gender`, ar.`score_id`,
+        ar.`score_type`, ar.`created_founder_id`, ar.`updated_founder_id`, ar.`created_time`, ar.`updated_time`,
+        rv.`id` AS `review_id`, rv.`score_id` , rv.`type`, rv.`show_stat`,
+        rv.`objection`, rv.`objection_desc`, rv.`archive`
+    </sql>
+
+    <!--分页-->
+    <select id="page" resultMap="ResultMap" parameterType="com.uptang.cloud.score.common.model.Show">
+        SELECT <include refid="columns"/> FROM academic_resume ar inner join review rv on ar.score_id=rv.score_id
+        <where>
+            <trim suffixOverrides="AND" prefixOverrides="AND">
+                <if test="school != null and school != ''">AND ar.`school`=#{school}</if>
+                <if test="schoolId != null">AND ar.`school_id`=#{schoolId}}</if>
+                <if test="gradeId != null">AND ar.`grade_id`=#{gradeId}}</if>
+                <if test="gradeName != null and gradeName != ''">AND ar.`grade_name`=#{gradeName}</if>
+                <if test="classId != null">AND ar.`class_id`=#{classId}}</if>
+                <if test="className != null and className != ''">AND ar.`class_name`=#{className}</if>
+                <if test="semesterCode != null">AND ar.`semester_code`=#{semesterCode}}</if>
+                <if test="semesterName != null and semesterName != ''">AND ar.`semester_name`=#{semesterName}</if>
+                <if test="studentName != null and studentName != ''">AND ar.`student_name`=#{studentName}</if>
+                <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
+                <if test="gender != null">AND ar.`gender`=#{gender}}</if>
+                <if test="scoreId != null">AND ar.`score_id`=#{scoreId}}</if>
+                <if test="scoreType != null">AND ar.`score_type`=#{scoreType}}</if>
+                <if test="createdFounderId != null">AND ar.`created_founder_id`=#{createdFounderId}}</if>
+                <if test="updatedFounderId != null">AND ar.`updated_founder_id`=#{updatedFounderId}}</if>
+                <if test="createdTime != null">AND ar.`created_time`=#{createdTime}}</if>
+                <if test="updatedTime != null">AND ar.`updated_time`=#{updatedTime}}</if>
+
+                <if test="reviewId != null">AND rv.`id`=#{reviewId}</if>
+                <if test="scoreId != null">AND rv.`score_id`=#{scoreId}</if>
+                <if test="type != null">AND rv.`type`=#{type}</if>
+                <if test="objection != null">AND rv.`objection`=#{objection}</if>
+                <if test="objectionDesc != null and objectionDesc != ''">AND rv.`objection_desc`=#{objectionDesc}</if>
+                <if test="archive != null">AND rv.`archive`=#{archive}</if>
+            </trim>
+        </where>
+    </select>
+
+</mapper>

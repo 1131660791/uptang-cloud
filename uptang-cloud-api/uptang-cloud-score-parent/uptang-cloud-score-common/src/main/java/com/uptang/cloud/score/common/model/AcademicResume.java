@@ -136,5 +136,9 @@ public class AcademicResume implements Serializable {
      * @comment 修改时间
      */
     private java.util.Date updatedTime;
+
+    public AcademicResume(Long id) {
+        this.id = id;
+    }
 }
 

@@ -1,13 +1,7 @@
 package com.uptang.cloud.score.handler;
 
 import com.uptang.cloud.score.common.enums.ShowStatEnum;
-import org.apache.ibatis.type.BaseTypeHandler;
-import org.apache.ibatis.type.JdbcType;
-
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.uptang.cloud.starter.data.mybaits.handler.BaseObjectHandler;
 
 /**
  * @author : Lee.m.yin
@@ -15,25 +9,15 @@ import java.sql.SQLException;
  * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
  * @Summary : FIXME
  */
-public class ShowStatEnumTypeHandler extends BaseTypeHandler<ShowStatEnum> {
+public class ShowStatEnumTypeHandler extends BaseObjectHandler<ShowStatEnum> {
 
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, ShowStatEnum parameter, JdbcType jdbcType) throws SQLException {
-        ps.setInt(i, parameter.getCode());
+    public int getCode(ShowStatEnum enumeration) {
+        return enumeration.getCode();
     }
 
     @Override
-    public ShowStatEnum getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        return ShowStatEnum.code(rs.getInt(columnName));
-    }
-
-    @Override
-    public ShowStatEnum getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        return ShowStatEnum.code(rs.getInt(columnIndex));
-    }
-
-    @Override
-    public ShowStatEnum getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        return ShowStatEnum.code(cs.getInt(columnIndex));
+    public ShowStatEnum getObject(int code) {
+        return ShowStatEnum.code(code);
     }
 }
