@@ -3,7 +3,7 @@ package com.uptang.cloud.score.common.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.uptang.cloud.score.common.enums.SubjectEnum;
+import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -18,12 +18,12 @@ import java.io.Serializable;
  * @summary : FIXME
  */
 @Data
-@NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
+@NoArgsConstructor
 @SuppressWarnings("serial")
-@TableName("academic_score")
-public class Score implements Serializable {
+@TableName("archive")
+public class Archive implements Serializable {
 
     /**
      * @type bigint(20) unsigned
@@ -35,20 +35,14 @@ public class Score implements Serializable {
 
     /**
      * @type tinyint(1) unsigned
-     * @comment 科目 数学 语文 英语 物理 地理 化学 (0 表示没有科目)
+     * @comment 成绩类型 0 学业成绩 1 体质健康 2 艺术成绩
      */
-    private SubjectEnum subject;
+    private ScoreTypeEnum type;
 
     /**
-     * @type varchar(20)
-     * @comment 文本成绩 E.g: 合格、不合格
+     * @type varchar(255)
+     * @comment 成绩详情 {语文:85.5,数学:85.5,英语:89.5}
      */
-    private String scoreText;
-
-    /**
-     * @type smallint(4)
-     * @comment 数字成绩 E.g: 85.2 (0 表示没有成绩)
-     */
-    private Integer scoreNumber;
+    private String detail;
 }
 

@@ -1,9 +1,9 @@
 package com.uptang.cloud.score.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.uptang.cloud.score.common.model.Score;
-import com.uptang.cloud.score.repository.ScoreRepository;
-import com.uptang.cloud.score.service.IScoreService;
+import com.uptang.cloud.score.common.model.Student;
+import com.uptang.cloud.score.repository.StudentRepository;
+import com.uptang.cloud.score.service.IStudentService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,7 +13,5 @@ import org.springframework.stereotype.Service;
  * @summary : FIXME
  */
 @Service
-public class ScoreServiceImpl extends ServiceImpl<ScoreRepository, Score> implements IScoreService {
-
+public class StudentServiceImpl extends ServiceImpl<StudentRepository, Student> implements IStudentService {
 }
-
