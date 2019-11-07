@@ -14,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,8 +52,8 @@ public class AcademicResumeController extends BaseController implements Academic
             @ApiImplicitParam(name = "pageSize", value = "条数", paramType = "path", required = true)
     })
     public ApiOut<List<AcademicResumeVO>> getList(@PathVariable Integer pageNum,
-                                               @PathVariable Integer pageSize,
-                                               @RequestBody AcademicResumeVO resumeVO) {
+                                                  @PathVariable Integer pageSize,
+                                                  @RequestBody AcademicResumeVO resumeVO) {
 
         AcademicResume resume = AcademicResumeConverter.INSTANCE.toModel(resumeVO);
         Page<AcademicResume> resumes = academicResumeService.page(pageNum, pageSize, resume);
@@ -78,4 +79,5 @@ public class AcademicResumeController extends BaseController implements Academic
         String message = !updated ? "修改成绩失败" : "成绩修改成功";
         return ApiOut.newParameterRequiredResponse(message);
     }
+
 }

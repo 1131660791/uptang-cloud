@@ -108,4 +108,34 @@ public class PaperRepository {
             }
         }
     }
+
+
+    /**
+     * 更新答题卡裁剪状态
+     *
+     * @param examCode      考试代码
+     * @param ticketNumbers 准考证号
+     * @return 更新成功的行数
+     */
+    public Integer makeAsCropped(String examCode, Collection<String> ticketNumbers) {
+        StringBuilder sqlBuilder = new StringBuilder(100);
+        sqlBuilder.append("UPDATE `xty_scan` SET `cq` = 2");
+        sqlBuilder.append(" WHERE `zkzh` IN ('").append(StringUtils.join(ticketNumbers, "', '")).append("')");
+
+        Statement statement = null;
+        try (Connection connection = connectionManager.getConnection(examCode)) {
+            statement = connection.createStatement();
+            return statement.executeUpdate(sqlBuilder.toString());
+        } catch (Exception ex) {
+            throw new DataAccessException(ex.getMessage(), ex);
+        } finally {
+            try {
+                if (Objects.nonNull(statement)) {
+                    statement.close();
+                }
+            } catch (Exception ex) {
+                // Noting
+            }
+        }
+    }
 }

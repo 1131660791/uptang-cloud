@@ -1,8 +1,12 @@
 package com.uptang.cloud.score.controller;
 
 import com.uptang.cloud.core.util.NumberUtils;
+import com.uptang.cloud.score.common.converter.AcademicResumeConverter;
 import com.uptang.cloud.score.common.converter.ScoreConverter;
+import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.common.model.Score;
+import com.uptang.cloud.score.common.vo.AcademicResumeVO;
+import com.uptang.cloud.score.common.vo.ResumeScoreVO;
 import com.uptang.cloud.score.common.vo.ScoreVO;
 import com.uptang.cloud.score.feign.ScoreProvider;
 import com.uptang.cloud.score.service.IScoreService;
@@ -15,6 +19,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * @author Jiang Chuan
@@ -33,23 +38,33 @@ public class ScoreController extends BaseController implements ScoreProvider {
         this.scoreService = scoreService;
     }
 
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/{id}/{type}")
     @ApiOperation(value = "成绩详情", response = ScoreVO.class)
-    @ApiImplicitParam(name = "id", value = "成绩ID", paramType = "path", required = true)
-    public ApiOut<ScoreVO> getDetail(@PathVariable("id") @NotNull Long id) {
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "成绩ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "type", value = "成绩类型", paramType = "path", required = true)
+    })
+    public ApiOut<Score> getDetail(@PathVariable("id") @NotNull Long id,
+                                   @PathVariable("type") @NotNull Integer type) {
         if (NumberUtils.isNotPositive(id)) {
             return ApiOut.newParameterRequiredResponse("成绩ID");
         }
 
-        Score score = scoreService.getById(id);
-        return ApiOut.newSuccessResponse(ScoreConverter.INSTANCE.toVo(score));
+        return ApiOut.newSuccessResponse(scoreService.getDetail(id, type));
     }
 
     @PostMapping
-    @ApiOperation(value = "成绩录入", response = ScoreVO.class)
-    @ApiParam(name = "成绩", value = "传入json格式", required = true)
-    public ApiOut<ScoreVO> save(@RequestBody ScoreVO scoreVO) {
-        boolean saved = scoreService.save(ScoreConverter.INSTANCE.toModel(scoreVO));
+    @ApiParam(value = "传入json格式", required = true)
+    @ApiOperation(value = "成绩录入", response = String.class)
+    public ApiOut<String> save(@RequestBody ResumeScoreVO resumeScoreVO) {
+        AcademicResumeVO resumeVO = resumeScoreVO.getResume();
+        resumeVO.setCreatedTime(new Date());
+        resumeVO.setCreatedFounderId(getUserId());
+
+        Score score = ScoreConverter.INSTANCE.toModel(resumeScoreVO.getScore());
+        AcademicResume resume = AcademicResumeConverter.INSTANCE.toModel(resumeVO);
+        boolean saved = scoreService.save(score, resume);
+
         String message = !saved ? "成绩录入失败" : "成功录入成绩";
         return ApiOut.newParameterRequiredResponse(message);
     }

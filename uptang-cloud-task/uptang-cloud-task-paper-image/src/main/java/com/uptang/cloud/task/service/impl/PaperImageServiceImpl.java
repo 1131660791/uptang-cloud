@@ -4,16 +4,17 @@ import com.obs.services.ObsClient;
 import com.uptang.cloud.base.common.domain.ObsProperties;
 import com.uptang.cloud.base.common.domain.PaperImage;
 import com.uptang.cloud.base.common.support.PaperImageProcessor;
+import com.uptang.cloud.task.repository.PaperRepository;
 import com.uptang.cloud.task.service.PaperImageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Collections;
 
 /**
  * @author Jiang Chuan
@@ -25,27 +26,29 @@ import java.io.InputStream;
 public class PaperImageServiceImpl implements PaperImageService {
     private final PaperImageProcessor processor;
     private final ObsProperties properties;
+    private final PaperRepository paperRepository;
 
-    public PaperImageServiceImpl(PaperImageProcessor processor, ObsProperties properties) {
+    public PaperImageServiceImpl(PaperImageProcessor processor, ObsProperties properties, PaperRepository paperRepository) {
         this.processor = processor;
         this.properties = properties;
+        this.paperRepository = paperRepository;
     }
 
 
     @Override
     public void processImage(PaperImage paperImage) {
-        StopWatch stopWatch = new StopWatch("图片处理");
+        long start = System.currentTimeMillis();
 
-        stopWatch.start("处理图片");
+        // 处理图片
         BufferedImage bufferedImage = processor.processImage(paperImage);
-        stopWatch.stop();
 
         // 上传图片
-        stopWatch.start("上传图片");
         uploadImage(paperImage, bufferedImage);
-        stopWatch.stop();
 
-        log.info("Process images, It's took: {}ms\n{}", stopWatch.getTotalTimeMillis(), stopWatch.prettyPrint());
+        // 确保正确性，再次更新裁切标志
+        paperRepository.makeAsCropped(paperImage.getExamCode(), Collections.singletonList(paperImage.getStudentId()));
+
+        log.info("Process images, It's took: {}ms", System.currentTimeMillis() - start);
     }
 
 

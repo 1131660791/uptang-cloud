@@ -13,4 +13,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ScoreRepository extends BaseMapper<Score> {
 
+
+    /**
+     * 插入
+     *
+     * @param score
+     */
+    void save(Score score);
 }

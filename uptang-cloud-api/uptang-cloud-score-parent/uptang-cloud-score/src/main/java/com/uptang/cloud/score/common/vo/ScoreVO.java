@@ -29,6 +29,15 @@ public class ScoreVO extends BaseVO<ScoreVO> implements Serializable, Cloneable 
     @ApiModelProperty(notes = "成绩ID")
     private Long id;
 
+    @ApiModelProperty(notes = "成绩类型编码 0 学业成绩 1 体质健康 2 艺术成绩")
+    private Integer type;
+
+    /**
+     * @comment 成绩类型 0 学业成绩 1 体质健康 2 艺术成绩
+     */
+    @ApiModelProperty(notes = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩")
+    private String typeText;
+
     /**
      * @comment 科目 数学 语文 英语 物理 地理 化学 (0 表示没有科目)
      */
