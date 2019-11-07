@@ -10,12 +10,23 @@
     </resultMap>
 
     <!--字段名 Java属性名-->
-    <sql id="columns">
-       <trim suffixOverrides=",">
-           `id` AS `id`,
-           `subject` AS `subject`,
-           `score_text` AS `scoreText`,
-           `score_number` AS `scoreNumber`,
-       </trim>
-    </sql>
+    <sql id="columns">`id` AS `id`, `subject` AS `subject`, `score_text` AS `scoreText`, `score_number` AS `scoreNumber`</sql>
+
+    <!--新增并返回新增的ID-->
+    <insert id="add" parameterType="com.uptang.cloud.score.common.model.Score" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO score
+        <trim suffixOverrides="," prefix="(" suffix=")">
+            <if test="resumeId != null">`resume_id`</if>
+            <if test="subject != null">`subject`,</if>
+            <if test="scoreText != null scoreText != ''">`score_text`,</if>
+            <if test="scoreNumber != null">`score_number`,</if>
+        </trim>
+        VALUES
+        <trim suffixOverrides="," prefix="(" suffix=")">
+            <if test="resumeId != null">#{resumeId},</if>
+            <if test="subject != null">#{subject},</if>
+            <if test="scoreText != null scoreText != ''">#{scoreText},</if>
+            <if test="scoreNumber != null">#{scoreNumber},</if>
+        </trim>
+    </insert>
 </mapper>

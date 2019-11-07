@@ -26,6 +26,8 @@ public interface ScoreConverter {
     @Mapping(target = "children", ignore = true)
     @Mapping(target = "subject", source = "subject.code")
     @Mapping(target = "subjectText", source = "subject.desc")
+    @Mapping(target = "type", source = "type.code")
+    @Mapping(target = "typeText", source = "type.desc")
     ScoreVO toVo(Score score);
 
     /**
@@ -35,6 +37,7 @@ public interface ScoreConverter {
      * @return 转换后实体
      */
     @Mapping(target = "subject", expression = "java(SubjectEnum.code(score.getSubject()))")
+    @Mapping(target = "type", expression = "java(ScoreTypeEnum.code(score.getType()))")
     Score toModel(ScoreVO score);
 
 }

@@ -1,6 +1,7 @@
 package com.uptang.cloud.score.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.common.model.Score;
 
 /**
@@ -10,4 +11,15 @@ import com.uptang.cloud.score.common.model.Score;
  * @summary : FIXME
  */
 public interface IScoreService extends IService<Score> {
+
+    Score getDetail(Long id,Integer type);
+
+    /**
+     * 录入成绩
+     *
+     * @param score
+     * @param resume
+     * @return
+     */
+    boolean save(Score score, AcademicResume resume);
 }

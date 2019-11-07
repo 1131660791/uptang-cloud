@@ -3,6 +3,7 @@ package com.uptang.cloud.score.common.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.enums.SubjectEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,7 +23,7 @@ import java.io.Serializable;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @SuppressWarnings("serial")
-@TableName("academic_score")
+@TableName("logic_score")
 public class Score implements Serializable {
 
     /**
@@ -32,6 +33,12 @@ public class Score implements Serializable {
      */
     @TableId(type = IdType.AUTO)
     private Long id;
+
+    /**
+     * @type tinyint(1) unsigned
+     * @comment 成绩类型 0 学业成绩 1 体质健康 2 艺术成绩
+     */
+    private ScoreTypeEnum type;
 
     /**
      * @type tinyint(1) unsigned
