@@ -119,14 +119,18 @@
         <prudent>false</prudent>
     </appender>
 
-    <logger name="com.uptang.cloud" level="DEBUG">
+    <logger name="com.uptang.cloud" level="${LOG_LEVEL_ROOT}">
         <appender-ref ref="FILE_DEBUG"/>
         <appender-ref ref="FILE_INFO"/>
         <appender-ref ref="FILE_ERROR"/>
     </logger>
 
+    <logger name="com.obs" level="WARN">
+        <appender-ref ref="FILE_ERROR"/>
+    </logger>
+
     <!-- 日志输出级别 -->
-    <root level="INFO">
+    <root level="${LOG_LEVEL_ROOT}">
         <appender-ref ref="CONSOLE"/>
     </root>
 
