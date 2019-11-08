@@ -37,19 +37,10 @@ public class AcademicResumeController extends BaseController implements Academic
         this.academicResumeService = academicResumeService;
     }
 
-    @GetMapping(path = "/{id}")
-    @ApiOperation(value = "履历未归档分数详情", response = AcademicResumeVO.class)
-    @ApiImplicitParam(name = "id", value = "履历ID", paramType = "path", required = true)
-    public ApiOut<ResumeJoinScoreVO> getDetail(@PathVariable Long id) {
-        AcademicResume academicResume = new AcademicResume(id);
-        final ResumeJoinScoreDTO resume = academicResumeService.getUnfileDetail(academicResume);
-        return ApiOut.newSuccessResponse(ResumeJoinScoreConverter.INSTANCE.toVo(resume));
-    }
-
 
     @GetMapping("/{pageNum}/{pageSize}")
     @ApiParam(value = "传入json格式", required = true)
-    @ApiOperation(value = "履历列表", response = AcademicResumeVO.class)
+    @ApiOperation(value = "履历", response = AcademicResumeVO.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "path", required = true),
             @ApiImplicitParam(name = "pageSize", value = "条数", paramType = "path", required = true)

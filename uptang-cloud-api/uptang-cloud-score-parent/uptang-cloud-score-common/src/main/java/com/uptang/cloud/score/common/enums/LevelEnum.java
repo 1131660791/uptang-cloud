@@ -1,6 +1,7 @@
 package com.uptang.cloud.score.common.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.uptang.cloud.pojo.enums.IEnumType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,32 +14,43 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum LevelEnum {
+public enum LevelEnum implements IEnumType {
 
 
     /**
      * 优秀
      */
-    BEST(1),
+    BEST(1, "优秀"),
 
     /**
      * 良好
      */
-    GOOD(2),
+    GOOD(2, "良好"),
 
     /**
      * 合格
      */
-    QUALIFIED(3),
+    QUALIFIED(3, "合格"),
 
     /**
      * 不合格
      */
-    FAILED(4);
+    FAILED(4, "不合格");
 
 
     @EnumValue
     private final int code;
+
+    private final String desc;
+
+    public static LevelEnum text(String text) {
+        for (LevelEnum member : LevelEnum.values()) {
+            if (member.getDesc().equals(text)) {
+                return member;
+            }
+        }
+        return null;
+    }
 
     public static LevelEnum code(int code) {
         for (LevelEnum member : LevelEnum.values()) {

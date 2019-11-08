@@ -155,4 +155,65 @@
             </trim>
         </where>
     </select>
+
+    <!--履历和归档列表-->
+    <select id="archiveList"
+            parameterType="com.uptang.cloud.score.common.model.AcademicResume"
+            resultType="com.uptang.cloud.score.dto.ResumeJoinArchiveDTO">
+
+        SELECT <include refid="columnsJoinArchive"/> FROM academic_resume ar INNER JOIN archive archive on ar.score_id=archive.id and ar.score_type=archive.type
+        <where>
+            <trim suffixOverrides="AND" prefixOverrides="AND">
+                <if test="id != null">AND ar.`id`=#{id}</if>
+                <if test="school != null and school != ''">AND ar.`school`=#{school}</if>
+                <if test="schoolId != null">AND ar.`school_id`=#{schoolId}</if>
+                <if test="gradeId != null">AND ar.`grade_id`=#{gradeId}</if>
+                <if test="gradeName != null and gradeName != ''">AND ar.`grade_name`=#{gradeName}</if>
+                <if test="classId != null">AND ar.`class_id`=#{classId}</if>
+                <if test="className != null and className != ''">AND ar.`class_name`=#{className}</if>
+                <if test="semesterCode != null">AND ar.`semester_code`=#{semesterCode}</if>
+                <if test="semesterName != null and semesterName != ''">AND ar.`semester_name`=#{semesterName}</if>
+                <if test="studentName != null and studentName != ''">AND ar.`student_name`=#{studentName}</if>
+                <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
+                <if test="gender != null">AND ar.`gender`=#{gender}</if>
+                <if test="scoreId != null">AND ar.`score_id`=#{scoreId}</if>
+                <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
+                <if test="createdFounderId != null">AND ar.`created_founder_id`=#{createdFounderId}</if>
+                <if test="updatedFounderId != null">AND ar.`updated_founder_id`=#{updatedFounderId}</if>
+                <if test="createdTime != null">AND ar.`created_time`=#{createdTime}</if>
+                <if test="updatedTime != null">AND ar.`updated_time`=#{updatedTime}</if>
+            </trim>
+        </where>
+    </select>
+
+
+    <!--履历和未归档列表-->
+    <select id="unfileList"
+            parameterType="com.uptang.cloud.score.common.model.AcademicResume"
+            resultType="com.uptang.cloud.score.dto.ResumeJoinScoreDTO">
+
+        SELECT <include refid="columnsJoinUnfiled"/> FROM academic_resume ar INNER JOIN logic_score score on ar.score_id=score.id and ar.score_type=score.type
+        <where>
+            <trim suffixOverrides="AND" prefixOverrides="AND">
+                <if test="id != null">AND ar.`id`=#{id}</if>
+                <if test="school != null and school != ''">AND ar.`school`=#{school}</if>
+                <if test="schoolId != null">AND ar.`school_id`=#{schoolId}</if>
+                <if test="gradeId != null">AND ar.`grade_id`=#{gradeId}</if>
+                <if test="gradeName != null and gradeName != ''">AND ar.`grade_name`=#{gradeName}</if>
+                <if test="classId != null">AND ar.`class_id`=#{classId}</if>
+                <if test="className != null and className != ''">AND ar.`class_name`=#{className}</if>
+                <if test="semesterCode != null">AND ar.`semester_code`=#{semesterCode}</if>
+                <if test="semesterName != null and semesterName != ''">AND ar.`semester_name`=#{semesterName}</if>
+                <if test="studentName != null and studentName != ''">AND ar.`student_name`=#{studentName}</if>
+                <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
+                <if test="gender != null">AND ar.`gender`=#{gender}</if>
+                <if test="scoreId != null">AND ar.`score_id`=#{scoreId}</if>
+                <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
+                <if test="createdFounderId != null">AND ar.`created_founder_id`=#{createdFounderId}</if>
+                <if test="updatedFounderId != null">AND ar.`updated_founder_id`=#{updatedFounderId}</if>
+                <if test="createdTime != null">AND ar.`created_time`=#{createdTime}</if>
+                <if test="updatedTime != null">AND ar.`updated_time`=#{updatedTime}</if>
+            </trim>
+        </where>
+    </select>
 </mapper>

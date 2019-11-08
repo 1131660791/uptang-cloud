@@ -11,6 +11,7 @@ import com.uptang.cloud.score.service.IAcademicResumeService;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -49,4 +50,17 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
     public ResumeJoinScoreDTO getUnfileDetail(AcademicResume academicResume) {
         return getBaseMapper().unfileDetail(academicResume);
     }
+
+    @Override
+    public List<ResumeJoinArchiveDTO> getArchiveList(Integer pageNum, Integer pageSize, AcademicResume academicResume) {
+        PageHelper.startPage(pageNum, pageSize);
+        return getBaseMapper().archiveList(academicResume);
+    }
+
+    @Override
+    public List<ResumeJoinScoreDTO> getUnfiledList(Integer pageNum, Integer pageSize, AcademicResume academicResume) {
+        PageHelper.startPage(pageNum, pageSize);
+        return getBaseMapper().unfileList(academicResume);
+    }
+
 }

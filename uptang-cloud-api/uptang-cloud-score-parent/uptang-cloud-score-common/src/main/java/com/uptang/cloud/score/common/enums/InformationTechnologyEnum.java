@@ -43,6 +43,22 @@ public enum InformationTechnologyEnum implements IEnumType {
         return name();
     }
 
+    public static InformationTechnologyEnum level(String level) {
+
+        if (InformationTechnologyEnum.A.name().equals(level)) {
+            return InformationTechnologyEnum.A;
+        }
+        if (InformationTechnologyEnum.B.name().equals(level)) {
+            return InformationTechnologyEnum.B;
+        }
+
+        if (InformationTechnologyEnum.C.name().equals(level)) {
+            return InformationTechnologyEnum.C;
+        }
+
+        return InformationTechnologyEnum.D;
+    }
+
     public static InformationTechnologyEnum code(int code) {
         for (InformationTechnologyEnum member : InformationTechnologyEnum.values()) {
             if (member.getCode() == code) {

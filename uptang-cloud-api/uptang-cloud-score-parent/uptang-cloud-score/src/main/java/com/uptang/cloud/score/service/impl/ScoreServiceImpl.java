@@ -7,6 +7,7 @@ import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 import com.uptang.cloud.score.repository.ScoreRepository;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import com.uptang.cloud.score.service.IScoreService;
+import com.uptang.cloud.score.template.Excel;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,9 +21,12 @@ import java.util.Date;
 @Service
 public class ScoreServiceImpl extends ServiceImpl<ScoreRepository, Score> implements IScoreService {
 
+    private Excel excel;
+
     private final IAcademicResumeService academicResumeService;
 
-    public ScoreServiceImpl(IAcademicResumeService academicResumeService) {
+    public ScoreServiceImpl(Excel excel, IAcademicResumeService academicResumeService) {
+        this.excel = excel;
         this.academicResumeService = academicResumeService;
     }
 

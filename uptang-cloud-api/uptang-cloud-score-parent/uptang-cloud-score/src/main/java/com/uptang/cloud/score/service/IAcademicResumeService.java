@@ -6,6 +6,8 @@ import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.dto.ResumeJoinArchiveDTO;
 import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 
+import java.util.List;
+
 /**
  * @author : Lee.m.yin
  * @createTime : 2019-11-06 10:32:21
@@ -48,4 +50,24 @@ public interface IAcademicResumeService extends IService<AcademicResume> {
      * @return
      */
     ResumeJoinScoreDTO getUnfileDetail(AcademicResume academicResume);
+
+    /**
+     * 获取归档数据列表
+     *
+     * @param pageNum
+     * @param pageSize
+     * @param academicResume
+     * @return
+     */
+    List<ResumeJoinArchiveDTO> getArchiveList(Integer pageNum, Integer pageSize, AcademicResume academicResume);
+
+    /**
+     * 获取未归档数据列表
+     *
+     * @param pageNum
+     * @param pageSize
+     * @param academicResume
+     * @return
+     */
+    List<ResumeJoinScoreDTO> getUnfiledList(Integer pageNum, Integer pageSize, AcademicResume academicResume);
 }

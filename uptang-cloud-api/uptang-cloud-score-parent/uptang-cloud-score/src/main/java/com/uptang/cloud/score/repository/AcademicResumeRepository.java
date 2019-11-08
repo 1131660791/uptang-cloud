@@ -39,4 +39,21 @@ public interface AcademicResumeRepository extends BaseMapper<AcademicResume> {
      * @return
      */
     ResumeJoinScoreDTO unfileDetail(AcademicResume academicResume);
+
+
+    /**
+     * 未归档列表
+     *
+     * @param academicResume
+     * @return
+     */
+    Page<ResumeJoinScoreDTO> unfileList(AcademicResume academicResume);
+
+    /**
+     * 归档数据列表
+     *
+     * @param academicResume
+     * @return
+     */
+    Page<ResumeJoinArchiveDTO> archiveList(AcademicResume academicResume);
 }
