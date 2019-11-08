@@ -130,6 +130,30 @@ public class AttachmentController extends BaseController implements AttachmentPr
     }
 
 
+    @ApiOperation(value = "显示裁切后的图片", response = String.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "examCode", value = "考试项目代码", paramType = "path", example = "xty_20191011112438446"),
+            @ApiImplicitParam(name = "subjectCode", value = "科目代码", paramType = "path", example = "4"),
+            @ApiImplicitParam(name = "itemNum", value = "题目号", paramType = "path", example = "90"),
+            @ApiImplicitParam(name = "studentId", value = "学生ID或准考证号", paramType = "path", example = "001131701"),
+            @ApiImplicitParam(name = "mode", value = "拼接模式（horizontally:横拼, vertically:竖拼）", paramType = "query", defaultValue = "vertically")
+    })
+    @GetMapping(path = "/{examCode}/{subjectCode}/{itemNum}/{studentId}.png", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public void getImage(HttpServletResponse response,
+                         @PathVariable String examCode, @PathVariable String subjectCode,
+                         @PathVariable String itemNum, @PathVariable String studentId,
+                         @RequestParam(name = "mode", defaultValue = "vertically", required = false) String mode) {
+        String imageUrl = processor.generateUrlPath(examCode, subjectCode, itemNum, studentId, "vertically".equalsIgnoreCase(mode));
+        try {
+            BufferedImage bufferedImage = ImageIO.read(new URL(attachmentService.generateFullUrl(imageUrl)));
+            response.setHeader("x-img-url", imageUrl);
+            outputImage(response, bufferedImage);
+        } catch (Exception ex) {
+            log.error("获取物理裁切图片({})失败！", imageUrl);
+        }
+    }
+
+
     /**
      * http://localhost:8103/v1/attachments/xty_20191011112438446/4/90/001131701?debug=false&mode=vertically
      *
@@ -140,32 +164,32 @@ public class AttachmentController extends BaseController implements AttachmentPr
      * @param studentId    学生ID或准考证号
      * @param mode         拼接模式（horizontally:横拼, vertically:竖拼）
      * @param imageSources <pre>
-     *                       [{
-     *                         "height": 476,
-     *                         "path": "/21/20191010/7/7_18120190918114540270_a.jpg",
-     *                         "width": 1427,
-     *                         "x": 110,
-     *                         "y": 1297
-     *                       }, {
-     *                         "height": 458,
-     *                         "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
-     *                         "width": 1409,
-     *                         "x": 116,
-     *                         "y": 161
-     *                       }, {
-     *                         "height": 1101,
-     *                         "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
-     *                         "width": 1398,
-     *                         "x": 131,
-     *                         "y": 645
-     *                       }, {
-     *                         "height": 1132,
-     *                         "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
-     *                         "width": 1430,
-     *                         "x": 111,
-     *                         "y": 641
-     *                       }]
-     *                     </pre>
+     *                                                                                                       [{
+     *                                                                                                         "height": 476,
+     *                                                                                                         "path": "/21/20191010/7/7_18120190918114540270_a.jpg",
+     *                                                                                                         "width": 1427,
+     *                                                                                                         "x": 110,
+     *                                                                                                         "y": 1297
+     *                                                                                                       }, {
+     *                                                                                                         "height": 458,
+     *                                                                                                         "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
+     *                                                                                                         "width": 1409,
+     *                                                                                                         "x": 116,
+     *                                                                                                         "y": 161
+     *                                                                                                       }, {
+     *                                                                                                         "height": 1101,
+     *                                                                                                         "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
+     *                                                                                                         "width": 1398,
+     *                                                                                                         "x": 131,
+     *                                                                                                         "y": 645
+     *                                                                                                       }, {
+     *                                                                                                         "height": 1132,
+     *                                                                                                         "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
+     *                                                                                                         "width": 1430,
+     *                                                                                                         "x": 111,
+     *                                                                                                         "y": 641
+     *                                                                                                       }]
+     *                                                                                                     </pre>
      * @throws Exception 生成图片的异常
      */
     @ApiOperation(value = "处理图片 裁切/接接", response = Void.class)
