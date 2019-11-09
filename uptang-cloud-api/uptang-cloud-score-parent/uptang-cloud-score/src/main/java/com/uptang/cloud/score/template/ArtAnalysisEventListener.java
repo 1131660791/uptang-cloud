@@ -54,18 +54,20 @@ public class ArtAnalysisEventListener extends AbstractAnalysisEventListener<ArtS
         AcademicResume resume = new AcademicResume();
         resume.setCreatedTime(new Date());
         resume.setCreatedFounderId(getUserId());
-        resume.setGender(GenderEnum.UNSPECIFIED);
         resume.setScoreType(ScoreTypeEnum.ART);
         resume.setStudentName(artScore.getStudentName());
         resume.setSemesterCode(getSemesterCode());
         resume.setSemesterName(getSemesterCode().getDesc());
         resume.setStudentCode(artScore.getStudentCode());
+        resume.setGradeName(artScore.getGradeCode());
         resume.setSchoolId(getSchoolId());
         resume.setGradeId(getGradeId());
         resume.setClassId(getClassId());
-        //resume.setSchool();
-        resume.setGradeName(artScore.getGradeCode());
-        //resume.setClassName();
+
+        resume.setGender(GenderEnum.UNSPECIFIED);
+        resume.setSchool("ART");
+
+        resume.setClassName("ART");
         academicResumes.add(resume);
     }
 

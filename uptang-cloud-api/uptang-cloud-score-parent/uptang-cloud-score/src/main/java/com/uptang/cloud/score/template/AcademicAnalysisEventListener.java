@@ -133,6 +133,7 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
 
     private List<Score> buildSubjects(AcademicScoreDTO academicScore) {
         final List<Score> scoreList = new ArrayList<>(18);
+        scoreList.add(SubjectEnum.MORALITY_LAW.toScore(academicScore));
         scoreList.add(SubjectEnum.CHINESE.toScore(academicScore));
         scoreList.add(SubjectEnum.MATH.toScore(academicScore));
         scoreList.add(SubjectEnum.ENGLISH.toScore(academicScore));
@@ -145,7 +146,6 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
         scoreList.add(SubjectEnum.INFORMATION_TECHNOLOGY.toScore(academicScore));
         scoreList.add(SubjectEnum.MUSIC.toScore(academicScore));
         scoreList.add(SubjectEnum.ART.toScore(academicScore));
-        scoreList.add(SubjectEnum.ART_SUBJECT.toScore(academicScore));
         scoreList.add(SubjectEnum.PHYSICAL_EXPERIMENT.toScore(academicScore));
         scoreList.add(SubjectEnum.CHEMISTRY_EXPERIMENT.toScore(academicScore));
         scoreList.add(SubjectEnum.BIOLOGICAL_EXPERIMENT.toScore(academicScore));

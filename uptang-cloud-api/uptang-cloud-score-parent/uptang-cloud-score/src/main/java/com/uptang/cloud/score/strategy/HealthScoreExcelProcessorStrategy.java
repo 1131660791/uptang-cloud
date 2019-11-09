@@ -34,7 +34,7 @@ public class HealthScoreExcelProcessorStrategy implements ExcelProcessorStrategy
     @Override
     public boolean check(HealthScoreDTO rawData, AnalysisContext context,
                          Long userId, Long gradeId, Long classId, Long schoolId, SemesterEnum semesterCode) {
-        return false;
+        return true;
     }
 
     @Override

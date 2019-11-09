@@ -947,6 +947,23 @@ public enum SubjectEnum implements IEnumType {
     },
 
     /**
+     * 道德与法治
+     */
+    MORALITY_LAW(55, "道德与法治", "道德与法治") {
+        @Override
+        public Score toScore(HealthScoreDTO health) {
+            return null;
+        }
+
+        @Override
+        public Score toScore(AcademicScoreDTO academic) {
+            Score score = numberScoreRule(academic.getMoralityLaw());
+            score.setSubject(this);
+            return score;
+        }
+    },
+
+    /**
      * 美术
      */
     ART_SUBJECT(60, "艺术成绩", "艺术成绩") {
