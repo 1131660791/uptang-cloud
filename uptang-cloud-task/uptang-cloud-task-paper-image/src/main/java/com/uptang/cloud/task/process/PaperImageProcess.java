@@ -43,7 +43,7 @@ public class PaperImageProcess {
 
         // 批量获取消息
         records.forEach(record -> {
-            log.info("createTime:{}, partition:{}, key:{}, val:{}",
+            log.debug("createTime:{}, partition:{}, key:{}, val:{}",
                     record.timestamp(), record.partition(), record.key(), record.value());
             try {
                 // 开始处理图片

@@ -164,32 +164,32 @@ public class AttachmentController extends BaseController implements AttachmentPr
      * @param studentId    学生ID或准考证号
      * @param mode         拼接模式（horizontally:横拼, vertically:竖拼）
      * @param imageSources <pre>
-     *                                                                                                       [{
-     *                                                                                                         "height": 476,
-     *                                                                                                         "path": "/21/20191010/7/7_18120190918114540270_a.jpg",
-     *                                                                                                         "width": 1427,
-     *                                                                                                         "x": 110,
-     *                                                                                                         "y": 1297
-     *                                                                                                       }, {
-     *                                                                                                         "height": 458,
-     *                                                                                                         "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
-     *                                                                                                         "width": 1409,
-     *                                                                                                         "x": 116,
-     *                                                                                                         "y": 161
-     *                                                                                                       }, {
-     *                                                                                                         "height": 1101,
-     *                                                                                                         "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
-     *                                                                                                         "width": 1398,
-     *                                                                                                         "x": 131,
-     *                                                                                                         "y": 645
-     *                                                                                                       }, {
-     *                                                                                                         "height": 1132,
-     *                                                                                                         "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
-     *                                                                                                         "width": 1430,
-     *                                                                                                         "x": 111,
-     *                                                                                                         "y": 641
-     *                                                                                                       }]
-     *                                                                                                     </pre>
+     *   [{
+     *     "height": 476,
+     *     "path": "/21/20191010/7/7_18120190918114540270_a.jpg",
+     *     "width": 1427,
+     *     "x": 110,
+     *     "y": 1297
+     *   }, {
+     *     "height": 458,
+     *     "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
+     *     "width": 1409,
+     *     "x": 116,
+     *     "y": 161
+     *   }, {
+     *     "height": 1101,
+     *     "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
+     *     "width": 1398,
+     *     "x": 131,
+     *     "y": 645
+     *   }, {
+     *     "height": 1132,
+     *     "path": "/21/20191010/7/7_18120190918114540270_b.jpg",
+     *     "width": 1430,
+     *     "x": 111,
+     *     "y": 641
+     *   }]
+     * </pre>
      * @throws Exception 生成图片的异常
      */
     @ApiOperation(value = "处理图片 裁切/接接", response = Void.class)
