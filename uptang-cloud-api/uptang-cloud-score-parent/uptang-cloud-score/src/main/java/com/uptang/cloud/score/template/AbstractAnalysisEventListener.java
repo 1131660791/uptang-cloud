@@ -99,7 +99,7 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
                     context.readRowHolder().getRowIndex());
 
             String rawMessageData = JSON.toJSONString(newInstance);
-            message = String.format("%s。该行数据为：%s", rawMessageData, rawData);
+            message = String.format("%s。该行数据为：%s", message, rawMessageData);
             throw new ExcelExceptions(message);
         }
     }
