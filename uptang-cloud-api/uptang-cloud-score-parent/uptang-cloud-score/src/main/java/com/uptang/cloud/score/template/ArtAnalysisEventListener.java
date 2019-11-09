@@ -66,7 +66,6 @@ public class ArtAnalysisEventListener extends AbstractAnalysisEventListener<ArtS
 
         resume.setGender(GenderEnum.UNSPECIFIED);
         resume.setSchool("ART");
-
         resume.setClassName("ART");
         academicResumes.add(resume);
     }
@@ -94,7 +93,6 @@ public class ArtAnalysisEventListener extends AbstractAnalysisEventListener<ArtS
                 scores.clear();
             }
         }
-
 
         {
             List<Long> ids = new ArrayList<>();

@@ -18,7 +18,8 @@ public enum PrimitiveResolver {
     String_(String.class) {
         @Override
         public Object convert(Object object) {
-            return object != null ? String.valueOf(object) : "";
+            String str = object != null ? String.valueOf(object) : "";
+            return str != null ? str.replaceAll("\\s*", "") : "";
         }
     },
 
@@ -26,7 +27,7 @@ public enum PrimitiveResolver {
         @Override
         public Object convert(Object number) {
             try {
-                return number != null ? Long.parseLong(number + "") : null;
+                return number != null ? Long.parseLong((String) String_.convert(number)) : null;
             } catch (NumberFormatException e) {
                 if (Numbers.isFloat(number + "")) {
                     return new BigDecimal(number + "").shortValueExact();
@@ -39,11 +40,13 @@ public enum PrimitiveResolver {
     Int_(Integer.class) {
         @Override
         public Object convert(Object number) {
+            String string = (String) String_.convert(number);
+
             try {
-                return number != null ? Integer.parseInt(number + "") : null;
+                return number != null ? Integer.parseInt(string) : null;
             } catch (NumberFormatException e) {
-                if (Numbers.isFloat(number + "")) {
-                    return new BigDecimal(number + "").intValue();
+                if (Numbers.isFloat(string)) {
+                    return new BigDecimal(string).intValue();
                 }
 
                 throw e;
@@ -54,14 +57,14 @@ public enum PrimitiveResolver {
     Float_(Float.class) {
         @Override
         public Object convert(Object number) {
-            return number != null ? java.lang.Float.parseFloat(number + "") : null;
+            return number != null ? java.lang.Float.parseFloat((String) String_.convert(number)) : null;
         }
     },
 
     Double_(Double.class) {
         @Override
         public Object convert(Object number) {
-            return number != null ? java.lang.Double.parseDouble(number + "") : null;
+            return number != null ? java.lang.Double.parseDouble((String) String_.convert(number)) : null;
         }
     },
 
@@ -71,6 +74,7 @@ public enum PrimitiveResolver {
             try {
                 return Boolean.parseBoolean(bool + "");
             } catch (Exception e) {
+                // FIXME ignore
             }
 
             Long long_ = (Long) Long_.convert(bool);
@@ -82,16 +86,19 @@ public enum PrimitiveResolver {
         @Override
         public Object convert(Object number) {
             try {
-                return number != null ? Short.parseShort(number + "") : null;
+                return number != null ? Short.parseShort((String) String_.convert(number)) : null;
             } catch (NumberFormatException e) {
-                if (Numbers.isFloat(number + "")) {
-                    return new BigDecimal(number + "").shortValueExact();
+                if (Numbers.isFloat((String) String_.convert(number))) {
+                    return new BigDecimal((String) String_.convert(number)).shortValueExact();
                 }
                 throw e;
             }
         }
     };
 
+    /**
+     * 原始类型
+     */
     private final Class<?> clazz;
 
     PrimitiveResolver(Class<?> clazz) {
@@ -108,6 +115,11 @@ public enum PrimitiveResolver {
         if (int.class.isAssignableFrom(clazz)
                 || Integer.class.isAssignableFrom(clazz)) {
             return PrimitiveResolver.Int_;
+        }
+
+        if (short.class.isAssignableFrom(clazz)
+                || Short.class.isAssignableFrom(clazz)) {
+            return PrimitiveResolver.Short_;
         }
 
         if (float.class.isAssignableFrom(clazz)
