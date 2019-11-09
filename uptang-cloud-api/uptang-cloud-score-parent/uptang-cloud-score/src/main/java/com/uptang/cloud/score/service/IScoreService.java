@@ -32,4 +32,20 @@ public interface IScoreService extends IService<Score> {
      * @param hashKey    Hash表Key
      */
     void rollback(Map<String, List<Long>> subjectIds, ScoreTypeEnum scoreType, String cacheKey, String hashKey);
+
+    /**
+     * 单条插入
+     *
+     * @param score
+     * @return
+     */
+    Long insert(Score score);
+
+    /**
+     * 回滚
+     *
+     * @param scoreIds  回滚IDs
+     * @param scoreType 成绩类型
+     */
+    void rollback(Map<Integer, List<Long>> scoreIds, ScoreTypeEnum scoreType);
 }

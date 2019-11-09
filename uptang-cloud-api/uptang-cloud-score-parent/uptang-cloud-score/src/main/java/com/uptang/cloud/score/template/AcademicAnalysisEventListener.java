@@ -59,12 +59,6 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
         super(userId, gradeId, classId, schoolId, semesterCode);
     }
 
-    /**
-     * 自旋时间
-     */
-    public static final long SPIN_OVER_TIME = 30 * 1000;
-
-
     @Override
     public void doInvoke(AcademicScoreDTO academicScore, AnalysisContext context) {
         academicResumes.add(buildAcademicResume(academicScore));

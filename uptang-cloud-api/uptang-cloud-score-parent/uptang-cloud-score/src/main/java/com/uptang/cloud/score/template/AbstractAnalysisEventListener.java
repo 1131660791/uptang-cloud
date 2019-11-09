@@ -59,6 +59,11 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
      */
     private Class<T> generic;
 
+    /**
+     * 自旋时间
+     */
+    public static final long SPIN_OVER_TIME = 30 * 1000;
+
     private void init() {
         Type type = this.getClass().getGenericSuperclass();
         Type clazz = (type instanceof ParameterizedType) ? ((ParameterizedType) type).getActualTypeArguments()[0] : type;

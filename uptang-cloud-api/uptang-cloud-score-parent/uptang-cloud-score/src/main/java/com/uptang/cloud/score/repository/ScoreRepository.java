@@ -33,4 +33,11 @@ public interface ScoreRepository extends BaseMapper<Score> {
      * @param scoreType
      */
     void batchDelete(@Param("ids") List<Long> ids, @Param("scoreType") ScoreTypeEnum scoreType);
+
+    /**
+     * 单条插入
+     *
+     * @param score
+     */
+    void save(Score score);
 }

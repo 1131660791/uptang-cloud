@@ -10,10 +10,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,6 +48,26 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreRepository, Score> implem
 
         HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
         hashOperations.delete(cacheKey, hashKey);
+    }
+
+    @Override
+    public Long insert(Score score) {
+        Optional.ofNullable(score)
+                .filter(score1 -> score1.getType() != null)
+                .ifPresent(getBaseMapper()::save);
+        return score.getId();
+    }
+
+    @Override
+    public void rollback(Map<Integer, List<Long>> scoreIdList, ScoreTypeEnum scoreType) {
+        if (scoreIdList == null || scoreIdList.size() == 0) {
+            return;
+        }
+
+        Set<Map.Entry<Integer, List<Long>>> entries = scoreIdList.entrySet();
+        for (Map.Entry<Integer, List<Long>> group : entries) {
+            getBaseMapper().batchDelete(group.getValue(), scoreType);
+        }
     }
 }
 
