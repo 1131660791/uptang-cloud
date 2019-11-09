@@ -964,7 +964,7 @@ public enum SubjectEnum implements IEnumType {
     },
 
     /**
-     * 美术
+     * 艺术成绩
      */
     ART_SUBJECT(60, "艺术成绩", "艺术成绩") {
         @Override
