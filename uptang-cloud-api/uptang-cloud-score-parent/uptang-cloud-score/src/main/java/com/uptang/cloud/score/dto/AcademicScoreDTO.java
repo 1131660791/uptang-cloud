@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.io.Serializable;
+
 /**
  * @author : Lee.m.yin
  * @createtime : 2019-11-08 9:49
@@ -14,10 +16,9 @@ import lombok.ToString;
  * @Summary : FIXME
  */
 @Data
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class AcademicScoreDTO {
+public class AcademicScoreDTO implements Serializable {
 
     /**
      * 年级
@@ -128,4 +129,32 @@ public class AcademicScoreDTO {
      * 地方及校本课程
      */
     private LevelEnum localCourse;
+
+    @Override
+    public String toString() {
+        return "{\"AcademicScoreDTO\":{"
+                + "                        \"gradeCode\":\"" + gradeCode + "\""
+                + ",                         \"classCode\":\"" + classCode + "\""
+                + ",                         \"studentCode\":\"" + studentCode + "\""
+                + ",                         \"studentName\":\"" + studentName + "\""
+                + ",                         \"moralityLaw\":\"" + moralityLaw + "\""
+                + ",                         \"chinese\":\"" + chinese + "\""
+                + ",                         \"math\":\"" + math + "\""
+                + ",                         \"english\":\"" + english + "\""
+                + ",                         \"physical\":\"" + physical + "\""
+                + ",                         \"chemistry\":\"" + chemistry + "\""
+                + ",                         \"history\":\"" + history + "\""
+                + ",                         \"geography\":\"" + geography + "\""
+                + ",                         \"biological\":\"" + biological + "\""
+                + ",                         \"physicalEducation\":\"" + physicalEducation + "\""
+                + ",                         \"technology\":\"" + technology + "\""
+                + ",                         \"music\":\"" + music + "\""
+                + ",                         \"art\":\"" + art + "\""
+                + ",                         \"physicalExperiment\":\"" + physicalExperiment + "\""
+                + ",                         \"chemistryExperiment\":\"" + chemistryExperiment + "\""
+                + ",                         \"biologicalExperiments\":\"" + biologicalExperiments + "\""
+                + ",                         \"labor\":\"" + labor + "\""
+                + ",                         \"localCourse\":\"" + localCourse + "\""
+                + "}}";
+    }
 }

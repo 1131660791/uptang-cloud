@@ -1,8 +1,11 @@
 package com.uptang.cloud.score.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.Score;
-import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author : Lee.m.yin
@@ -13,10 +16,20 @@ import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 public interface IScoreService extends IService<Score> {
 
     /**
-     * 录入成绩
+     * 批量插入并返回ID
      *
-     * @param resumeJoinScore
-     * @return
+     * @param scores
+     * @return ids
      */
-    boolean save(ResumeJoinScoreDTO resumeJoinScore);
+    List<Long> batchInsert(List<Score> scores);
+
+    /**
+     * 回滚
+     *
+     * @param subjectIds 回滚IDs
+     * @param scoreType  成绩类型
+     * @param cacheKey   缓存Key
+     * @param hashKey    Hash表Key
+     */
+    void rollback(Map<String, List<Long>> subjectIds, ScoreTypeEnum scoreType, String cacheKey, String hashKey);
 }

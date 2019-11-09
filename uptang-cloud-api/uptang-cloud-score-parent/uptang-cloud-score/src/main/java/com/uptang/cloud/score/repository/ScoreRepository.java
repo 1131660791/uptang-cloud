@@ -1,8 +1,12 @@
 package com.uptang.cloud.score.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.Score;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @author : Lee.m.yin
@@ -15,9 +19,18 @@ public interface ScoreRepository extends BaseMapper<Score> {
 
 
     /**
-     * 插入
+     * 批量插入
      *
-     * @param score
+     * @param resume
      */
-    void save(Score score);
+    void batchInsert(List<Score> resume);
+
+
+    /**
+     * 批量删除
+     *
+     * @param ids
+     * @param scoreType
+     */
+    void batchDelete(@Param("ids") List<Long> ids, @Param("scoreType") ScoreTypeEnum scoreType);
 }

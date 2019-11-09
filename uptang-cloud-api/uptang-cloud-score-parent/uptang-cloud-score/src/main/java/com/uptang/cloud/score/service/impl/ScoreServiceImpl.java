@@ -1,16 +1,20 @@
 package com.uptang.cloud.score.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.uptang.cloud.score.common.model.AcademicResume;
+import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.Score;
-import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 import com.uptang.cloud.score.repository.ScoreRepository;
-import com.uptang.cloud.score.service.IAcademicResumeService;
 import com.uptang.cloud.score.service.IScoreService;
-import com.uptang.cloud.score.template.Excel;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author : Lee.m.yin
@@ -21,42 +25,32 @@ import java.util.Date;
 @Service
 public class ScoreServiceImpl extends ServiceImpl<ScoreRepository, Score> implements IScoreService {
 
-    private Excel excel;
+    private final StringRedisTemplate redisTemplate;
 
-    private final IAcademicResumeService academicResumeService;
-
-    public ScoreServiceImpl(Excel excel, IAcademicResumeService academicResumeService) {
-        this.excel = excel;
-        this.academicResumeService = academicResumeService;
+    public ScoreServiceImpl(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
-    public boolean save(ResumeJoinScoreDTO resumeJoinScore) {
-        Score score = new Score();
-        score.setType(resumeJoinScore.getScoreType());
-        score.setScoreNumber(resumeJoinScore.getScoreNumber());
-        score.setSubject(resumeJoinScore.getSubject());
-        score.setScoreText(resumeJoinScore.getScoreText());
-        getBaseMapper().save(score);
-
-        if (score.getId() != null) {
-            AcademicResume resume = new AcademicResume();
-            resume.setCreatedFounderId(resumeJoinScore.getCreatedFounderId());
-            resume.setScoreId(resumeJoinScore.getScoreId());
-            resume.setClassId(resumeJoinScore.getClassId());
-            resume.setClassName(resumeJoinScore.getClassName());
-            resume.setGender(resumeJoinScore.getGender());
-            resume.setStudentName(resumeJoinScore.getStudentName());
-            resume.setSchool(resumeJoinScore.getSchool());
-            resume.setSchoolId(resumeJoinScore.getSchoolId());
-            resume.setGradeId(resumeJoinScore.getGradeId());
-            resume.setGradeName(resumeJoinScore.getGradeName());
-            resume.setScoreType(resumeJoinScore.getScoreType());
-            resume.setCreatedTime(new Date());
-            resume.setScoreId(score.getId());
-            return academicResumeService.save(resume);
+    @Transactional(rollbackFor = Exception.class)
+    public List<Long> batchInsert(List<Score> scores) {
+        if (scores == null || scores.size() == 0) {
+            return Collections.emptyList();
         }
-        return false;
+
+        getBaseMapper().batchInsert(scores);
+        return scores.stream().map(Score::getId).collect(Collectors.toList());
+    }
+
+    @Override
+    public void rollback(Map<String, List<Long>> subjectIds, ScoreTypeEnum scoreType, String cacheKey, String hashKey) {
+        Set<Map.Entry<String, List<Long>>> entries = subjectIds.entrySet();
+        for (Map.Entry<String, List<Long>> group : entries) {
+            getBaseMapper().batchDelete(group.getValue(), scoreType);
+        }
+
+        HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
+        hashOperations.delete(cacheKey, hashKey);
     }
 }
 

@@ -1,6 +1,8 @@
 package com.uptang.cloud.score.template;
 
 import com.alibaba.excel.support.ExcelTypeEnum;
+import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
+import com.uptang.cloud.score.common.enums.SemesterEnum;
 
 /**
  * @author : Lee.m.yin
@@ -10,5 +12,22 @@ import com.alibaba.excel.support.ExcelTypeEnum;
  */
 public interface Excel {
 
-    void analysis(ExcelTypeEnum excelType);
+    /**
+     * 解析Excel
+     *
+     * @param excelType    Excel类型
+     * @param type         Excel数据类型
+     * @param userId       用户ID
+     * @param gradeId      年级ID
+     * @param classId      班级ID
+     * @param schoolId     学校ID
+     * @param semesterCode 学期编码
+     */
+    void analysis(ExcelTypeEnum excelType,
+                  ScoreTypeEnum type,
+                  Long userId,
+                  Long gradeId,
+                  Long classId,
+                  Long schoolId,
+                  SemesterEnum semesterCode);
 }

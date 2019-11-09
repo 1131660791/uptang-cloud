@@ -7,6 +7,8 @@ import com.uptang.cloud.score.dto.ResumeJoinArchiveDTO;
 import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * @author : Lee.m.yin
  * @createTime : 2019-11-06 10:32:21
@@ -56,4 +58,11 @@ public interface AcademicResumeRepository extends BaseMapper<AcademicResume> {
      * @return
      */
     Page<ResumeJoinArchiveDTO> archiveList(AcademicResume academicResume);
+
+    /**
+     * 批量插入
+     *
+     * @param resume
+     */
+    void batchInsert(List<AcademicResume> resume);
 }

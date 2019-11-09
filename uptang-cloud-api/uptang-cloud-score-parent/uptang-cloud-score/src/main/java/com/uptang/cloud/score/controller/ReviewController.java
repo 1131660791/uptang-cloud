@@ -53,7 +53,7 @@ public class ReviewController extends BaseController implements ReviewProvider {
         Review review = ReviewConverter.INSTANCE.toModel(reviewVO);
         boolean saved = reviewService.submit(review);
         String message = !saved ? "异议提交失败" : "异议已提交";
-        return ApiOut.newParameterRequiredResponse(message);
+        return ApiOut.newPrompt(message);
     }
 
     @PutMapping(path = "/{id}/{objection}")
@@ -70,6 +70,6 @@ public class ReviewController extends BaseController implements ReviewProvider {
         Review review = ReviewConverter.INSTANCE.toModel(reviewVO);
         boolean saved = reviewService.verify(review);
         String message = !saved ? "异议修改失败" : "异议已成功修改";
-        return ApiOut.newParameterRequiredResponse(message);
+        return ApiOut.newPrompt(message);
     }
 }

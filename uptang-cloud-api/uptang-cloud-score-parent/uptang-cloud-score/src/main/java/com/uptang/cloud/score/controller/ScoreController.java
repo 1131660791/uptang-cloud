@@ -118,9 +118,9 @@ public class ScoreController extends BaseController implements ScoreProvider {
     public ApiOut<String> save(@RequestBody ResumeJoinScoreVO resumeJoinScore) {
         resumeJoinScore.setCreatedFounderId(getUserId());
         ResumeJoinScoreDTO resumeJoinScoreDTO = ResumeJoinScoreConverter.INSTANCE.toModel(resumeJoinScore);
-        boolean saved = scoreService.save(resumeJoinScoreDTO);
-        String message = !saved ? "成绩录入失败" : "成功录入成绩";
-        return ApiOut.newParameterRequiredResponse(message);
+//        boolean saved = scoreService.save(resumeJoinScoreDTO);
+//        String message = !saved ? "成绩录入失败" : "成功录入成绩";
+        return ApiOut.newPrompt("没实现");
     }
 
     @PutMapping(path = "/{id}/{subject}/{type}")
@@ -151,6 +151,6 @@ public class ScoreController extends BaseController implements ScoreProvider {
         Score score = ScoreConverter.INSTANCE.toModel(scoreVO);
         boolean updated = scoreService.update().update(score);
         String message = !updated ? "修改成绩失败" : "成绩修改成功";
-        return ApiOut.newParameterRequiredResponse(message);
+        return ApiOut.newPrompt(message);
     }
 }

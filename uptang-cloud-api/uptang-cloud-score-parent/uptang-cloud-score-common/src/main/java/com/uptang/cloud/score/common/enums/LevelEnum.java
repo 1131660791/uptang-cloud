@@ -1,6 +1,8 @@
 package com.uptang.cloud.score.common.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.uptang.cloud.pojo.enums.IEnumType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +22,7 @@ public enum LevelEnum implements IEnumType {
     /**
      * 优秀
      */
-    BEST(1, "优秀"),
+    BEST(1, "优"),
 
     /**
      * 良好
@@ -35,7 +37,9 @@ public enum LevelEnum implements IEnumType {
     /**
      * 不合格
      */
-    FAILED(4, "不合格");
+    FAILED(4, "不合格"),
+
+    UNKNOWN(9, "未识别");
 
 
     @EnumValue
@@ -49,15 +53,26 @@ public enum LevelEnum implements IEnumType {
                 return member;
             }
         }
-        return null;
+        return LevelEnum.UNKNOWN;
     }
 
+    @JsonCreator
     public static LevelEnum code(int code) {
         for (LevelEnum member : LevelEnum.values()) {
             if (member.getCode() == code) {
                 return member;
             }
         }
-        return null;
+        return LevelEnum.UNKNOWN;
+    }
+
+    @JsonValue
+    public String toValue() {
+        for (LevelEnum member : LevelEnum.values()) {
+            if (member.getDesc().equals(this.desc)) {
+                return member.desc;
+            }
+        }
+        return UNKNOWN.desc;
     }
 }

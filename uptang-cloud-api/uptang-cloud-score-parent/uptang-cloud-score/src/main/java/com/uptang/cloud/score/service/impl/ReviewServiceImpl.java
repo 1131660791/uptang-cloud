@@ -19,7 +19,8 @@ import java.util.Date;
  * @summary : FIXME
  */
 @Service
-public class ReviewServiceImpl extends ServiceImpl<ReviewRepository, Review> implements IReviewService {
+public class ReviewServiceImpl extends ServiceImpl<ReviewRepository, Review>
+        implements IReviewService {
 
     @Override
     public boolean submit(Review review) {

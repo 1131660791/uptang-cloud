@@ -1,6 +1,7 @@
 package com.uptang.cloud.score.common.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.uptang.cloud.pojo.enums.IEnumType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,6 +44,13 @@ public enum ShowStatEnum implements IEnumType {
         public boolean isShow() {
             return false;
         }
+    },
+
+    UNKNOWN(9, "未识别") {
+        @Override
+        public boolean isShow() {
+            return false;
+        }
     };
 
     @EnumValue
@@ -58,6 +66,16 @@ public enum ShowStatEnum implements IEnumType {
                 return member;
             }
         }
-        return null;
+        return ShowStatEnum.UNKNOWN;
+    }
+
+    @JsonValue
+    public int toValue() {
+        for (ShowStatEnum member : ShowStatEnum.values()) {
+            if (member.getDesc().equals(this.desc)) {
+                return member.getCode();
+            }
+        }
+        return UNKNOWN.code;
     }
 }

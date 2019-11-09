@@ -1,4 +1,4 @@
-package com.uptang.cloud.score.util;
+package com.uptang.cloud.score.common.util;
 
 import java.math.BigDecimal;
 

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author : Lee.m.yin
@@ -106,6 +107,11 @@ public class AcademicResume implements Serializable {
      * @comment 成绩表ID
      */
     private Long scoreId;
+
+    /**
+     * 成绩ID
+     */
+    private String subjectIds;
 
     /**
      * @type tinyint(1) unsigned

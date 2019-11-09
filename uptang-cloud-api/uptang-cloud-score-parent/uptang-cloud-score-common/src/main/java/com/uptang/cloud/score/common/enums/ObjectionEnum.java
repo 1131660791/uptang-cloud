@@ -1,6 +1,7 @@
 package com.uptang.cloud.score.common.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.uptang.cloud.pojo.enums.IEnumType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +24,9 @@ public enum ObjectionEnum implements IEnumType {
     /**
      * 异议处理期
      */
-    SHOW(1, "异议处理期");
+    SHOW(1, "异议处理期"),
+
+    UNKNOWN(9, "未识别");
 
     @EnumValue
     private final int code;
@@ -36,6 +39,16 @@ public enum ObjectionEnum implements IEnumType {
                 return member;
             }
         }
-        return null;
+        return ObjectionEnum.UNKNOWN;
+    }
+
+    @JsonValue
+    public int toValue() {
+        for (ObjectionEnum member : ObjectionEnum.values()) {
+            if (member.getCode() == this.getCode()) {
+                return member.getCode();
+            }
+        }
+        return UNKNOWN.code;
     }
 }

@@ -28,7 +28,7 @@ public interface ScoreConverter {
     @Mapping(target = "subjectText", source = "subject.desc")
     @Mapping(target = "type", source = "type.code")
     @Mapping(target = "typeText", source = "type.desc")
-    @Mapping(target = "scoreNumber", expression = "java(com.uptang.cloud.score.util.Calculator.dev10(score.getScoreNumber()))")
+    @Mapping(target = "scoreNumber", expression = "java(com.uptang.cloud.score.common.util.Calculator.dev10(score.getScoreNumber()))")
     ScoreVO toVo(Score score);
 
     /**
@@ -39,7 +39,7 @@ public interface ScoreConverter {
      */
     @Mapping(target = "subject", expression = "java(SubjectEnum.code(score.getSubject()))")
     @Mapping(target = "type", expression = "java(ScoreTypeEnum.code(score.getType()))")
-    @Mapping(target = "scoreNumber", expression = "java(com.uptang.cloud.score.util.Calculator.x10(score.getScoreNumber()))")
+    @Mapping(target = "scoreNumber", expression = "java(com.uptang.cloud.score.common.util.Calculator.x10(score.getScoreNumber()))")
     Score toModel(ScoreVO score);
 
 }

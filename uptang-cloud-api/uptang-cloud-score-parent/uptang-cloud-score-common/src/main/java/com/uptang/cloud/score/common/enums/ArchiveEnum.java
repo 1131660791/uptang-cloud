@@ -1,6 +1,8 @@
 package com.uptang.cloud.score.common.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.uptang.cloud.pojo.enums.IEnumType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,19 +30,35 @@ public enum ArchiveEnum implements IEnumType {
     /**
      * 撤销归档
      */
-    CANCEL(2, "撤销归档");
+    CANCEL(2, "撤销归档"),
+
+    /**
+     * 未识别
+     */
+    UNKNOWN(9, "未识别");
 
     @EnumValue
     private final int code;
 
     private final String desc;
 
+    @JsonCreator
     public static ArchiveEnum code(int code) {
         for (ArchiveEnum member : ArchiveEnum.values()) {
             if (member.getCode() == code) {
                 return member;
             }
         }
-        return null;
+        return ArchiveEnum.UNKNOWN;
+    }
+
+    @JsonValue
+    public int toValue() {
+        for (ArchiveEnum member : ArchiveEnum.values()) {
+            if (member.getCode() == this.getCode()) {
+                return member.getCode();
+            }
+        }
+        return UNKNOWN.code;
     }
 }

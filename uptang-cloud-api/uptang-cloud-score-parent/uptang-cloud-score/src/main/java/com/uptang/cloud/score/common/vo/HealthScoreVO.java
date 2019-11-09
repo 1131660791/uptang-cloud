@@ -329,5 +329,5 @@ public class HealthScoreVO extends BaseVO<HealthScoreVO> implements Serializable
      */
     @ApiModelProperty(notes = "总分等级")
     @ExcelProperty(value = "总分等级")
-    private Double totalScoreLevel;
+    private String totalScoreLevel;
 }

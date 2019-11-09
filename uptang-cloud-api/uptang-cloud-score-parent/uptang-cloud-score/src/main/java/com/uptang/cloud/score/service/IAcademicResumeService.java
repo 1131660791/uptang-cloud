@@ -7,6 +7,7 @@ import com.uptang.cloud.score.dto.ResumeJoinArchiveDTO;
 import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author : Lee.m.yin
@@ -24,6 +25,16 @@ public interface IAcademicResumeService extends IService<AcademicResume> {
      */
     boolean update(AcademicResume resume);
 
+    /**
+     * 批量录入成绩
+     *
+     * @param groupMapList   批量录入数据
+     * @param scoreGroupList Subject科目
+     * @return
+     */
+    void batchSave(Map<Integer, List<AcademicResume>> groupMapList);
+    //, Consumer<Boolean> consumer);
+    //, Map<Integer, List<List<Score>>> scoreGroupList);
 
     /**
      * 履历列表
@@ -70,4 +81,11 @@ public interface IAcademicResumeService extends IService<AcademicResume> {
      * @return
      */
     List<ResumeJoinScoreDTO> getUnfiledList(Integer pageNum, Integer pageSize, AcademicResume academicResume);
+
+    /**
+     * 批量插入
+     *
+     * @param resume
+     */
+    void batchInsert(List<AcademicResume> resume);
 }

@@ -9,11 +9,9 @@ import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 import com.uptang.cloud.score.repository.AcademicResumeRepository;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author : Lee.m.yin
@@ -22,7 +20,8 @@ import java.util.Optional;
  * @summary : FIXME
  */
 @Service
-public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeRepository, AcademicResume> implements IAcademicResumeService {
+public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeRepository, AcademicResume>
+        implements IAcademicResumeService {
 
     @Override
     public boolean update(AcademicResume academicResume) {
@@ -30,9 +29,36 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
         return Optional
                 .ofNullable(getBaseMapper().selectById(academicResume.getId()))
                 .filter(Objects::nonNull)
-                .map(resume -> getBaseMapper().updateById(academicResume))
+                .map(resume -> this.getBaseMapper().updateById(academicResume))
                 .flatMap(raw -> raw >= 1 ? Optional.of(true) : Optional.of(false))
                 .orElse(false);
+    }
+
+    /**
+     * if (scoreGroupList != null && scoreGroupList.size() > 0) {
+     * final List<List<Long>> subjectIds = new ArrayList<>();
+     * Set<Map.Entry<Integer, List<List<Score>>>> subjectGroup = scoreGroupList.entrySet();
+     * for (Map.Entry<Integer, List<List<Score>>> subjects : subjectGroup) {
+     * List<List<Score>> value = subjects.getValue();
+     * for (List<Score> scores : value) {
+     * subjectIds.add(scoreService.batchInsert(scores));
+     * }
+     * }
+     * System.out.println(subjectIds);
+     * }
+     * <p>
+     * subjectIds.stream().forEach(ids -> academicResumes.stream().forEach(resume -> resume.setScoreIds(ids)));
+     * subjectIds.clear();
+     *
+     * @param groupMapList 批量录入数据
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchSave(Map<Integer, List<AcademicResume>> groupMapList) {
+        final Set<Map.Entry<Integer, List<AcademicResume>>> entries = groupMapList.entrySet();
+        for (Map.Entry<Integer, List<AcademicResume>> entry : entries) {
+            batchInsert(entry.getValue());
+        }
     }
 
     @Override
@@ -52,15 +78,24 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
     }
 
     @Override
-    public List<ResumeJoinArchiveDTO> getArchiveList(Integer pageNum, Integer pageSize, AcademicResume academicResume) {
+    public List<ResumeJoinArchiveDTO> getArchiveList(Integer pageNum, Integer pageSize,
+                                                     AcademicResume academicResume) {
         PageHelper.startPage(pageNum, pageSize);
         return getBaseMapper().archiveList(academicResume);
     }
 
     @Override
-    public List<ResumeJoinScoreDTO> getUnfiledList(Integer pageNum, Integer pageSize, AcademicResume academicResume) {
+    public List<ResumeJoinScoreDTO> getUnfiledList(Integer pageNum, Integer pageSize,
+                                                   AcademicResume academicResume) {
         PageHelper.startPage(pageNum, pageSize);
         return getBaseMapper().unfileList(academicResume);
     }
 
+    @Override
+    public void batchInsert(List<AcademicResume> resume) {
+        Optional.ofNullable(resume)
+                .filter(list -> (list != null || !list.isEmpty()))
+                .ifPresent(getBaseMapper()::batchInsert);
+
+    }
 }
