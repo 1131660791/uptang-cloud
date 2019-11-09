@@ -34,7 +34,7 @@ public class ScoreTypeRoutingAlgorithm implements PreciseShardingAlgorithm<Integ
     /**
      * 艺术成绩表名
      */
-    private static final String ART_SCORE_TABLE_NAME = "logic_score";
+    private static final String ART_SCORE_TABLE_NAME = "art_score";
 
 
     @Override
