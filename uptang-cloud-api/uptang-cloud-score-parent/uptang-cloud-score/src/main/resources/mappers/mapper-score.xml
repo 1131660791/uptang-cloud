@@ -16,12 +16,18 @@
         `score_text` AS `scoreText`, `score_number` AS `scoreNumber`
     </sql>
 
+    <insert id="save" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.uptang.cloud.score.common.model.Score">
+        INSERT INTO logic_score (`type`,`subject`,`score_text`,`score_number`) VALUES
+        (#{type},#{subject},#{scoreText},#{scoreNumber})
+    </insert>
+
     <!--新增并返回新增的ID-->
     <insert id="batchInsert" keyProperty="id" useGeneratedKeys="true"
             parameterType="com.uptang.cloud.score.common.model.Score">
         INSERT INTO logic_score (`type`,`subject`,`score_text`,`score_number`) VALUES
         <foreach collection="list" item="item" index="index" separator=",">
-            <trim suffixOverrides="," prefix="(" suffix=")">
+            <trim prefix="(" suffix=")">
                 #{item.type},#{item.subject},#{item.scoreText},#{item.scoreNumber}
             </trim>
         </foreach>
