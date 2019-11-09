@@ -102,7 +102,7 @@ public final class PaperImageProcessor {
         // 答题卡只有一个区域，不需要剪切
         if (1 == paperImage.getSources().size()) {
             BufferedImage croppedImage = cropPaperImage(paperImage.getSources().get(0));
-            log.info("Crop image({}) from Huawei cloud, It's took: {}ms",
+            log.debug("Crop image({}) from Huawei cloud, It's took: {}ms",
                     paperImage.getSources().get(0).getPath(), System.currentTimeMillis() - start);
             return croppedImage;
         }
@@ -120,7 +120,7 @@ public final class PaperImageProcessor {
                     return null;
                 }
             }));
-            log.info("Submit the task of getting image: {}", imagePath);
+            log.debug("Submit the task of getting image: {}", imagePath);
         });
 
         // 获取图片
@@ -179,7 +179,7 @@ public final class PaperImageProcessor {
         graphics.dispose();
         canvasImage.flush();
 
-        log.info("Got {} images from Huawei cloud AND join images, It's took: {}ms",
+        log.debug("Got {} images from Huawei cloud AND join images, It's took: {}ms",
                 paperImage.getSources().size(), System.currentTimeMillis() - start);
         return canvasImage;
     }
