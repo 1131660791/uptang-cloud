@@ -34,7 +34,6 @@ public class ArtScoreExcelProcessorStrategy implements ExcelProcessorStrategy<Ar
     @Override
     public boolean check(ArtScoreDTO rawData, AnalysisContext context, Long userId,
                          Long gradeId, Long classId, Long schoolId, SemesterEnum semesterCode) {
-        log.info("raw data ==> {}", rawData);
         return true;
     }
 

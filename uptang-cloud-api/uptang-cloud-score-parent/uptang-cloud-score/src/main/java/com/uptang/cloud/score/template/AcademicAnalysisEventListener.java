@@ -102,10 +102,9 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
         try {
             Map<Integer, List<AcademicResume>> groupList = getGroupList(academicResumes);
             resumeService.batchSave(groupList);
-            throw new BusinessException("批量录入学生成绩异常");
         } catch (Exception e) {
-            log.error("批量录入学业成绩异常", e);
             scoreService.rollback(subjectIds, ScoreTypeEnum.ACADEMIC, cacheKey, hashKey);
+            log.error("批量录入学业成绩异常", e);
             throw new BusinessException(e);
         } finally {
             subjectIds.clear();
