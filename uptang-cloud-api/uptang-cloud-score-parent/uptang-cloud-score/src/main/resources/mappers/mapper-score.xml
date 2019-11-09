@@ -4,29 +4,34 @@
 
     <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.Score">
         <id property="id" column="id"/>
+        <result property="type" column="type"/>
         <result property="subject" column="subject"/>
         <result property="scoreText" column="score_text"/>
         <result property="scoreNumber" column="score_number"/>
     </resultMap>
 
     <!--字段名 Java属性名-->
-    <sql id="columns">`id` AS `id`, `subject` AS `subject`, `score_text` AS `scoreText`, `score_number` AS `scoreNumber`</sql>
+    <sql id="columns">
+        `id` AS `id`, `type` AS `type`, `subject` AS `subject`,
+        `score_text` AS `scoreText`, `score_number` AS `scoreNumber`
+    </sql>
 
     <!--新增并返回新增的ID-->
-    <insert id="add" parameterType="com.uptang.cloud.score.common.model.Score" keyProperty="id" useGeneratedKeys="true">
-        INSERT INTO score
-        <trim suffixOverrides="," prefix="(" suffix=")">
-            <if test="resumeId != null">`resume_id`</if>
-            <if test="subject != null">`subject`,</if>
-            <if test="scoreText != null scoreText != ''">`score_text`,</if>
-            <if test="scoreNumber != null">`score_number`,</if>
-        </trim>
-        VALUES
-        <trim suffixOverrides="," prefix="(" suffix=")">
-            <if test="resumeId != null">#{resumeId},</if>
-            <if test="subject != null">#{subject},</if>
-            <if test="scoreText != null scoreText != ''">#{scoreText},</if>
-            <if test="scoreNumber != null">#{scoreNumber},</if>
-        </trim>
+    <insert id="batchInsert" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.uptang.cloud.score.common.model.Score">
+        INSERT INTO logic_score (`type`,`subject`,`score_text`,`score_number`) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim suffixOverrides="," prefix="(" suffix=")">
+                #{item.type},#{item.subject},#{item.scoreText},#{item.scoreNumber}
+            </trim>
+        </foreach>
     </insert>
+
+    <delete id="batchDelete">
+        DELETE FROM logic_score WHERE id IN
+        <foreach collection="ids" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        AND type=#{scoreType}
+    </delete>
 </mapper>

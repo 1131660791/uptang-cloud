@@ -16,12 +16,15 @@
         <result property="studentCode" column="student_code"/>
         <result property="gender" column="gender"/>
         <result property="scoreId" column="score_id"/>
+        <result property="subjectIds" column="subject_ids"/>
         <result property="scoreType" column="score_type"/>
         <result property="createdFounderId" column="created_founder_id"/>
         <result property="updatedFounderId" column="updated_founder_id"/>
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>
     </resultMap>
+
+
 
     <!--字段名 Java属性名-->
     <sql id="mappings">
@@ -31,7 +34,7 @@
         `class_name` AS `className`, `semester_code` AS `semesterCode`,
         `semester_name` AS `semesterName`, `student_name` AS `studentName`,
         `student_code` AS `studentCode`, `gender` AS `gender`,
-        `score_id` AS `scoreId`, `score_type` AS `scoreType`,
+        `score_id` AS `scoreId`,`subject_ids` AS `subjectIds`, `score_type` AS `scoreType`,
         `created_founder_id` AS `createdFounderId`, `updated_founder_id` AS `updatedFounderId`,
         `created_time` AS `createdTime`, `updated_time` AS `updatedTime`
     </sql>
@@ -40,7 +43,7 @@
     <sql id="columns">
         `id`, `school`, `school_id`, `grade_id`, `grade_name`, `class_id`, `class_name`,
         `semester_code`, `semester_name`, `student_name`, `student_code`, `gender`, `score_id`,
-        `score_type`, `created_founder_id`, `updated_founder_id`, `created_time`, `updated_time`
+        `subject_ids`,`score_type`, `created_founder_id`, `updated_founder_id`, `created_time`, `updated_time`
     </sql>
 
     <!--履历和归档表详情-->
@@ -51,6 +54,7 @@
         ar.`semester_code` AS `semesterCode`, ar.`semester_name` AS `semesterName`,
         ar.`student_name` AS `studentName`, ar.`student_code` AS `studentCode`,
         ar.`gender`, ar.`score_id` AS `scoreId`, ar.`score_type` AS `scoreType`,
+        ar.`subject_ids` AS `subjectIds`,
         ar.`created_founder_id` AS `createdFounderId`, ar.`updated_founder_id` AS `updatedFounderId`,
         ar.`created_time` AS `createdTime`, ar.`updated_time` AS `updatedTime`,
         archive.`id` AS `archiveId`, archive.`detail` AS `archiveDetail`
@@ -64,6 +68,7 @@
         ar.`semester_code` AS `semesterCode`, ar.`semester_name` AS `semesterName`,
         ar.`student_name` AS `studentName`, ar.`student_code` AS `studentCode`,
         ar.`gender`, ar.`score_id` AS `scoreId`, ar.`score_type` AS `scoreType`,
+        ar.`subject_ids` AS `subjectIds`,
         ar.`created_founder_id` AS `createdFounderId`, ar.`updated_founder_id` AS `updatedFounderId`,
         ar.`created_time` AS `createdTime`, ar.`updated_time` AS `updatedTime`,
         score.`subject` AS `subject`, score.`score_text` AS `scoreText`, score.`score_number` AS `scoreNumber`
@@ -71,7 +76,9 @@
 
     <!--分页查询-->
     <select id="page" resultMap="ResultMap" parameterType="com.uptang.cloud.score.common.model.AcademicResume">
-        SELECT  <include refid="columns"/> FROM academic_resume
+        SELECT
+        <include refid="columns"/>
+        FROM academic_resume
         <where>
             <trim suffixOverrides="AND" prefixOverrides="AND">
                 <if test="school != null and school != ''">AND `school`=#{school}</if>
@@ -86,6 +93,7 @@
                 <if test="studentCode != null and studentCode != ''">AND `student_code`=#{studentCode}</if>
                 <if test="gender != null">AND `gender`=#{gender}</if>
                 <if test="scoreId != null">AND `score_id`=#{scoreId}</if>
+                <if test="subjectIds != null and subjectIds != ''">AND ar.`subject_ids`=#{subjectIds}</if>
                 <if test="scoreType != null">AND `score_type`=#{scoreType}</if>
                 <if test="createdFounderId != null">AND `created_founder_id`=#{createdFounderId}</if>
                 <if test="updatedFounderId != null">AND `updated_founder_id`=#{updatedFounderId}</if>
@@ -100,7 +108,9 @@
             parameterType="com.uptang.cloud.score.common.model.AcademicResume"
             resultType="com.uptang.cloud.score.dto.ResumeJoinArchiveDTO">
 
-        SELECT <include refid="columnsJoinArchive"/> FROM academic_resume ar INNER JOIN archive archive on ar.score_id=archive.id and ar.score_type=archive.type
+        SELECT
+        <include refid="columnsJoinArchive"/>
+        FROM academic_resume ar INNER JOIN archive archive on ar.score_id=archive.id and ar.score_type=archive.type
         <where>
             <trim suffixOverrides="AND" prefixOverrides="AND">
                 <if test="id != null">AND ar.`id`=#{id}</if>
@@ -116,6 +126,7 @@
                 <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
                 <if test="gender != null">AND ar.`gender`=#{gender}</if>
                 <if test="scoreId != null">AND ar.`score_id`=#{scoreId}</if>
+                <if test="subjectIds != null and subjectIds != ''">AND ar.`subject_ids`=#{subjectIds}</if>
                 <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
                 <if test="createdFounderId != null">AND ar.`created_founder_id`=#{createdFounderId}</if>
                 <if test="updatedFounderId != null">AND ar.`updated_founder_id`=#{updatedFounderId}</if>
@@ -131,7 +142,9 @@
             parameterType="com.uptang.cloud.score.common.model.AcademicResume"
             resultType="com.uptang.cloud.score.dto.ResumeJoinScoreDTO">
 
-        SELECT <include refid="columnsJoinUnfiled"/> FROM academic_resume ar INNER JOIN logic_score score on ar.score_id=score.id and ar.score_type=score.type
+        SELECT
+        <include refid="columnsJoinUnfiled"/>
+        FROM academic_resume ar INNER JOIN logic_score score on ar.score_id=score.id and ar.score_type=score.type
         <where>
             <trim suffixOverrides="AND" prefixOverrides="AND">
                 <if test="id != null">AND ar.`id`=#{id}</if>
@@ -147,6 +160,7 @@
                 <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
                 <if test="gender != null">AND ar.`gender`=#{gender}</if>
                 <if test="scoreId != null">AND ar.`score_id`=#{scoreId}</if>
+                <if test="subjectIds != null and subjectIds != ''">AND ar.`subject_ids`=#{subjectIds}</if>
                 <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
                 <if test="createdFounderId != null">AND ar.`created_founder_id`=#{createdFounderId}</if>
                 <if test="updatedFounderId != null">AND ar.`updated_founder_id`=#{updatedFounderId}</if>
@@ -161,7 +175,9 @@
             parameterType="com.uptang.cloud.score.common.model.AcademicResume"
             resultType="com.uptang.cloud.score.dto.ResumeJoinArchiveDTO">
 
-        SELECT <include refid="columnsJoinArchive"/> FROM academic_resume ar INNER JOIN archive archive on ar.score_id=archive.id and ar.score_type=archive.type
+        SELECT
+        <include refid="columnsJoinArchive"/>
+        FROM academic_resume ar INNER JOIN archive archive on ar.score_id=archive.id and ar.score_type=archive.type
         <where>
             <trim suffixOverrides="AND" prefixOverrides="AND">
                 <if test="id != null">AND ar.`id`=#{id}</if>
@@ -177,6 +193,7 @@
                 <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
                 <if test="gender != null">AND ar.`gender`=#{gender}</if>
                 <if test="scoreId != null">AND ar.`score_id`=#{scoreId}</if>
+                <if test="subjectIds != null and subjectIds != ''">AND ar.`subject_ids`=#{subjectIds}</if>
                 <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
                 <if test="createdFounderId != null">AND ar.`created_founder_id`=#{createdFounderId}</if>
                 <if test="updatedFounderId != null">AND ar.`updated_founder_id`=#{updatedFounderId}</if>
@@ -192,7 +209,9 @@
             parameterType="com.uptang.cloud.score.common.model.AcademicResume"
             resultType="com.uptang.cloud.score.dto.ResumeJoinScoreDTO">
 
-        SELECT <include refid="columnsJoinUnfiled"/> FROM academic_resume ar INNER JOIN logic_score score on ar.score_id=score.id and ar.score_type=score.type
+        SELECT
+        <include refid="columnsJoinUnfiled"/>
+        FROM academic_resume ar INNER JOIN logic_score score on ar.score_id=score.id and ar.score_type=score.type
         <where>
             <trim suffixOverrides="AND" prefixOverrides="AND">
                 <if test="id != null">AND ar.`id`=#{id}</if>
@@ -208,6 +227,7 @@
                 <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
                 <if test="gender != null">AND ar.`gender`=#{gender}</if>
                 <if test="scoreId != null">AND ar.`score_id`=#{scoreId}</if>
+                <if test="subjectIds != null and subjectIds != ''">AND ar.`subject_ids`=#{subjectIds}</if>
                 <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
                 <if test="createdFounderId != null">AND ar.`created_founder_id`=#{createdFounderId}</if>
                 <if test="updatedFounderId != null">AND ar.`updated_founder_id`=#{updatedFounderId}</if>
@@ -216,4 +236,23 @@
             </trim>
         </where>
     </select>
+
+
+    <!--新增并返回新增的ID-->
+    <insert id="batchInsert" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.uptang.cloud.score.common.model.AcademicResume">
+        INSERT INTO academic_resume
+        (`school`,`school_id`,`grade_id`,`subject_ids`,`grade_name`,`class_id`,`class_name`,`semester_code`,
+        `semester_name`,`student_name`,`student_code`,`gender`,`score_id`,
+        `score_type`,`created_founder_id`,`created_time`)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim suffixOverrides="," prefix="(" suffix=")">
+                #{item.school},#{item.schoolId},#{item.gradeId},#{item.subjectIds},
+                #{item.gradeName},#{item.classId},#{item.className},#{item.semesterCode},
+                #{item.semesterName},#{item.studentName},#{item.studentCode},#{item.gender},
+                #{item.scoreId},#{item.scoreType},#{item.createdFounderId},#{item.createdTime}
+            </trim>
+        </foreach>
+    </insert>
 </mapper>
