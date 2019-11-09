@@ -12,6 +12,7 @@ import java.util.Collection;
  * @Summary : 成绩类型 0 学业成绩 academic_score 1 体质健康 health_score 2 艺术成绩 art_score
  * <p>
  * 暂时先将表名写死 后续再考虑其他可行方案
+ * FIXME 使用本路由时SQL条件必须带有type这一字段，前提是你配置了路由字段。
  */
 public class ScoreTypeRoutingAlgorithm implements PreciseShardingAlgorithm<Integer> {
 
