@@ -65,13 +65,7 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
             } while (offset != 0);
         });
 
-        // 放拦截器
-//        ModuleSwitchDto moduleSwitch = ModuleSwitchDto.builder().gradeId(gradeId).build();
-//        moduleSwitch.setToken(token);
-//        ModuleSwitchResponseDto moduleSwitchResponse = restCallerService.moduleSwitch(moduleSwitch);
-//        if (moduleSwitchResponse != null && moduleSwitchResponse.getSwitched()) {
-//            log.info("任务是否开放 ==> {}", moduleSwitch);
-//        }
+
 
         if (excel.getScoreType() != null) {
             super.analysis(ExcelTypeEnum.XLS, excel);

@@ -12,14 +12,17 @@ import lombok.Data;
 public class GradeCourseDTO {
 
     private Long id;
+
     /**
      * 年级编号
      */
     private Long gradeId;
+
     /**
      * 学科名称
      */
     private String subjectName;
+
     /**
      * 总分分值
      */

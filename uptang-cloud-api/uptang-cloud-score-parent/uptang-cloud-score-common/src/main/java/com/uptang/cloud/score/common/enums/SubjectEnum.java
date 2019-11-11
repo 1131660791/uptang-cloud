@@ -41,9 +41,9 @@ public enum SubjectEnum implements IEnumType {
     },
 
     /**
-     * 语文
+     * 数学
      */
-    MATH(2, "语文", "1位小数，最大分100，最小分0分，未上传成绩的不能做0分处理（可为空）") {
+    MATH(2, "数学", "1位小数，最大分100，最小分0分，未上传成绩的不能做0分处理（可为空）") {
         @Override
         public Score toScore(HealthScoreDTO health) {
             return null;
@@ -271,6 +271,7 @@ public enum SubjectEnum implements IEnumType {
             return score;
         }
     },
+
     /**
      * 生物实验
      */

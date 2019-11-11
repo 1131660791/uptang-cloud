@@ -3,7 +3,7 @@ package com.uptang.cloud.score.strategy;
 import com.alibaba.excel.context.AnalysisContext;
 import com.uptang.cloud.score.common.dto.AcademicScoreDTO;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 import com.uptang.cloud.score.service.IRestCallerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -52,9 +52,7 @@ public class AcademicScoreExcelProcessorStrategy implements ExcelProcessorStrate
      * @return
      */
     @Override
-    public boolean check(AcademicScoreDTO rawData, AnalysisContext context,
-                         Long userId, Long gradeId, Long classId, Long schoolId, SemesterEnum semesterCode) {
-//        restCallerService.
+    public boolean check(AcademicScoreDTO rawData, AnalysisContext context, ImportFromExcelDTO excel) {
         log.info("学业 check {}", rawData);
         return true;
     }

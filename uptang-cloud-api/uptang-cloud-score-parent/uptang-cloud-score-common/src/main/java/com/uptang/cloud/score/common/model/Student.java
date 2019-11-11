@@ -94,6 +94,11 @@ public class Student implements Serializable {
     private GenderEnum gender;
 
     /**
+     * 学籍号
+     */
+    private String studentCode;
+
+    /**
      * @type timestamp
      * @comment 创建时间
      */

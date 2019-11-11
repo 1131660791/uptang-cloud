@@ -1,5 +1,6 @@
 package com.uptang.cloud.score.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -13,6 +14,7 @@ import lombok.ToString;
 @Data
 @Builder
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ModuleSwitchDto extends RestRequestDto {
 
     /**

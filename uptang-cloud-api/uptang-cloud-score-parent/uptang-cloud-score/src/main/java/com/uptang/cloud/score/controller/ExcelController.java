@@ -1,5 +1,6 @@
 package com.uptang.cloud.score.controller;
 
+import com.uptang.cloud.score.annotation.ArchiveCheck;
 import com.uptang.cloud.score.annotation.JobSwitchCheck;
 import com.uptang.cloud.score.common.converter.ImportFromExcelConverter;
 import com.uptang.cloud.score.common.vo.ImportFromExcelVo;
@@ -10,10 +11,7 @@ import com.uptang.cloud.starter.web.domain.ApiOut;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author : Lee.m.yin
@@ -33,10 +31,11 @@ public class ExcelController extends BaseController {
     }
 
     @PostMapping
+    @ArchiveCheck
     @JobSwitchCheck
     @ApiParam(value = "传入json格式", required = true)
     @ApiOperation(value = "Excel导入成绩", response = String.class)
-    public ApiOut<String> batchInsert(@RequestBody ImportFromExcelVo importFromExcel) {
+    public ApiOut<String> batchInsert(@RequestParam ImportFromExcelVo importFromExcel) {
         ImportFromExcelDTO excelDTO = ImportFromExcelConverter.INSTANCE.toModel(importFromExcel);
         excelDTO.setToken(getToken());
         excelDTO.setUserId(getUserId());

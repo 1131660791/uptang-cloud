@@ -1,6 +1,7 @@
 package com.uptang.cloud.score.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.Getter;
  * @Summary : FIXME
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PromissionDTO {
 
     /**
