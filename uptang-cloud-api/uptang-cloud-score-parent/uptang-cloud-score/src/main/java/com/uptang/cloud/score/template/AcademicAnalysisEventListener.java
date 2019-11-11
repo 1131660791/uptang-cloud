@@ -22,9 +22,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author : Lee.m.yin
@@ -35,7 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Slf4j
 public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener<AcademicScoreDTO> {
 
-    private final List<AcademicResume> academicResumes = new CopyOnWriteArrayList<>();
+    private final List<AcademicResume> academicResumes = new ArrayList<>();
 
     /**
      * ”缓存“ Subject ids {key:学籍号,Value: ids}
@@ -61,11 +63,28 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
 
     @Override
     public void doInvoke(AcademicScoreDTO academicScore, AnalysisContext context) {
-        academicResumes.add(buildAcademicResume(academicScore));
         subjectExecutor.execute(() -> {
             final List<Score> scoreList = buildSubjects(academicScore);
             subjectIds.put(academicScore.getStudentCode(), scoreService.batchInsert(scoreList));
         });
+
+        AcademicResume resume = new AcademicResume();
+        resume.setCreatedTime(new Date());
+        resume.setCreatedFounderId(getUserId());
+        resume.setGender(GenderEnum.parse(academicScore.getArt()));
+        resume.setScoreType(ScoreTypeEnum.ACADEMIC);
+        resume.setStudentName(academicScore.getStudentName());
+        resume.setSemesterCode(getSemesterCode());
+        resume.setSemesterName(getSemesterCode().getDesc());
+        resume.setStudentCode(academicScore.getStudentCode());
+        resume.setSchoolId(getSchoolId());
+        resume.setGradeId(getGradeId());
+        resume.setClassId(getClassId());
+        resume.setScoreId(0L);
+        resume.setSchool("CODE");
+        resume.setGradeName("CODE");
+        resume.setClassName("CODE");
+        academicResumes.add(resume);
     }
 
     @Override
@@ -81,11 +100,7 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
         }
 
         // 等待科目存储完成
-        final long spinStartTime = System.currentTimeMillis();
-        while ((System.currentTimeMillis() - spinStartTime < SPIN_OVER_TIME)
-                && (academicResumes.size() != subjectIds.size())) {
-            setSubjectIds();
-        }
+        Utils.spin(subjectIds, academicResumes);
 
         // cache subject ids
         HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
@@ -94,6 +109,7 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
         hashOperations.put(cacheKey, hashKey, JSON.toJSONString(subjectIds));
 
         try {
+            Utils.setSubjectIds(subjectIds, academicResumes);
             Map<Integer, List<AcademicResume>> groupList = getGroupList(academicResumes);
             resumeService.batchSave(groupList);
         } catch (Exception e) {
@@ -104,23 +120,6 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
             subjectIds.clear();
             academicResumes.clear();
             hashOperations.delete(cacheKey, hashKey);
-        }
-    }
-
-    /**
-     * 设置履历表SubjectIds
-     */
-    private void setSubjectIds() {
-        Set<Map.Entry<String, List<Long>>> entries = subjectIds.entrySet();
-        // 科目
-        for (Map.Entry<String, List<Long>> entry : entries) {
-            // 履历
-            for (AcademicResume resume : academicResumes) {
-                // 插入科目IDs
-                if (resume.getStudentCode().equals(entry.getKey())) {
-                    resume.setSubjectIds(entry.getValue().toString());
-                }
-            }
         }
     }
 
@@ -145,25 +144,5 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
         scoreList.add(SubjectEnum.LABOR_TECHNICAL_EDUCATION.toScore(academicScore));
         scoreList.add(SubjectEnum.LOCAL_CURRICULUM.toScore(academicScore));
         return scoreList;
-    }
-
-    private AcademicResume buildAcademicResume(AcademicScoreDTO academicScore) {
-        AcademicResume resume = new AcademicResume();
-        resume.setCreatedTime(new Date());
-        resume.setCreatedFounderId(getUserId());
-        resume.setGender(GenderEnum.parse(academicScore.getArt()));
-        resume.setScoreType(ScoreTypeEnum.ACADEMIC);
-        resume.setStudentName(academicScore.getStudentName());
-        resume.setSemesterCode(getSemesterCode());
-        resume.setSemesterName(getSemesterCode().getDesc());
-        resume.setStudentCode(academicScore.getStudentCode());
-        resume.setSchoolId(getSchoolId());
-        resume.setGradeId(getGradeId());
-        resume.setClassId(getClassId());
-        resume.setScoreId(0L);
-        resume.setSchool("CODE");
-        resume.setGradeName("CODE");
-        resume.setClassName("CODE");
-        return resume;
     }
 }

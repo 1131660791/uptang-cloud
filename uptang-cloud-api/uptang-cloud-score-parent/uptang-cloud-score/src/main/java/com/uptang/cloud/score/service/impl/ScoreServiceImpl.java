@@ -5,6 +5,7 @@ import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.Score;
 import com.uptang.cloud.score.repository.ScoreRepository;
 import com.uptang.cloud.score.service.IScoreService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -46,8 +47,10 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreRepository, Score> implem
             getBaseMapper().batchDelete(group.getValue(), scoreType);
         }
 
-        HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
-        hashOperations.delete(cacheKey, hashKey);
+        if (StringUtils.isNotBlank(cacheKey) && StringUtils.isNotBlank(hashKey)) {
+            HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
+            hashOperations.delete(cacheKey, hashKey);
+        }
     }
 
     @Override

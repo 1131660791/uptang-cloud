@@ -3,6 +3,11 @@ package com.uptang.cloud.score.handler;
 import com.uptang.cloud.score.util.Numbers;
 
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author : Lee.m.yin
@@ -15,7 +20,7 @@ public enum PrimitiveResolver {
     /**
      * 原生Java基础类型
      */
-    String_(String.class) {
+    String_() {
         @Override
         public Object convert(Object object) {
             String str = object != null ? String.valueOf(object) : "";
@@ -23,7 +28,7 @@ public enum PrimitiveResolver {
         }
     },
 
-    Long_(Long.class) {
+    Long_() {
         @Override
         public Object convert(Object number) {
             try {
@@ -37,7 +42,7 @@ public enum PrimitiveResolver {
         }
     },
 
-    Int_(Integer.class) {
+    Int_() {
         @Override
         public Object convert(Object number) {
             String string = (String) String_.convert(number);
@@ -54,21 +59,21 @@ public enum PrimitiveResolver {
         }
     },
 
-    Float_(Float.class) {
+    Float_() {
         @Override
         public Object convert(Object number) {
             return number != null ? java.lang.Float.parseFloat((String) String_.convert(number)) : null;
         }
     },
 
-    Double_(Double.class) {
+    Double_() {
         @Override
         public Object convert(Object number) {
             return number != null ? java.lang.Double.parseDouble((String) String_.convert(number)) : null;
         }
     },
 
-    Bool(Boolean.class) {
+    Bool() {
         @Override
         public Object convert(Object bool) {
             try {
@@ -82,7 +87,7 @@ public enum PrimitiveResolver {
         }
     },
 
-    Short_(Short.class) {
+    Short_() {
         @Override
         public Object convert(Object number) {
             try {
@@ -94,16 +99,23 @@ public enum PrimitiveResolver {
                 throw e;
             }
         }
+    },
+
+
+    Date_() {
+        @Override
+        public Object convert(Object object) {
+            String stringDate = (String) String_.convert(object);
+            try {
+                LocalDate localDate = LocalDate.parse(stringDate, DateTimeFormatter.ofPattern("yyyyMMdd"));
+                return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+            } catch (Exception e) {
+                LocalDate localDate = LocalDate.parse(stringDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+            }
+        }
     };
 
-    /**
-     * 原始类型
-     */
-    private final Class<?> clazz;
-
-    PrimitiveResolver(Class<?> clazz) {
-        this.clazz = clazz;
-    }
 
     public abstract Object convert(Object object);
 
@@ -137,6 +149,10 @@ public enum PrimitiveResolver {
             return PrimitiveResolver.Bool;
         }
 
+        if (java.util.Date.class.isAssignableFrom(clazz)
+                || Timestamp.class.isAssignableFrom(clazz)) {
+            return PrimitiveResolver.Date_;
+        }
         return PrimitiveResolver.String_;
     }
 }

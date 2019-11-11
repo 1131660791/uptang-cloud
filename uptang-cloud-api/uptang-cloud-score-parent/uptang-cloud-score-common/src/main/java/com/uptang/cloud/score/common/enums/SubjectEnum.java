@@ -338,7 +338,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getHeight()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getHeight()));
             return score;
         }
 
@@ -355,7 +355,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getBodyWeight()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getBodyWeight()));
             return score;
         }
 
@@ -372,7 +372,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getBodyWeightScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getBodyWeightScore()));
             return score;
         }
 
@@ -406,7 +406,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getVitalCapacity()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getVitalCapacity()));
             return score;
         }
 
@@ -423,7 +423,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getVitalCapacityScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getVitalCapacityScore()));
             return score;
         }
 
@@ -457,7 +457,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getFiftyMetersRun()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getFiftyMetersRun()));
             return score;
         }
 
@@ -491,7 +491,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getFiftyMetersScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getFiftyMetersScore()));
             return score;
         }
 
@@ -508,7 +508,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getStandardScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getStandardScore()));
             return score;
         }
 
@@ -525,7 +525,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getStandingLongJumpScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getStandingLongJumpScore()));
             return score;
         }
 
@@ -559,7 +559,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getFlexion()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getFlexion()));
             return score;
         }
 
@@ -576,7 +576,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getFlexionScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getFlexionScore()));
             return score;
         }
 
@@ -627,7 +627,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getEightHundredMetersScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getEightHundredMetersScore()));
             return score;
         }
 
@@ -661,7 +661,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getAdditionalPoints800()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getAdditionalPoints800()));
             return score;
         }
 
@@ -697,7 +697,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getOneKilometerMetersScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getOneKilometerMetersScore()));
             return score;
         }
 
@@ -731,7 +731,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getAdditionalPoints1000()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getAdditionalPoints1000()));
             return score;
         }
 
@@ -765,7 +765,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getSitUpScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getSitUpScore()));
             return score;
         }
 
@@ -799,7 +799,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getSitUpAdditionalPoints()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getSitUpAdditionalPoints()));
             return score;
         }
 
@@ -834,7 +834,7 @@ public enum SubjectEnum implements IEnumType {
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
             score.setScoreText(Strings.EMPTY);
-            score.setScoreNumber(Calculator.x10(health.getPullUpScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getPullUpScore()));
             return score;
         }
 
@@ -868,7 +868,7 @@ public enum SubjectEnum implements IEnumType {
             score.setScoreText(Strings.EMPTY);
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
-            score.setScoreNumber(Calculator.x10(health.getPullUpAdditionalPoints()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getPullUpAdditionalPoints()));
             return score;
         }
 
@@ -885,7 +885,7 @@ public enum SubjectEnum implements IEnumType {
             score.setScoreText(Strings.EMPTY);
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
-            score.setScoreNumber(Calculator.x10(health.getStandardScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getStandardScore()));
             return score;
         }
 
@@ -902,7 +902,7 @@ public enum SubjectEnum implements IEnumType {
             score.setScoreText(Strings.EMPTY);
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
-            score.setScoreNumber(Calculator.x10(health.getAdditionalPoints()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getAdditionalPoints()));
             return score;
         }
 
@@ -919,7 +919,7 @@ public enum SubjectEnum implements IEnumType {
             score.setScoreText(Strings.EMPTY);
             score.setType(ScoreTypeEnum.HEALTH);
             score.setSubject(this);
-            score.setScoreNumber(Calculator.x10(health.getTotalScore()));
+            score.setScoreNumber(Data.defaultNumberScore(health.getTotalScore()));
             return score;
         }
 
@@ -974,12 +974,7 @@ public enum SubjectEnum implements IEnumType {
 
         @Override
         public Score toScore(AcademicScoreDTO academic) {
-            Score score = new Score();
-            score.setSubject(this);
-            score.setScoreText(Strings.EMPTY);
-            score.setType(ScoreTypeEnum.ACADEMIC);
-            score.setScoreNumber(Calculator.x10(academic.getChinese()));
-            return score;
+            return null;
         }
     },
 
@@ -1055,8 +1050,21 @@ public enum SubjectEnum implements IEnumType {
     public interface Data {
         /**
          * 表示该分数值未录入，如果scoreText有值，则说明scoreNumber是没有值得
-         * 数据库类型为 SMALLINT(4)
+         * 数据库类型为 SMALLINT(5)
          */
-        Integer INT_NONE = 9999;
+        Integer INT_NONE = 65535;
+
+        /**
+         * 录入成绩为null时插入默认的为空标识 即五位数最大值
+         *
+         * @param score
+         * @return
+         */
+        static Integer defaultNumberScore(Double score) {
+            if (score != null) {
+                return Calculator.x10(score);
+            }
+            return Data.INT_NONE;
+        }
     }
 }
