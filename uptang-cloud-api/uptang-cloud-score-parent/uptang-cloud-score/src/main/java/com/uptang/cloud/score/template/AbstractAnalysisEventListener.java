@@ -4,7 +4,7 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.fastjson.JSON;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 import com.uptang.cloud.score.exceptions.ExcelExceptions;
 import com.uptang.cloud.score.handler.PrimitiveResolver;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
@@ -29,30 +29,7 @@ import java.util.Map;
 @Slf4j
 public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventListener<Map<Integer, Object>> {
 
-    /**
-     * 当前用户ID
-     */
-    private Long userId;
-
-    /**
-     * 年级ID
-     */
-    private Long gradeId;
-
-    /**
-     * 班级ID
-     */
-    private Long classId;
-
-    /**
-     * 学校ID
-     */
-    private Long schoolId;
-
-    /**
-     * 学期编码
-     */
-    private SemesterEnum semesterCode;
+    private ImportFromExcelDTO excel;
 
     /**
      * 子类泛型
@@ -70,13 +47,8 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
         this.generic = (Class<T>) clazz;
     }
 
-    public AbstractAnalysisEventListener
-            (Long userId, Long gradeId, Long classId, Long schoolId, SemesterEnum semesterCode) {
-        this.userId = userId;
-        this.gradeId = gradeId;
-        this.classId = classId;
-        this.schoolId = schoolId;
-        this.semesterCode = semesterCode;
+    public AbstractAnalysisEventListener(ImportFromExcelDTO excel) {
+        this.excel = excel;
         init();
     }
 
@@ -96,7 +68,7 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
 
 
         final ExcelProcessorStrategy strategy = getStrategy();
-        if (strategy.check(newInstance, context, userId, gradeId, classId, schoolId, semesterCode)) {
+        if (strategy.check(newInstance, context, excel)) {
             doInvoke(newInstance, context);
         } else {
             String message = String.format("第%d页，第%d行解析异常",
@@ -130,7 +102,8 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
     public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
         if (log.isDebugEnabled()) {
             log.debug("用户{}导入{}学校{}年级{}班{}学期的{}成绩 Header ==> {}",
-                    userId, schoolId, gradeId, classId, semesterCode, semesterCode, headMap);
+                    excel.getUserId(), excel.getSchoolId(), excel.getGradeId(),
+                    excel.getClassId(), excel.getSemesterCode(), headMap);
         }
         getStrategy().headMap(headMap);
     }
@@ -164,27 +137,12 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
         }
 
         log.error("用户{}导入{}学校{}年级{}班{}学期 error ==> {}",
-                userId, schoolId, gradeId, classId, semesterCode, message);
+                excel.getUserId(), excel.getSchoolId(), excel.getGradeId(),
+                excel.getClassId(), excel.getSemesterCode(), message);
         throw new ExcelExceptions(message);
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public Long getGradeId() {
-        return gradeId;
-    }
-
-    public Long getClassId() {
-        return classId;
-    }
-
-    public Long getSchoolId() {
-        return schoolId;
-    }
-
-    public SemesterEnum getSemesterCode() {
-        return semesterCode;
+    public ImportFromExcelDTO getExcel() {
+        return excel;
     }
 }

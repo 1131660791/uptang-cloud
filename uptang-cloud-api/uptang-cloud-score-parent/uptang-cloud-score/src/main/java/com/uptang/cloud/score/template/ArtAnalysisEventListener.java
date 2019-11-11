@@ -5,11 +5,11 @@ import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.pojo.enums.GenderEnum;
 import com.uptang.cloud.score.common.dto.ArtScoreDTO;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
 import com.uptang.cloud.score.common.enums.SubjectEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.common.model.Score;
 import com.uptang.cloud.score.common.util.Calculator;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import com.uptang.cloud.score.service.IScoreService;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
@@ -20,7 +20,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,8 +47,8 @@ public class ArtAnalysisEventListener extends AbstractAnalysisEventListener<ArtS
     private final ThreadPoolTaskExecutor subjectExecutor =
             ApplicationContextHolder.getBean("subjectExecutor");
 
-    public ArtAnalysisEventListener(Long userId, Long gradeId, Long classId, Long schoolId, SemesterEnum semesterCode) {
-        super(userId, gradeId, classId, schoolId, semesterCode);
+    public ArtAnalysisEventListener(ImportFromExcelDTO excel) {
+        super(excel);
     }
 
     @Override
@@ -64,23 +63,13 @@ public class ArtAnalysisEventListener extends AbstractAnalysisEventListener<ArtS
             scoreIds.put(artScore.getStudentCode(), scoreService.insert(score));
         });
 
-        AcademicResume resume = new AcademicResume();
-        resume.setCreatedTime(new Date());
-        resume.setCreatedFounderId(getUserId());
+        AcademicResume resume = Utils.formClientRequestParam(getExcel());
         resume.setScoreType(ScoreTypeEnum.ART);
         resume.setStudentName(artScore.getStudentName());
-        resume.setSemesterCode(getSemesterCode());
-        resume.setSemesterName(getSemesterCode().getDesc());
         resume.setStudentCode(artScore.getStudentCode());
         resume.setGradeName(artScore.getGradeCode());
-        resume.setSchoolId(getSchoolId());
-        resume.setGradeId(getGradeId());
         resume.setSubjectIds(Strings.EMPTY);
-        resume.setClassId(getClassId());
-
         resume.setGender(GenderEnum.UNSPECIFIED);
-        resume.setSchool("ART");
-        resume.setClassName("ART");
         academicResumes.add(resume);
     }
 
@@ -117,11 +106,6 @@ public class ArtAnalysisEventListener extends AbstractAnalysisEventListener<ArtS
      */
     @Override
     public void doAfterAllAnalysed(AnalysisContext context) {
-        if (log.isDebugEnabled()) {
-            log.debug("用户{}导入{}学校{}年级{}班{}学期的艺术成绩 共计{}名学生",
-                    getUserId(), getSchoolId(), getGradeId(), getClassId(), getSemesterCode(), academicResumes.size());
-        }
-
         // 等待成绩存储完成
         final long spinStartTime = System.currentTimeMillis();
         while (((System.currentTimeMillis() - spinStartTime) < SPIN_OVER_TIME)

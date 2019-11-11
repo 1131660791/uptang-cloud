@@ -2,8 +2,7 @@ package com.uptang.cloud.score.service.impl;
 
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.fastjson.JSON;
-import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 import com.uptang.cloud.score.dto.StudentDTO;
 import com.uptang.cloud.score.dto.StudentRequestDTO;
 import com.uptang.cloud.score.service.IExcelDataServiceProcessor;
@@ -43,26 +42,16 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
         this.restCallerService = restCallerService;
     }
 
-    /**
-     * 处理Excel数据
-     *
-     * @param token        当前用户登录凭证
-     * @param userId       当前用户ID
-     * @param type         成绩类型
-     * @param gradeId      年级ID
-     * @param classId      班级ID
-     * @param schoolId     学校ID
-     * @param semesterCode 学期编码
-     * @return
-     */
-    @Override
-    public void processor(String token, Long userId, Integer type, Long gradeId,
-                          Long classId, Long schoolId, SemesterEnum semesterCode) {
 
-        StudentRequestDTO build =
-                StudentRequestDTO.builder().classId(classId).schoolId(schoolId).gradeId(gradeId).build();
+    @Override
+    public void processor(ImportFromExcelDTO excel) {
+        StudentRequestDTO build = StudentRequestDTO.builder()
+                .classId(excel.getClassId())
+                .schoolId(excel.getSchoolId())
+                .gradeId(excel.getGradeId()).build();
+
         final ListOperations<String, String> listOperations = redisTemplate.opsForList();
-        String cacheKey = CacheKeys.scoreStudetInfoList(schoolId, gradeId);
+        String cacheKey = CacheKeys.scoreStudetInfoList(excel.getClassId(), excel.getGradeId());
         subjectExecutor.execute(() -> {
             int offset = 20;
             do {
@@ -84,9 +73,8 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
 //            log.info("任务是否开放 ==> {}", moduleSwitch);
 //        }
 
-        final ScoreTypeEnum code = ScoreTypeEnum.code(type);
-        if (code != null) {
-            super.analysis(ExcelTypeEnum.XLS, code, userId, gradeId, classId, schoolId, semesterCode);
+        if (excel.getScoreType() != null) {
+            super.analysis(ExcelTypeEnum.XLS, excel);
         }
     }
 }

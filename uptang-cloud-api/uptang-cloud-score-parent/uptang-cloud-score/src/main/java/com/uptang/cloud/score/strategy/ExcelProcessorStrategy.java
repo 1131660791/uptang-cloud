@@ -1,7 +1,7 @@
 package com.uptang.cloud.score.strategy;
 
 import com.alibaba.excel.context.AnalysisContext;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 
 import java.util.Map;
 
@@ -30,8 +30,8 @@ public interface ExcelProcessorStrategy<T> {
      * @param classId      班级ID
      * @param schoolId     学校ID
      * @param semesterCode 学期编码
+     * @param excel
      * @return 数据库Model或者Entity....
      */
-    boolean check(T rawData, AnalysisContext context,
-                Long userId, Long gradeId, Long classId, Long schoolId, SemesterEnum semesterCode);
+    boolean check(T rawData, AnalysisContext context, ImportFromExcelDTO excel);
 }

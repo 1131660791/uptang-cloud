@@ -5,10 +5,10 @@ import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.pojo.enums.GenderEnum;
 import com.uptang.cloud.score.common.dto.HealthScoreDTO;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
 import com.uptang.cloud.score.common.enums.SubjectEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.common.model.Score;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import com.uptang.cloud.score.service.IScoreService;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,9 +47,8 @@ public class HealthAnalysisEventListener extends AbstractAnalysisEventListener<H
     private final ThreadPoolTaskExecutor subjectExecutor =
             ApplicationContextHolder.getBean("subjectExecutor");
 
-    public HealthAnalysisEventListener(Long userId, Long gradeId,
-                                       Long classId, Long schoolId, SemesterEnum semesterCode) {
-        super(userId, gradeId, classId, schoolId, semesterCode);
+    public HealthAnalysisEventListener(ImportFromExcelDTO excel) {
+        super(excel);
     }
 
     /**
@@ -109,11 +107,6 @@ public class HealthAnalysisEventListener extends AbstractAnalysisEventListener<H
 
     @Override
     public void doAfterAllAnalysed(AnalysisContext context) {
-        if (log.isDebugEnabled()) {
-            log.debug("用户{}导入{}学校{}年级{}班{}学期的体质健康成绩 共计{}名学生",
-                    getUserId(), getSchoolId(), getGradeId(), getClassId(), getSemesterCode(), academicResumes.size());
-        }
-
         Utils.spin(subjectIds, academicResumes);
 
         try {
@@ -130,22 +123,12 @@ public class HealthAnalysisEventListener extends AbstractAnalysisEventListener<H
     }
 
     private AcademicResume buildAcademicResume(HealthScoreDTO health) {
-        AcademicResume resume = new AcademicResume();
-        resume.setCreatedTime(new Date());
-        resume.setCreatedFounderId(getUserId());
+        AcademicResume resume = Utils.formClientRequestParam(getExcel());
         resume.setGender(GenderEnum.parse(health.getGender()));
         resume.setScoreType(ScoreTypeEnum.HEALTH);
         resume.setStudentName(health.getStudentName());
-        resume.setSemesterCode(getSemesterCode());
-        resume.setSemesterName(getSemesterCode().getDesc());
         resume.setStudentCode(health.getStudentCode());
-        resume.setSchoolId(getSchoolId());
-        resume.setGradeId(getGradeId());
-        resume.setClassId(getClassId());
         resume.setScoreId(0L);
-        resume.setSchool("H");
-        resume.setGradeName("H");
-        resume.setClassName("H");
         return resume;
     }
 }

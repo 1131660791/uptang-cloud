@@ -6,8 +6,7 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.read.metadata.ReadSheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 import com.uptang.cloud.score.exceptions.ExcelExceptions;
 import com.uptang.cloud.score.util.Http;
 
@@ -23,13 +22,7 @@ import java.util.List;
 public abstract class ExcelTemplate implements Excel {
 
     @Override
-    public final void analysis(ExcelTypeEnum excelType,
-                               ScoreTypeEnum type,
-                               Long userId,
-                               Long gradeId,
-                               Long classId,
-                               Long schoolId,
-                               SemesterEnum semesterCode) {
+    public final void analysis(ExcelTypeEnum excelType, ImportFromExcelDTO excel) {
         Http.Request.getCurrent().ifPresent(request -> {
             try (InputStream inputStream = request.getInputStream()) {
                 ExcelReaderBuilder excelReader = EasyExcelFactory.read(inputStream);
@@ -37,7 +30,7 @@ public abstract class ExcelTemplate implements Excel {
                 excelReader.excelType(excelType);
                 excelReader.autoTrim(true);
                 AnalysisEventListener readListener =
-                        ListenerFactory.newListener(type, userId, gradeId, classId, schoolId, semesterCode);
+                        ListenerFactory.newListener(excel);
                 excelReader.registerReadListener(readListener);
 
                 ExcelReader reader = excelReader.build();

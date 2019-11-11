@@ -1,8 +1,7 @@
 package com.uptang.cloud.score.template;
 
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 
 /**
  * @author : Lee.m.yin
@@ -20,23 +19,16 @@ public class ListenerFactory {
      * @param classId      班级ID
      * @param schoolId     学校ID
      * @param semesterCode 学期编码
+     * @param excel
      */
-    public static AnalysisEventListener newListener(ScoreTypeEnum type,
-                                                    Long userId,
-                                                    Long gradeId,
-                                                    Long classId,
-                                                    Long schoolId,
-                                                    SemesterEnum semesterCode) {
-        switch (type) {
+    public static AnalysisEventListener newListener(ImportFromExcelDTO excel) {
+        switch (excel.getScoreType()) {
             case HEALTH:
-                return new HealthAnalysisEventListener
-                        (userId, gradeId, classId, schoolId, semesterCode);
+                return new HealthAnalysisEventListener(excel);
             case ART:
-                return new ArtAnalysisEventListener
-                        (userId, gradeId, classId, schoolId, semesterCode);
+                return new ArtAnalysisEventListener(excel);
             default:
-                return new AcademicAnalysisEventListener
-                        (userId, gradeId, classId, schoolId, semesterCode);
+                return new AcademicAnalysisEventListener(excel);
         }
     }
 }

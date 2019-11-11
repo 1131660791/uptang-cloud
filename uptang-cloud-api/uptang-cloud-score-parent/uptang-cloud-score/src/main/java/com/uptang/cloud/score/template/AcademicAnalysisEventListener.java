@@ -6,10 +6,10 @@ import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.pojo.enums.GenderEnum;
 import com.uptang.cloud.score.common.dto.AcademicScoreDTO;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
 import com.uptang.cloud.score.common.enums.SubjectEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.common.model.Score;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import com.uptang.cloud.score.service.IScoreService;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
@@ -23,7 +23,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,9 +55,8 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
     private final StringRedisTemplate redisTemplate =
             ApplicationContextHolder.getBean(StringRedisTemplate.class);
 
-    public AcademicAnalysisEventListener(Long userId, Long gradeId,
-                                         Long classId, Long schoolId, SemesterEnum semesterCode) {
-        super(userId, gradeId, classId, schoolId, semesterCode);
+    public AcademicAnalysisEventListener(ImportFromExcelDTO excel) {
+        super(excel);
     }
 
     @Override
@@ -68,22 +66,12 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
             subjectIds.put(academicScore.getStudentCode(), scoreService.batchInsert(scoreList));
         });
 
-        AcademicResume resume = new AcademicResume();
-        resume.setCreatedTime(new Date());
-        resume.setCreatedFounderId(getUserId());
+        AcademicResume resume = Utils.formClientRequestParam(getExcel());
         resume.setGender(GenderEnum.parse(academicScore.getArt()));
         resume.setScoreType(ScoreTypeEnum.ACADEMIC);
         resume.setStudentName(academicScore.getStudentName());
-        resume.setSemesterCode(getSemesterCode());
-        resume.setSemesterName(getSemesterCode().getDesc());
         resume.setStudentCode(academicScore.getStudentCode());
-        resume.setSchoolId(getSchoolId());
-        resume.setGradeId(getGradeId());
-        resume.setClassId(getClassId());
         resume.setScoreId(0L);
-        resume.setSchool("CODE");
-        resume.setGradeName("CODE");
-        resume.setClassName("CODE");
         academicResumes.add(resume);
     }
 
@@ -94,18 +82,15 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
 
     @Override
     public void doAfterAllAnalysed(AnalysisContext context) {
-        if (log.isDebugEnabled()) {
-            log.debug("用户{}导入{}学校{}年级{}班{}学期的学业成绩 共计{}名学生",
-                    getUserId(), getSchoolId(), getGradeId(), getClassId(), getSemesterCode(), academicResumes.size());
-        }
-
         // 等待科目存储完成
         Utils.spin(subjectIds, academicResumes);
 
         // cache subject ids
         HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
-        String cacheKey = CacheKeys.subjectIdsCacheKey(getSchoolId(), getGradeId(), ScoreTypeEnum.ACADEMIC.getCode(), getUserId());
-        String hashKey = String.join(":", getUserId() + "", Instant.now().toString());
+        ImportFromExcelDTO excel = getExcel();
+        String cacheKey = CacheKeys.subjectIdsCacheKey(excel.getSchoolId(), excel.getGradeId(),
+                ScoreTypeEnum.ACADEMIC.getCode(), excel.getUserId());
+        String hashKey = String.join(":", excel.getUserId() + "", Instant.now().toString());
         hashOperations.put(cacheKey, hashKey, JSON.toJSONString(subjectIds));
 
         try {

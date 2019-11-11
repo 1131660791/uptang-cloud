@@ -1,6 +1,6 @@
 package com.uptang.cloud.score.service;
 
-import com.uptang.cloud.score.common.enums.SemesterEnum;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 
 /**
  * @author : Lee.m.yin
@@ -20,13 +20,8 @@ public interface IExcelDataServiceProcessor {
      * @param classId      班级ID
      * @param schoolId     学校ID
      * @param semesterCode 学期编码
+     * @param excelDTO
      * @return
      */
-    void processor(String token,
-                   Long userId,
-                   Integer type,
-                   Long gradeId,
-                   Long classId,
-                   Long schoolId,
-                   SemesterEnum semesterCode);
+    void processor(ImportFromExcelDTO excelDTO);
 }

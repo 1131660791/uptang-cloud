@@ -1,7 +1,9 @@
 package com.uptang.cloud.score.template;
 
 import com.uptang.cloud.score.common.model.AcademicResume;
+import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,5 +52,36 @@ class Utils {
                 && (academicResumes.size() != subjectIds.size())) {
             Utils.setSubjectIds(subjectIds, academicResumes);
         }
+    }
+
+    /**
+     * 从前端传入参数
+     *
+     * @param excel
+     * @return
+     */
+    public static AcademicResume formClientRequestParam(ImportFromExcelDTO excel) {
+        AcademicResume resume = new AcademicResume();
+
+        // 创建时间
+        resume.setCreatedTime(new Date());
+
+        // 创建人
+        resume.setCreatedFounderId(excel.getUserId());
+
+        // 学期编码 学期名称
+        resume.setSemesterCode(excel.getSemesterCode());
+        resume.setSemesterName(excel.getSemesterName());
+
+        // 学校 年级 班级 ID
+        resume.setSchoolId(excel.getSchoolId());
+        resume.setGradeId(excel.getGradeId());
+        resume.setClassId(excel.getClassId());
+
+        // 学校 年级 班级 名称
+        resume.setSchool(excel.getSchoolName());
+        resume.setGradeName(excel.getGradeName());
+        resume.setClassName(excel.getClassName());
+        return resume;
     }
 }
