@@ -26,5 +26,5 @@ public abstract class BaseModel implements Serializable, Cloneable {
     /**
      * 最后修改时间
      */
-    protected Date updatedTime;
+    protected Date modifiedTime;
 }
