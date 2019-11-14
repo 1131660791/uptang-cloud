@@ -1,8 +1,10 @@
 package com.uptang.cloud.score.strategy;
 
 import com.alibaba.excel.context.AnalysisContext;
-import com.uptang.cloud.score.dto.ImportFromExcelDTO;
+import com.uptang.cloud.score.dto.GradeCourseDTO;
+import com.uptang.cloud.score.dto.RequestParameter;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,22 +18,18 @@ public interface ExcelProcessorStrategy<T> {
     /**
      * Excel 表头
      *
-     * @param headMap 表头数据
+     * @param headMap         表头数据
+     * @param gradeCourse 年级科目信息
      */
-    void headMap(Map<Integer, String> headMap);
+    void headMap(Map<Integer, String> headMap, List<GradeCourseDTO> gradeCourse);
 
     /**
      * Excel行数据检查
      *
-     * @param rawData      Excel行数据
-     * @param context      Excel 解析上下文
-     * @param userId       用户ID
-     * @param gradeId      年级ID
-     * @param classId      班级ID
-     * @param schoolId     学校ID
-     * @param semesterCode 学期编码
+     * @param sheetData Excel数据
+     * @param context   Excel 解析上下文
      * @param excel
      * @return 数据库Model或者Entity....
      */
-    boolean check(T rawData, AnalysisContext context, ImportFromExcelDTO excel);
+    void check(List<T> sheetData, AnalysisContext context, RequestParameter excel);
 }

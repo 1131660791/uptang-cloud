@@ -1,15 +1,19 @@
 package com.uptang.cloud.score.strategy;
 
 import com.alibaba.excel.context.AnalysisContext;
-import com.uptang.cloud.score.common.dto.AcademicScoreDTO;
+import com.uptang.cloud.score.common.dto.ExcelDto;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.dto.ImportFromExcelDTO;
+import com.uptang.cloud.score.dto.GradeCourseDTO;
+import com.uptang.cloud.score.dto.RequestParameter;
+import com.uptang.cloud.score.dto.StuListDTO;
+import com.uptang.cloud.score.dto.StudentRequestDTO;
 import com.uptang.cloud.score.service.IRestCallerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,45 +24,51 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class AcademicScoreExcelProcessorStrategy implements ExcelProcessorStrategy<AcademicScoreDTO>, InitializingBean {
+public class AcademicScoreExcelProcessorStrategy implements ExcelProcessorStrategy<ExcelDto>, InitializingBean {
 
     @Autowired
     private IRestCallerService restCallerService;
 
-    /**
-     * Excel 表头数据校验
-     * <p>
-     * {0=年级, 1=班级, 2=学籍号, 3=姓名, 4=道德与法治, 5=语文, 6=数学, 7=英语, 8=物理, 9=化学, 10=历史,
-     * 11=地理, 12=生物, 13=体育, 14=信息技术, 15=音乐, 16=美术, 17=物理实验, 18=化学实验,
-     * 19=生物实验, 20=劳动与技术教育, 21=地方及校本课程}
-     *
-     * @param headMap 表头数据
-     */
     @Override
-    public void headMap(Map<Integer, String> headMap) {
-        log.info("Academic header map ==> {}", headMap);
+    public void headMap(Map<Integer, String> headMap, List<GradeCourseDTO> gradeCourse) {
+        Utils.headCheck(headMap, gradeCourse, 4, ScoreTypeEnum.ACADEMIC);
     }
 
     /**
-     * Excel数据行校验
+     * 将每一页学生分页数据与整个Sheet页内容进行匹配
      *
-     * @param rawData      Excel行数据
-     * @param context      Excel 解析上下文
-     * @param userId       用户ID
-     * @param gradeId      年级ID
-     * @param classId      班级ID
-     * @param schoolId     学校ID
-     * @param semesterCode 学期编码
-     * @return
+     * @param sheetData Excel数据
+     * @param context   Excel 解析上下文
+     * @param excel
      */
     @Override
-    public boolean check(AcademicScoreDTO rawData, AnalysisContext context, ImportFromExcelDTO excel) {
-        log.info("学业 check {}", rawData);
-        return true;
+    public void check(List<ExcelDto> sheetData, AnalysisContext context, RequestParameter excel) {
+        Utils.setUserInfo(sheetData,
+                excel,
+                () -> getStuInfo(excel, null, 1, 200),
+                (pageNum, pageSize) -> getStuInfo(excel, null, pageNum, pageSize),
+                (excelDto) -> getStuInfo(excel, excelDto, 0L, 0L));
+
+        for (ExcelDto sheetDatum : sheetData) {
+            Utils.checkUserInfo(sheetDatum.getResume());
+        }
     }
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
         ExcelProcessorStrategyFactory.register(ScoreTypeEnum.ACADEMIC, this);
+    }
+
+    /**
+     * 获取学生信息
+     *
+     * @param excel    前端请求参数
+     * @param pageNum  页码
+     * @param pageSize 条数
+     */
+    private StuListDTO getStuInfo(RequestParameter excel, ExcelDto excelDto, long pageNum, long pageSize) {
+        StudentRequestDTO student = Utils.getStudentRequestDTO(excel, excelDto, pageNum, pageSize);
+        return restCallerService.studentList(student);
     }
 }

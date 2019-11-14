@@ -4,14 +4,16 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.uptang.cloud.score.common.model.AcademicResume;
-import com.uptang.cloud.score.dto.ResumeJoinArchiveDTO;
-import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 import com.uptang.cloud.score.repository.AcademicResumeRepository;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
+import java.time.Year;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author : Lee.m.yin
@@ -25,7 +27,7 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
 
     @Override
     public boolean update(AcademicResume academicResume) {
-        academicResume.setUpdatedTime(new Date());
+        academicResume.setModifiedTime(new Date());
         return Optional
                 .ofNullable(getBaseMapper().selectById(academicResume.getId()))
                 .filter(Objects::nonNull)
@@ -35,30 +37,22 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
     }
 
     /**
-     * if (scoreGroupList != null && scoreGroupList.size() > 0) {
-     * final List<List<Long>> subjectIds = new ArrayList<>();
-     * Set<Map.Entry<Integer, List<List<Score>>>> subjectGroup = scoreGroupList.entrySet();
-     * for (Map.Entry<Integer, List<List<Score>>> subjects : subjectGroup) {
-     * List<List<Score>> value = subjects.getValue();
-     * for (List<Score> scores : value) {
-     * subjectIds.add(scoreService.batchInsert(scores));
-     * }
-     * }
-     * System.out.println(subjectIds);
-     * }
-     * <p>
-     * subjectIds.stream().forEach(ids -> academicResumes.stream().forEach(resume -> resume.setScoreIds(ids)));
-     * subjectIds.clear();
+     * 批次插入
      *
      * @param groupMapList 批量录入数据
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void batchSave(Map<Integer, List<AcademicResume>> groupMapList) {
-        final Set<Map.Entry<Integer, List<AcademicResume>>> entries = groupMapList.entrySet();
-        for (Map.Entry<Integer, List<AcademicResume>> entry : entries) {
-            batchInsert(entry.getValue());
+    public List<Map<Long, Long>> batchSave(Map<Integer, List<AcademicResume>> groupMapList) {
+        if (groupMapList != null && groupMapList.size() > 0) {
+            List<Map<Long, Long>> ids = new ArrayList<>();
+            final Set<Map.Entry<Integer, List<AcademicResume>>> entries = groupMapList.entrySet();
+            for (Map.Entry<Integer, List<AcademicResume>> entry : entries) {
+                ids.add(batchInsert(entry.getValue()));
+            }
+            return ids;
         }
+        return Collections.emptyList();
     }
 
     @Override
@@ -68,34 +62,48 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
     }
 
     @Override
-    public ResumeJoinArchiveDTO getArchiveDetail(AcademicResume academicResume) {
-        return getBaseMapper().archiveDetail(academicResume);
+    public Map<Long, Long> batchInsert(List<AcademicResume> resume) {
+        if (resume != null && resume.size() > 0) {
+            getBaseMapper().batchInsert(resume);
+            return resume.stream().collect(Collectors.toMap(AcademicResume::getStudentId, AcademicResume::getId));
+        }
+
+        return Collections.emptyMap();
     }
 
     @Override
-    public ResumeJoinScoreDTO getUnfileDetail(AcademicResume academicResume) {
-        return getBaseMapper().unfileDetail(academicResume);
+    public Long insert(AcademicResume resume) {
+        Assert.notNull(resume, "请求参数不能为空");
+        Assert.notNull(resume.getScoreType(), "成绩类型不能为空");
+
+        resume.setCreatedTime(new Date());
+        Optional.ofNullable(resume).ifPresent(getBaseMapper()::save);
+        return resume.getId();
+    }
+
+
+    @Override
+    public boolean importAgain(AcademicResume resume) {
+        // false 还未导入
+        Assert.notNull(resume, "请求参数不能为空");
+        Date date = getBaseMapper().importAgain(resume);
+        if (date == null) {
+            return false;
+        }
+        // Unable to obtain Year from TemporalAccessor: xxxxxxx of type java.time.Instant
+        Year year = Year.from(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        if (year.compareTo(Year.now()) == 0) {
+            return true;
+        }
+
+        // true 已经导入过了
+        return true;
     }
 
     @Override
-    public List<ResumeJoinArchiveDTO> getArchiveList(Integer pageNum, Integer pageSize,
-                                                     AcademicResume academicResume) {
-        PageHelper.startPage(pageNum, pageSize);
-        return getBaseMapper().archiveList(academicResume);
-    }
-
-    @Override
-    public List<ResumeJoinScoreDTO> getUnfiledList(Integer pageNum, Integer pageSize,
-                                                   AcademicResume academicResume) {
-        PageHelper.startPage(pageNum, pageSize);
-        return getBaseMapper().unfileList(academicResume);
-    }
-
-    @Override
-    public void batchInsert(List<AcademicResume> resume) {
-        Optional.ofNullable(resume)
-                .filter(list -> (list != null || !list.isEmpty()))
-                .ifPresent(getBaseMapper()::batchInsert);
-
+    public List<AcademicResume> getResumeIds(AcademicResume resume) {
+        Assert.notNull(resume, "请求参数不能为空");
+        Assert.notNull(resume.getScoreType(), "成绩类型不能为空");
+        return getBaseMapper().getResumeIds(resume);
     }
 }

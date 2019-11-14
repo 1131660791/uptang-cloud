@@ -1,7 +1,6 @@
 package com.uptang.cloud.score.common.vo;
 
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
 import com.uptang.cloud.starter.web.domain.BaseVO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -30,22 +29,10 @@ public class ImportFromExcelVo extends BaseVO<ImportFromExcelVo> implements Seri
     private Long schoolId;
 
     /**
-     * 学校名称
-     */
-    @ApiModelProperty(notes = "学校名称")
-    private String schoolName;
-
-    /**
      * 年级ID
      */
     @ApiModelProperty(notes = "学校ID")
     private Long gradeId;
-
-    /**
-     * 年级名称
-     */
-    @ApiModelProperty(notes = "年级名称")
-    private String gradeName;
 
     /**
      * 班级学校ID
@@ -54,16 +41,10 @@ public class ImportFromExcelVo extends BaseVO<ImportFromExcelVo> implements Seri
     private Long classId;
 
     /**
-     * 班级名称
-     */
-    @ApiModelProperty(notes = "学校名称")
-    private String className;
-
-    /**
      * 学期编码
      */
-    @ApiModelProperty(notes = "学期编码 0 上半学期 1 下班学期")
-    private SemesterEnum semesterCode;
+    @ApiModelProperty(notes = "学期ID")
+    private Long semesterId;
 
     /**
      * 学期名

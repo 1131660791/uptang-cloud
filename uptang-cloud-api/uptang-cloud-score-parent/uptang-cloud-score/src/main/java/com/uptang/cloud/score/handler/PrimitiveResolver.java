@@ -1,5 +1,6 @@
 package com.uptang.cloud.score.handler;
 
+import com.uptang.cloud.score.util.CharacterConvert;
 import com.uptang.cloud.score.util.Numbers;
 
 import java.math.BigDecimal;
@@ -24,6 +25,7 @@ public enum PrimitiveResolver {
         @Override
         public Object convert(Object object) {
             String str = object != null ? String.valueOf(object) : "";
+            str = CharacterConvert.toHalf(str);
             return str != null ? str.replaceAll("\\s*", "") : "";
         }
     },
@@ -101,18 +103,25 @@ public enum PrimitiveResolver {
         }
     },
 
-
     Date_() {
+        private final String[] patterns =
+                new String[]{"yyyyMMdd", "yyyy-MM-dd", "yyyy-M-dd"};
+
         @Override
         public Object convert(Object object) {
             String stringDate = (String) String_.convert(object);
-            try {
-                LocalDate localDate = LocalDate.parse(stringDate, DateTimeFormatter.ofPattern("yyyyMMdd"));
-                return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-            } catch (Exception e) {
-                LocalDate localDate = LocalDate.parse(stringDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-            }
+            int index = 0;
+            boolean formatter;
+            do {
+                try {
+                    LocalDate localDate = LocalDate.parse(stringDate, DateTimeFormatter.ofPattern(patterns[index]));
+                    return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+                } catch (Exception e) {
+                    formatter = true;
+                }
+                index++;
+            } while (formatter && index < patterns.length);
+            return object;
         }
     };
 
@@ -153,6 +162,7 @@ public enum PrimitiveResolver {
                 || Timestamp.class.isAssignableFrom(clazz)) {
             return PrimitiveResolver.Date_;
         }
+
         return PrimitiveResolver.String_;
     }
 }

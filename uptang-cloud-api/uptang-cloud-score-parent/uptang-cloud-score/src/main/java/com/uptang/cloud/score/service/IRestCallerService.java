@@ -1,6 +1,7 @@
 package com.uptang.cloud.score.service;
 
 import com.uptang.cloud.score.common.enums.PublicityTypeEnum;
+import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.dto.*;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public interface IRestCallerService {
      * @param moduleSwitchDto 请求参数
      * @return
      */
-    ModuleSwitchResponseDto moduleSwitch(ModuleSwitchDto moduleSwitchDto);
+    boolean moduleSwitch(ModuleSwitchDto moduleSwitchDto);
 
 
     /**
@@ -29,7 +30,7 @@ public interface IRestCallerService {
      * @param studentRequest
      * @return
      */
-    List<StudentDTO> studentList(StudentRequestDTO studentRequest);
+    StuListDTO studentList(StudentRequestDTO studentRequest);
 
     /**
      * 当前用户权限校验接口
@@ -37,7 +38,7 @@ public interface IRestCallerService {
      * @param restRequestDto
      * @return
      */
-    PromissionDTO promissionCheck(RestRequestDto restRequestDto);
+    boolean promissionCheck(RestRequestDto restRequestDto);
 
     /**
      * 年级课程信息
@@ -54,7 +55,7 @@ public interface IRestCallerService {
      * @param exemptionDto
      * @return 学籍号列表
      */
-    List<String> exemption(ExemptionDto exemptionDto);
+    List<AcademicResume> exemption(ExemptionDto exemptionDto);
 
     /**
      * 公示时间接口

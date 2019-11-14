@@ -11,21 +11,30 @@ import java.util.Date;
  * @createtime : 2019-11-08 16:41
  * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
  * @Summary : FIXME
+ *
+ * <pre>
+ *     {
+ *     "status": "200",
+ *     "message": "OK",
+ *     "data": {
+ *         "id": 1469,
+ *         "module_type": "9",
+ *         "start_time": "2019-10-17 00:00:00",
+ *         "end_time": "2020-2-08 00:00:00",
+ *         "is_switch": true
+ *     }
+ * }
+ * </pre>
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ModuleSwitchResponseDto {
 
     /**
-     * id	int	R	编号
-     */
-    private Long id;
-
-    /**
      * module_type	int	R	模块类型，值为9代表学业成绩、体质测评
      */
     @JsonProperty("module_type")
-    private Boolean moduleType;
+    private String moduleType;
 
     /**
      *   is_switch	string	R	是否开启,true是,false否
@@ -45,9 +54,8 @@ public class ModuleSwitchResponseDto {
     @JsonProperty("end_time")
     private Date end;
 
-    /**
-     * grade_id	int	R	年级编号
-     */
-    @JsonProperty("grade_id")
-    private Long gradeId;
+    @Override
+    public String toString() {
+        return "{\"moduleType\":\"" + moduleType + "\", \"switched\":\"" + switched + "\", \"start\":" + start + ", \"end\":" + end + "}";
+    }
 }

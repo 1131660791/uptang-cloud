@@ -1,15 +1,19 @@
 package com.uptang.cloud.score.strategy;
 
 import com.alibaba.excel.context.AnalysisContext;
-import com.uptang.cloud.score.common.dto.ArtScoreDTO;
+import com.uptang.cloud.score.common.dto.ExcelDto;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.dto.ImportFromExcelDTO;
+import com.uptang.cloud.score.dto.GradeCourseDTO;
+import com.uptang.cloud.score.dto.RequestParameter;
+import com.uptang.cloud.score.dto.StuListDTO;
+import com.uptang.cloud.score.dto.StudentRequestDTO;
 import com.uptang.cloud.score.service.IRestCallerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,24 +24,43 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class ArtScoreExcelProcessorStrategy implements ExcelProcessorStrategy<ArtScoreDTO>, InitializingBean {
-
+public class ArtScoreExcelProcessorStrategy implements ExcelProcessorStrategy<ExcelDto>, InitializingBean {
 
     @Autowired
     private IRestCallerService restCallerService;
 
     @Override
-    public void headMap(Map<Integer, String> headMap) {
-        log.info("art header map ==> {}", headMap);
+    public void headMap(Map<Integer, String> headMap, List<GradeCourseDTO> gradeCourse) {
+        Utils.headCheck(headMap, gradeCourse, 4, ScoreTypeEnum.ART);
     }
 
     @Override
-    public boolean check(ArtScoreDTO rawData, AnalysisContext context, ImportFromExcelDTO excel) {
-        return true;
+    public void check(List<ExcelDto> sheetData, AnalysisContext context, RequestParameter excel) {
+        Utils.setUserInfo(sheetData,
+                excel,
+                () -> getStuInfo(excel, null, 1, 200),
+                (pageNum, pageSize) -> getStuInfo(excel, null, pageNum, pageSize),
+                (excelDto) -> getStuInfo(excel, excelDto, 0L, 0L));
+
+        for (ExcelDto sheetDatum : sheetData) {
+            Utils.checkUserInfo(sheetDatum.getResume());
+        }
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         ExcelProcessorStrategyFactory.register(ScoreTypeEnum.ART, this);
+    }
+
+    /**
+     * 获取学生信息
+     *
+     * @param excel    前端请求参数
+     * @param pageNum  页码
+     * @param pageSize 条数
+     */
+    private StuListDTO getStuInfo(RequestParameter excel, ExcelDto excelDto, long pageNum, long pageSize) {
+        StudentRequestDTO student = Utils.getStudentRequestDTO(excel, excelDto, pageNum, pageSize);
+        return restCallerService.studentList(student);
     }
 }

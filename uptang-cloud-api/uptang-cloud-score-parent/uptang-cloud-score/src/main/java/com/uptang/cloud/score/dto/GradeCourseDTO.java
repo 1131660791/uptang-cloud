@@ -1,5 +1,6 @@
 package com.uptang.cloud.score.dto;
 
+import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import lombok.Data;
 
 /**
@@ -11,12 +12,10 @@ import lombok.Data;
 @Data
 public class GradeCourseDTO {
 
-    private Long id;
-
     /**
-     * 年级编号
+     * 科目编号
      */
-    private Long gradeId;
+    private Integer id;
 
     /**
      * 学科名称
@@ -24,17 +23,53 @@ public class GradeCourseDTO {
     private String subjectName;
 
     /**
-     * 总分分值
+     * 数据类型
      */
-    private Long totalScore;
+    private DataTypeEnum dataType;
+
+    /**
+     * 年级编号
+     */
+    private ScoreTypeEnum scoreType;
 
     /**
      * 二级指标编号
      */
-    private Integer indexId;
+    private Integer index;
 
     /**
-     * 数据状态
+     * 数据校验规则
      */
-    private Integer status;
+    private String rule;
+
+    /**
+     * Excel序号
+     */
+    private Integer orderNumber;
+
+    /**
+     * 数据类型 0 数字类型 1字符串类型
+     */
+    public enum DataTypeEnum {
+        /**
+         * 数字类型
+         */
+        NUMBER(0),
+
+        /**
+         * 1字符串类型
+         */
+        String(1);
+
+        private int code;
+
+        DataTypeEnum(int code) {
+            this.code = code;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return ":{\"id\":\"" + id + "\", \"subjectName\":\"" + subjectName + "\", \"dataType\":\"" + dataType + "\", \"scoreType\":\"" + scoreType + "\", \"index\":\"" + index + "\", \"rule\":\"" + rule + "\", \"orderNumber\":\"" + orderNumber + "\"}";
+    }
 }

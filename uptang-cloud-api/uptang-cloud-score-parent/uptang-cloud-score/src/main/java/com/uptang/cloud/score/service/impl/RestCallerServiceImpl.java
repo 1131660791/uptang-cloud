@@ -2,9 +2,12 @@ package com.uptang.cloud.score.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uptang.cloud.score.common.API;
+import com.uptang.cloud.core.exception.BusinessException;
+import com.uptang.cloud.score.common.Api;
 import com.uptang.cloud.score.common.enums.PublicityTypeEnum;
+import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.dto.*;
 import com.uptang.cloud.score.exceptions.HttpClientException;
 import com.uptang.cloud.score.httpclient.HttpRequest;
@@ -16,10 +19,12 @@ import org.apache.http.Header;
 import org.apache.http.HttpStatus;
 import org.apache.http.message.BasicHeader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,57 +38,109 @@ import java.util.Map;
 @Service
 public class RestCallerServiceImpl implements IRestCallerService {
 
-    static final String DEV = "http://192.168.127:8082";
-    @Value("${spring.uptang.gateway.host:" + DEV + "}")
-    private String serverHost;
+
+    //    static final String DEV = "http://192.168.127:8082";
+//    @Value("${spring.uptang.gateway.host:" + DEV + "}")
+    private String serverHost = "http://192.168.0.127:8081";
 
     @Autowired
     private ObjectMapper mapper;
 
     @Override
-    public ModuleSwitchResponseDto moduleSwitch(ModuleSwitchDto moduleSwitchDto) {
-        String api = API.getApi(serverHost, API.Manager.MODULE_SWITCH);
-        return postJson(api, moduleSwitchDto, ModuleSwitchResponseDto.class);
+    public boolean moduleSwitch(ModuleSwitchDto moduleSwitchDto) {
+        String api = Api.getApi("http://192.168.0.127:8083", Api.Manager.MODULE_SWITCH);
+        ModuleSwitchResponseDto moduleSwitch = postJson(api, moduleSwitchDto, ModuleSwitchResponseDto.class);
+        if (moduleSwitch == null) {
+            throw new BusinessException("未设置任务");
+        }
+
+        Instant instant = moduleSwitch.getEnd().toInstant();
+        return instant.compareTo(Instant.now()) > 0 ? true : false;
     }
 
     @Override
-    public List<StudentDTO> studentList(StudentRequestDTO studentRequest) {
-        String api = API.getApi(serverHost, API.UserCenter.STUDENT_INFO);
+    public StuListDTO studentList(StudentRequestDTO studentRequest) {
+        String api = Api.getApi(serverHost, Api.UserCenter.STUDENT_INFO);
         String payload = postJson(api, studentRequest, String.class);
         try {
-            return mapper.readValue(payload, new TypeReference<List<StudentDTO>>() {});
+            return mapper.readValue(payload, StuListDTO.class);
         } catch (IOException e) {
-            return JSON.parseArray(payload, StudentDTO.class);
+            return JSON.parseObject(payload, StuListDTO.class);
         }
     }
 
     @Override
-    public PromissionDTO promissionCheck(RestRequestDto restRequestDto) {
-        String api = API.getApi(serverHost, API.Promission.CHECK);
-        return postJson(api, restRequestDto, PromissionDTO.class);
+    public boolean promissionCheck(RestRequestDto restRequestDto) {
+        Assert.notNull(restRequestDto, "请求参数不能为空");
+        String api = Api.getApi(serverHost, Api.Promission.CHECK);
+        PromissionDTO promission = postJson(api, restRequestDto, PromissionDTO.class);
+        if (promission != null) {
+            switch (promission.getUserType()) {
+                case TEACHER:
+                case MANAGER:
+                    return true;
+                case STUDENT:
+                case PARENTS:
+                default:
+                    return false;
+            }
+        }
+        return false;
     }
 
     @Override
     public List<GradeCourseDTO> gradeInfo(StudentRequestDTO studentRequest) {
-        String api = API.getApi(serverHost, API.Grade.INFO);
-        String payload = postJson(api, studentRequest, String.class);
+        String api = Api.getApi(serverHost, Api.Grade.INFO, studentRequest.getGradeId());
+        Header[] headers = new Header[]{new BasicHeader("Token", studentRequest.getToken())};
+
         try {
-            return mapper.readValue(payload, new TypeReference<List<GradeCourseDTO>>() {});
+            String payload = HttpRequest.HttpClient.get(api, headers);
+            if (payload == null || "".equals(payload)) {
+                return Collections.emptyList();
+            }
+
+            Map map = mapper.readValue(payload, Map.class);
+            Object status = map.get("status");
+            Object data = map.get("data");
+            if (map == null || map.size() == 0
+                    || status.equals(HttpStatus.SC_OK)
+                    || data == null) {
+                return Collections.emptyList();
+            }
+
+            String json = mapper.writeValueAsString(data);
+            if (JSON.isValidArray(json)) {
+                return mapper.readValue(json, new TypeReference<List<GradeCourseDTO>>() {
+                });
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("api ==> {} response body ==> {}", api, json);
+            }
+
+            return Collections.emptyList();
         } catch (IOException e) {
-            return JSON.parseArray(payload, GradeCourseDTO.class);
+            throw new BusinessException(e);
         }
     }
 
     @Override
-    public List<String> exemption(ExemptionDto exemptionDto) {
-        String api = API.getApi(serverHost, API.UserCenter.EXEMPTION);
-        return postJson(api, exemptionDto, List.class);
+    public List<AcademicResume> exemption(ExemptionDto exemptionDto) {
+        String api = Api.getApi(serverHost, Api.UserCenter.EXEMPTION);
+        List list = postJson(api, exemptionDto, List.class);
+
+        try {
+            String writeValueAsString = mapper.writeValueAsString(list);
+            return mapper.readValue(writeValueAsString, new TypeReference<List<AcademicResume>>() {});
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
     }
 
     @Override
     public PublicityDTO publicity(String token, PublicityTypeEnum type) {
         Header[] headers = new Header[]{new BasicHeader("Token", token)};
-        String api = API.getApi(serverHost, API.Manager.PUBLICITY, type.getCode() + "");
+        String api = Api.getApi(serverHost, Api.Manager.PUBLICITY, type.getCode() + "");
         try {
             HttpResponseEvent response = HttpRequest.HttpClient.post(api, headers);
 
@@ -110,14 +167,15 @@ public class RestCallerServiceImpl implements IRestCallerService {
             HttpResponseEvent response = HttpRequest.HttpClient.postJson(api, json, headers);
 
             if (log.isDebugEnabled()) {
-                log.debug("request ==> {} response ==> {}", api, response);
+                log.debug("request ==> {} body ==> {} response ==> {}", api, json, response);
             }
 
             if (response.getCode() == HttpStatus.SC_OK) {
-                Map<String, Object> payload = mapper.readValue(response.getPayload(), Map.class);
+                Map<String, Object> payload =
+                        mapper.readValue(response.getPayload(), Map.class);
                 Object status = payload.get("status");
 
-                if (status != null && status.equals(HttpStatus.SC_OK)) {
+                if (status != null && status.equals(HttpStatus.SC_OK + "")) {
                     String data = mapper.writeValueAsString(payload.get("data"));
                     if (clazz.isAssignableFrom(String.class)) {
                         return (T) data;
@@ -133,5 +191,17 @@ public class RestCallerServiceImpl implements IRestCallerService {
             log.error("request ==> {} error ==> {}", api, e.getMessage());
             throw new HttpClientException(e);
         }
+    }
+
+    /**
+     * 获取泛型的Collection Type
+     *
+     * @param collectionClass 泛型的Collection
+     * @param elementClasses  元素类
+     * @return JavaType Java类型
+     * @since 1.0
+     */
+    public JavaType getCollectionType(Class<?> collectionClass, Class<?>... elementClasses) {
+        return mapper.getTypeFactory().constructParametricType(collectionClass, elementClasses);
     }
 }

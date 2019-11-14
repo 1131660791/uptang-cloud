@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uptang.cloud.score.repository.ObjectionRecordRepository">
+
+    <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.ObjectionRecord">
+        <id property="id" column="id"/>
+        <result property="resumeId" column="resume_id"/>
+        <result property="state" column="state"/>
+        <result property="description" column="description"/>
+        <result property="reviewStat" column="review_stat"/>
+        <result property="reviewDesc" column="review_desc"/>
+        <result property="reviewId" column="review_id"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="scoreType" column="score_type"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="modifiedTime" column="modified_time"/>
+    </resultMap>
+
+    <!--字段名 Java属性名-->
+    <sql id="columns">
+        `id`, `resume_id`, `state`, `description`, `review_stat`, `review_desc`, `creator_id`,
+        `modifier_id`, `score_type`, `created_time`, `updated_time`
+    </sql>
+
+    <!--根据传入属性插入-->
+    <insert id="add" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.uptang.cloud.score.common.model.ObjectionRecord">
+
+        INSERT INTO objection_record
+        <trim suffixOverrides="," prefix="(" suffix=")">
+            <if test="resumeId != null">`resume_id`,</if>
+            <if test="state != null">`state`,</if>
+            <if test="description != null and description != ''">`description`,</if>
+            <if test="reviewStat != null">`review_stat`,</if>
+            <if test="reviewDesc != null">`review_desc`,</if>
+            <if test="creatorId != null">`creator_id`,</if>
+            <if test="reviewId != null">`modifier_id`,</if>
+            <if test="scoreType != null">`score_type`,</if>
+            <if test="createdTime != null">`created_time`,</if>
+        </trim>
+        VALUES
+        <trim suffixOverrides="," prefix="(" suffix=")">
+            <if test="state != null">#{state},</if>
+            <if test="resumeId != null">#{resumeId},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="reviewStat != null">#{reviewStat},</if>
+            <if test="reviewDesc != null">#{reviewDesc},</if>
+            <if test="creatorId != null">#{creatorId},</if>
+            <if test="reviewId != null">#{reviewId},</if>
+            <if test="scoreType != null">#{scoreType},</if>
+            <if test="createdTime != null">#{createdTime},</if>
+        </trim>
+    </insert>
+
+    <!--根据属性查询-->
+    <select id="queryByProperty" resultMap="ResultMap">
+        SELECT
+        <include refid="columns"/>
+        FROM objection_record
+        <where>
+            <trim suffixOverrides="AND" prefixOverrides="AND">
+                <if test="id != null">AND `id`=#{id}</if>
+                <if test="state != null">AND `state`=#{state}</if>
+                <if test="resumeId != null">AND `resume_id`=#{resumeId}</if>
+                <if test="description != null and description != ''">AND `description`=#{description}</if>
+                <if test="reviewStat != null">AND `review_stat`=#{reviewStat}</if>
+                <if test="reviewDesc != null">AND `review_desc`=#{reviewDesc}</if>
+                <if test="creatorId != null">AND `creator_id`=#{creatorId}</if>
+                <if test="reviewId != null">AND `modifier_id`=#{reviewId}</if>
+                <if test="scoreType != null">AND `score_type`=#{scoreType}</if>
+                <if test="createdTime != null">AND `created_time`=#{createdTime}</if>
+                <if test="modifiedTime != null">AND `modified_time`=#{modifiedTime}</if>
+            </trim>
+        </where>
+    </select>
+
+    <!--根据主键更新-->
+    <update id="update" parameterType="com.uptang.cloud.score.common.model.ObjectionRecord">
+        UPDATE objection_record
+        <trim suffixOverrides=",">
+            <set>
+                <if test="state != null">`state`=#{state},</if>
+                <if test="resumeId != null">`resume_id`=#{resumeId},</if>
+                <if test="description != null and description != ''">`description`=#{description},</if>
+                <if test="reviewStat != null">`review_stat`=#{reviewStat},</if>
+                <if test="reviewDesc != null">`review_desc`=#{reviewDesc},</if>
+                <if test="creatorId != null">`creator_id`=#{creatorId},</if>
+                <if test="reviewId != null">`review_id`=#{reviewId},</if>
+                <if test="scoreType != null">`score_type`=#{scoreType},</if>
+                <if test="createdTime != null">`created_time`=#{createdTime},</if>
+                <if test="modifiedTime != null">`modified_time`=#{modifiedTime},</if>
+            </set>
+        </trim>
+        WHERE `id`=#{id}
+    </update>
+
+
+    <!--异议成绩-->
+    <select id="resumeIds">
+        SELECT orecord.resume_id FROM FROM objection_record orecord LEFT JOIN academic_resume ar on
+        ar.id=orecord.resume_id
+        WHERE ar.school_id=#{schoolId} AND ar.grade_id=#{gradeId} AND ar.semester_id=#{semesterId} AND
+        orecord.score_type=#{type}
+    </select>
+
+    <!--异议条数-->
+    <select id="count">
+        SELECT COUNT(0) FROM FROM objection_record orecord LEFT JOIN academic_resume ar on ar.id=orecord.resume_id
+        WHERE ar.school_id=#{schoolId} AND ar.grade_id=#{gradeId} AND ar.semester_id=#{semesterId} AND
+        orecord.score_type=#{type}
+    </select>
+
+    <resultMap id="DetailResultMap" type="com.uptang.cloud.score.common.model.ObjectionRecord">
+        <id property="id" column="id"/>
+        <result property="resumeId" column="resume_id"/>
+        <result property="state" column="state"/>
+        <result property="description" column="description"/>
+        <result property="reviewStat" column="review_stat"/>
+        <result property="reviewDesc" column="review_desc"/>
+        <result property="reviewId" column="review_id"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="scoreType" column="score_type"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="modifiedTime" column="modified_time"/>
+        <result property="subjectId" column="subjectId"/>
+        <result property="subjectCode" column="code"/>
+        <result property="subjectName" column="name"/>
+        <result property="scoreText" column="score_text"/>
+        <result property="scoreNumber" column="score_number"/>
+        <result property="semesterName" column="semester_name"/>
+        <result property="schoolName" column="school_name"/>
+        <result property="gradeName" column="grade_name"/>
+        <result property="className" column="class_name"/>
+        <result property="studentName" column="student_name"/>
+        <result property="studentId" column="student_id"/>
+        <result property="gender" column="gender"/>
+    </resultMap>
+
+
+    <!--异议详情-->
+    <select id="detail" resultMap="DetailResultMap">
+        SELECT
+        orecord.id,subjct.id AS subjectId,orecord.state,orecord.description,orecord.review_stat,
+        orecord.review_desc,orecord.creator_id,orecord.score_type,orecord.created_time,
+        subjct.`code`,subjct.`name`,subjct.score_text,subjct.score_number,ar.semester_name,
+        ar.school_name,ar.grade_name,ar.class_name,ar.student_name,ar.student_id,ar.gender
+        FROM objection_record orecord,
+        academic_resume ar,
+        subject_health subjct
+        WHERE ar.id=orecord.resume_id AND ar.id=subjct.resume_id
+        AND ar.school_id=#{schoolId}
+        AND ar.grade_id=#{gradeId}
+        AND ar.semester_id=#{semesterId}
+        AND subjct.score_type=#{type}
+    </select>
+
+    <!--分页-->
+    <select id="page" resultMap="ResultMap">
+        SELECT
+        <include refid="columns"/>
+        FROM objection_record WHERE resume_id=#{resumeId} AND score_type=#{type}
+    </select>
+</mapper>

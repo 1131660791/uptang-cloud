@@ -25,8 +25,6 @@ public interface ResumeJoinArchiveConverter {
      * @return 转换后的VO
      */
     @Mapping(target = "children", ignore = true)
-    @Mapping(target = "semesterCode", source = "semesterCode.code")
-    @Mapping(target = "semesterCodeText", source = "semesterCode.desc")
     @Mapping(target = "scoreType", source = "scoreType.code")
     @Mapping(target = "scoreTypeText", source = "scoreType.desc")
     @Mapping(target = "gender", source = "gender.code")
@@ -40,7 +38,6 @@ public interface ResumeJoinArchiveConverter {
      * @return 转换后实体
      */
     @Mappings({
-            @Mapping(target = "semesterCode", expression = "java(SemesterEnum.code(resumeJoinArchive.getSemesterCode()))"),
             @Mapping(target = "scoreType", expression = "java(ScoreTypeEnum.code(resumeJoinArchive.getScoreType()))"),
             @Mapping(target = "gender", expression = "java(GenderEnum.parse(resumeJoinArchive.getGender()))"),
     })

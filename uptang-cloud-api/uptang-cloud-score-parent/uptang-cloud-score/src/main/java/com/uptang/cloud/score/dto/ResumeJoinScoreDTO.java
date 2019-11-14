@@ -1,6 +1,5 @@
 package com.uptang.cloud.score.dto;
 
-import com.uptang.cloud.score.common.enums.SubjectEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,7 +24,13 @@ public class ResumeJoinScoreDTO extends AcademicResume implements Serializable {
      * @type tinyint(1) unsigned
      * @comment 科目 数学 语文 英语 物理 地理 化学 (0 表示没有科目)
      */
-    private SubjectEnum subject;
+    private Integer subjectCode;
+
+    /**
+     * @type tinyint(1) unsigned
+     * @comment 科目 数学 语文 英语 物理 地理 化学 (0 表示没有科目)
+     */
+    private Integer subjectText;
 
     /**
      * @type varchar(20)

@@ -3,7 +3,6 @@ package com.uptang.cloud.score.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -26,10 +25,10 @@ public class PromissionDTO {
     /**
      * 角色
      */
-    private Integer auth;
+    private String auth;
 
     /**
-     * user_type	int	R	用户类型 1学生2老师3家长3管理员
+     * 0管理员 1教师 2学生 3家长
      */
     @JsonProperty("user_type")
     private UserType userType;
@@ -44,43 +43,36 @@ public class PromissionDTO {
     @AllArgsConstructor
     public enum UserType {
         /**
-         * 1学生
+         * 0管理员 1教师 2学生 3家长
+         * 学生
          */
-        STUDENT(1),
+        STUDENT(2),
 
         /**
-         * 2老师
+         * 老师
          */
-        TEACHER(2),
+        TEACHER(1),
+
         /**
-         * 3家长
+         * 家长
          */
         PARENTS(3),
+
         /**
-         * 3管理员
+         * 管理员
          */
-        MANAGER(4);
+        MANAGER(0);
 
         private final int code;
 
         @JsonCreator
-        public static UserType forValue(Integer value) {
+        public static UserType creator(int value) {
             for (UserType member : UserType.values()) {
                 if (member.getCode() == value) {
                     return member;
                 }
             }
             return null;
-        }
-
-        @JsonValue
-        public int toValue() {
-            for (UserType member : UserType.values()) {
-                if (member.getCode() == this.getCode()) {
-                    return member.getCode();
-                }
-            }
-            return 0;
         }
     }
 
@@ -116,23 +108,13 @@ public class PromissionDTO {
         private final int code;
 
         @JsonCreator
-        public static HighestLevel forValue(Integer value) {
+        public static HighestLevel creator(Integer value) {
             for (HighestLevel member : HighestLevel.values()) {
                 if (member.getCode() == value) {
                     return member;
                 }
             }
             return null;
-        }
-
-        @JsonValue
-        public int toValue() {
-            for (HighestLevel member : HighestLevel.values()) {
-                if (member.getCode() == this.getCode()) {
-                    return member.getCode();
-                }
-            }
-            return 0;
         }
     }
 }

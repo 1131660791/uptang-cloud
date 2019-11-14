@@ -25,13 +25,10 @@ public interface ResumeJoinScoreConverter {
      * @return 转换后的VO
      */
     @Mapping(target = "children", ignore = true)
-    @Mapping(target = "semesterCode", source = "semesterCode.code")
-    @Mapping(target = "semesterCodeText", source = "semesterCode.desc")
     @Mapping(target = "scoreType", source = "scoreType.code")
     @Mapping(target = "scoreTypeText", source = "scoreType.desc")
     @Mapping(target = "gender", source = "gender.code")
     @Mapping(target = "genderText", source = "gender.desc")
-    @Mapping(target = "subject", source = "subject.code")
     @Mapping(target = "scoreNumber", expression = "java(com.uptang.cloud.score.common.util.Calculator.dev10(resumeJoinScore.getScoreNumber()))")
     ResumeJoinScoreVO toVo(ResumeJoinScoreDTO resumeJoinScore);
 
@@ -42,10 +39,8 @@ public interface ResumeJoinScoreConverter {
      * @return 转换后实体
      */
     @Mappings({
-            @Mapping(target = "semesterCode", expression = "java(SemesterEnum.code(resumeJoinScore.getSemesterCode()))"),
             @Mapping(target = "scoreType", expression = "java(ScoreTypeEnum.code(resumeJoinScore.getScoreType()))"),
             @Mapping(target = "gender", expression = "java(GenderEnum.parse(resumeJoinScore.getGender()))"),
-            @Mapping(target = "subject", expression = "java(SubjectEnum.code(resumeJoinScore.getSubject()))"),
             @Mapping(target = "scoreNumber", expression = "java(com.uptang.cloud.score.common.util.Calculator.x10(resumeJoinScore.getScoreNumber()))")
     })
     ResumeJoinScoreDTO toModel(ResumeJoinScoreVO resumeJoinScore);

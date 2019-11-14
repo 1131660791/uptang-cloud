@@ -6,7 +6,7 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.read.metadata.ReadSheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.uptang.cloud.score.dto.ImportFromExcelDTO;
+import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.exceptions.ExcelExceptions;
 import com.uptang.cloud.score.util.Http;
 
@@ -22,7 +22,7 @@ import java.util.List;
 public abstract class ExcelTemplate implements Excel {
 
     @Override
-    public final void analysis(ExcelTypeEnum excelType, ImportFromExcelDTO excel) {
+    public final void analysis(ExcelTypeEnum excelType, RequestParameter excel) {
         Http.Request.getCurrent().ifPresent(request -> {
             try (InputStream inputStream = request.getInputStream()) {
                 ExcelReaderBuilder excelReader = EasyExcelFactory.read(inputStream);
@@ -35,6 +35,7 @@ public abstract class ExcelTemplate implements Excel {
 
                 ExcelReader reader = excelReader.build();
                 List<ReadSheet> readSheets = reader.excelExecutor().sheetList();
+
                 if (readSheets == null || readSheets.size() == 0) {
                     throw new ExcelExceptions("该Excel中并没有数据");
                 }

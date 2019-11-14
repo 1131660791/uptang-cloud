@@ -2,25 +2,27 @@ package com.uptang.cloud.score.template;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.uptang.cloud.core.exception.BusinessException;
-import com.uptang.cloud.pojo.enums.GenderEnum;
 import com.uptang.cloud.score.common.dto.HealthScoreDTO;
-import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.enums.SubjectEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
-import com.uptang.cloud.score.common.model.Score;
-import com.uptang.cloud.score.dto.ImportFromExcelDTO;
+import com.uptang.cloud.score.common.model.Subject;
+import com.uptang.cloud.score.common.util.Calculator;
+import com.uptang.cloud.score.dto.GradeCourseDTO;
+import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.service.IAcademicResumeService;
-import com.uptang.cloud.score.service.IScoreService;
+import com.uptang.cloud.score.service.ISubjectService;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategyFactory;
 import com.uptang.cloud.score.util.ApplicationContextHolder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.apache.logging.log4j.util.Strings;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.uptang.cloud.score.common.enums.ScoreTypeEnum.HEALTH;
+import static com.uptang.cloud.score.common.util.Calculator.defaultNumberScore;
+import static com.uptang.cloud.score.handler.PrimitiveResolver.Double_;
+import static com.uptang.cloud.score.handler.PrimitiveResolver.String_;
 
 /**
  * @author : Lee.m.yin
@@ -31,104 +33,131 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class HealthAnalysisEventListener extends AbstractAnalysisEventListener<HealthScoreDTO> {
 
-    /**
-     * ”缓存“ Subject ids {key:学籍号,Value: ids}
-     */
-    private final Map<String, List<Long>> subjectIds = new ConcurrentHashMap<>();
-
-    private final List<AcademicResume> academicResumes = new ArrayList<>();
-
     private final IAcademicResumeService resumeService =
             ApplicationContextHolder.getBean(IAcademicResumeService.class);
 
-    private final IScoreService scoreService =
-            ApplicationContextHolder.getBean(IScoreService.class);
+    private final ISubjectService scoreService =
+            ApplicationContextHolder.getBean(ISubjectService.class);
 
-    private final ThreadPoolTaskExecutor subjectExecutor =
-            ApplicationContextHolder.getBean("subjectExecutor");
-
-    public HealthAnalysisEventListener(ImportFromExcelDTO excel) {
+    public HealthAnalysisEventListener(RequestParameter excel) {
         super(excel);
     }
 
-    /**
-     * @param health
-     * @param context
-     */
     @Override
-    public void doInvoke(HealthScoreDTO health, AnalysisContext context) {
-        academicResumes.add(buildAcademicResume(health));
-        subjectExecutor.execute(() -> {
-            final List<Score> scoreList = new ArrayList<>(36);
-            scoreList.add(SubjectEnum.HEIGHT.toScore(health));
-            scoreList.add(SubjectEnum.FIFTY_METERS_LEVEL.toScore(health));
-            scoreList.add(SubjectEnum.BODY_WEIGHT_SCORE.toScore(health));
-            scoreList.add(SubjectEnum.BODY_WEIGHT_LEVEL.toScore(health));
-            scoreList.add(SubjectEnum.VITAL_CAPACITY.toScore(health));
-            scoreList.add(SubjectEnum.VITAL_CAPACITY_SCORE.toScore(health));
-            scoreList.add(SubjectEnum.VITAL_CAPACITY_LEVEL.toScore(health));
-            scoreList.add(SubjectEnum.FIFTY_METERS_RUN.toScore(health));
-            scoreList.add(SubjectEnum.BODY_WEIGHT.toScore(health));
-            scoreList.add(SubjectEnum.FIFTY_METERS_SCORE.toScore(health));
-            scoreList.add(SubjectEnum.STANDING_LONG_JUMP.toScore(health));
-            scoreList.add(SubjectEnum.STANDING_LONG_JUMPS_CORE.toScore(health));
-            scoreList.add(SubjectEnum.STANDING_LONG_JUMP_LEVEL.toScore(health));
-            scoreList.add(SubjectEnum.FLEXION.toScore(health));
-            scoreList.add(SubjectEnum.FLEXION_SCORE.toScore(health));
-            scoreList.add(SubjectEnum.FLEXION_LEVEL.toScore(health));
-            scoreList.add(SubjectEnum.EIGHT_HUNDRED_METERS.toScore(health));
-            scoreList.add(SubjectEnum.EIGHT_HUNDRED_METERS_SCORE.toScore(health));
-            scoreList.add(SubjectEnum.EIGHT_HUNDRED_METERS_LEVEL.toScore(health));
-            scoreList.add(SubjectEnum.ADDITIONAL_POINTS_800.toScore(health));
-            scoreList.add(SubjectEnum.ONE_KILO_METERS.toScore(health));
-            scoreList.add(SubjectEnum.ONE_KILOMETER_METERS_SCORE.toScore(health));
-            scoreList.add(SubjectEnum.ONE_KILOMETER_METERS_LEVEL.toScore(health));
-            scoreList.add(SubjectEnum.ADDITIONAL_POINTS_1000.toScore(health));
-            scoreList.add(SubjectEnum.SIT_UP.toScore(health));
-            scoreList.add(SubjectEnum.SIT_UP_SCORE.toScore(health));
-            scoreList.add(SubjectEnum.SIT_UP_LEVEL.toScore(health));
-            scoreList.add(SubjectEnum.SIT_UP_ADDITIONAL_POINTS.toScore(health));
-            scoreList.add(SubjectEnum.PULL_UP.toScore(health));
-            scoreList.add(SubjectEnum.PULL_UP_SCORE.toScore(health));
-            scoreList.add(SubjectEnum.PULL_UP_LEVEL.toScore(health));
-            scoreList.add(SubjectEnum.PULL_UP_ADDITIONAL_POINTS.toScore(health));
-            scoreList.add(SubjectEnum.STANDARD_SCORE.toScore(health));
-            scoreList.add(SubjectEnum.ADDITIONAL_POINTS.toScore(health));
-            scoreList.add(SubjectEnum.TOTAL_SCORE.toScore(health));
-            scoreList.add(SubjectEnum.TOTAL_SCORE_LEVEL.toScore(health));
-            subjectIds.put(health.getStudentCode(), scoreService.batchInsert(scoreList));
-        });
+    public List<Subject> getSubjects(Map<Integer, Object> rawData,
+                                     Integer lineNumber, int startIndex,
+                                     List<GradeCourseDTO> gradeCourse) {
+
+        List<GradeCourseDTO> courses = gradeCourse.stream()
+                .filter(course -> course.getScoreType() == HEALTH)
+                .collect(Collectors.toList());
+
+        // FIXME 没成绩
+        List<Subject> subjects = new ArrayList<>();
+        Iterator<GradeCourseDTO> iterator = courses.iterator();
+        for (int i = startIndex; i < rawData.size(); i++) {
+            while (iterator.hasNext()) {
+                GradeCourseDTO course = iterator.next();
+                if (course.getOrderNumber().compareTo(i) == 0) {
+                    Object value = rawData.get(course.getOrderNumber());
+                    subjects.add(getSubject(value, course));
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+
+        return subjects;
+    }
+
+    @Override
+    public void doInvoke(List<HealthScoreDTO> data, RequestParameter excel, AnalysisContext context) {
+        // 批量插入履历表
+        List<AcademicResume> resumes = data.stream().map(HealthScoreDTO::getResume).collect(Collectors.toList());
+        Map<Integer, List<AcademicResume>> groupList = getGroupList(resumes);
+        List<Map<Long, Long>> maps = resumeService.batchSave(groupList);
+
+        // 设置履历ID以及批量插入科目
+        for (Map<Long, Long> map : maps) {
+            Set<Map.Entry<Long, Long>> entries = map.entrySet();
+            for (Map.Entry<Long, Long> entry : entries) {
+                data.forEach(excelDto -> excelDto.getSubjects().forEach(subject -> {
+                    if (entry.getKey().compareTo(subject.getStudentId()) == 0) {
+                        subject.setResumeId(entry.getValue());
+                    }
+                }));
+            }
+        }
+
+        List<List<Long>> lists;
+        try {
+            // 分批
+            List<Subject> subjects = data.stream()
+                    .map(HealthScoreDTO::getSubjects)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
+            // 插入科目
+            lists = scoreService.batchInsert(getGroupList(subjects));
+        } catch (Exception e) {
+            undo(maps);
+            throw new BusinessException(e);
+        }
+
+        try {
+            // 插入免测学生
+            scoreService.exemption(excel);
+        } catch (Exception e) {
+            undo(maps);
+            scoreService.batchDelete(lists.stream()
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList()), HEALTH);
+            throw new BusinessException(e);
+        }
+    }
+
+    /**
+     * 回滚履历表
+     *
+     * @param maps
+     */
+    private void undo(List<Map<Long, Long>> maps) {
+        if (maps != null && maps.size() > 0) {
+            maps.stream()
+                    .map(Map::values)
+                    .collect(Collectors.toList())
+                    .forEach(resumeService::removeByIds);
+        }
     }
 
     @Override
     public ExcelProcessorStrategy getStrategy() {
-        return ExcelProcessorStrategyFactory.getStrategy(ScoreTypeEnum.HEALTH);
+        return ExcelProcessorStrategyFactory.getStrategy(HEALTH);
     }
 
-    @Override
-    public void doAfterAllAnalysed(AnalysisContext context) {
-        Utils.spin(subjectIds, academicResumes);
+    /**
+     * @param value
+     * @param course
+     * @return
+     */
+    private Subject getSubject(Object value, GradeCourseDTO course) {
+        Subject subject = new Subject();
+        subject.setScoreType(HEALTH);
+        subject.setCode(course.getId());
+        subject.setName(course.getSubjectName());
+        subject.setScoreText(Strings.EMPTY);
+        subject.setScoreNumber(Calculator.UNSIGNED_SMALLINT_MAX_VALUE);
 
-        try {
-            Utils.setSubjectIds(subjectIds, academicResumes);
-            resumeService.batchSave(getGroupList(academicResumes));
-        } catch (Exception e) {
-            scoreService.rollback(subjectIds, ScoreTypeEnum.HEALTH, null, null);
-            log.error("批量录入体质健康成绩异常", e);
-            throw new BusinessException(e);
-        } finally {
-            subjectIds.clear();
-            academicResumes.clear();
+        switch (course.getDataType()) {
+            case NUMBER:
+                // 数值类型
+                Double convert = (Double) Double_.convert(value);
+                subject.setScoreNumber(defaultNumberScore(convert));
+                break;
+            case String:
+            default:
+                // 字符串类型
+                subject.setScoreText((String) String_.convert(value));
         }
-    }
-
-    private AcademicResume buildAcademicResume(HealthScoreDTO health) {
-        AcademicResume resume = Utils.formClientRequestParam(getExcel());
-        resume.setGender(GenderEnum.parse(health.getGender()));
-        resume.setScoreType(ScoreTypeEnum.HEALTH);
-        resume.setStudentName(health.getStudentName());
-        resume.setStudentCode(health.getStudentCode());
-        resume.setScoreId(0L);
-        return resume;
+        return subject;
     }
 }

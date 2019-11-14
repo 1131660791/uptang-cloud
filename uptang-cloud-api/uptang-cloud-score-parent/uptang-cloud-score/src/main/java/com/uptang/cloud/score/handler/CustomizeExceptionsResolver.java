@@ -18,6 +18,7 @@ public class CustomizeExceptionsResolver {
 
     @ExceptionHandler(ExcelExceptions.class)
     public ApiOut handleError(ExcelExceptions ex) {
+        ex.printStackTrace();
         log.error("excel {}", ex.getMessage());
         return ApiOut.newPrompt(ex.getMessage());
     }

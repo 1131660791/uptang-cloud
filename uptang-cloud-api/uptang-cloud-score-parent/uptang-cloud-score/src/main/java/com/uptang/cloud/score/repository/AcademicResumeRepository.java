@@ -7,6 +7,7 @@ import com.uptang.cloud.score.dto.ResumeJoinArchiveDTO;
 import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,4 +66,28 @@ public interface AcademicResumeRepository extends BaseMapper<AcademicResume> {
      * @param resume
      */
     void batchInsert(List<AcademicResume> resume);
+
+    /**
+     * 插入
+     *
+     * @param resume
+     */
+    void save(AcademicResume resume);
+
+
+    /**
+     * 检查当前年级的成绩是否
+     *
+     * @param resume
+     * @return
+     */
+    Date importAgain(AcademicResume resume);
+
+    /**
+     * 获取IDS
+     *
+     * @param resume
+     * @return
+     */
+    List<AcademicResume> getResumeIds(AcademicResume resume);
 }

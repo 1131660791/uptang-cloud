@@ -1,6 +1,7 @@
 package com.uptang.cloud.score.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.uptang.cloud.pojo.enums.GenderEnum;
 import lombok.Data;
 
 /**
@@ -17,84 +18,58 @@ public class StudentDTO {
     /**
      * student_num	string	R	学籍号
      */
-    @JsonProperty("student_num")
-    private Long studentCode;
-
+    @JsonProperty("studentNum")
+    private String studentCode;
 
     /**
      * student_name	string	R	学生姓名
      */
-    @JsonProperty("student_name")
-    private Long studentName;
-
-
-    /**
-     * fk_school_id	int	R	学校编号
-     */
-    @JsonProperty("fk_school_id")
-    private Long schoolId;
-
-    /**
-     * fk_grade_id	int	R	年级编号
-     */
-    @JsonProperty("fk_grade_id")
-    private Long gradeId;
-
-    /**
-     * status	int	R	数据状态，1为有效
-     */
-    private Integer status;
-
-    /**
-     * province	string	R	省
-     */
-    private String province;
-
-    /**
-     * city	string	R	市
-     */
-    private String city;
-
-    /**
-     * district	string	R	区
-     */
-    private String district;
+    @JsonProperty("studentName")
+    private String studentName;
 
     /**
      * school_code	int	R	学校代码
      */
-    @JsonProperty("school_code")
-    private Long schoolCode;
+    @JsonProperty("schoolCode")
+    private String schoolCode;
 
     /**
      * school_name	string	R	学校名称
      */
-    @JsonProperty("school_name")
-    private Long schoolName;
+    @JsonProperty("schoolName")
+    private String schoolName;
 
     /**
-     * grade_name	string	R	年级名称
+     * gradeCode	string	R	年级名称
      */
-    @JsonProperty("grade_code")
-    private Long gradeCode;
+    @JsonProperty("gradeCode")
+    private String gradeCode;
 
     /**
      * school_code	int	R	学校代码
      */
-    @JsonProperty("grade_name")
-    private Long gradeName;
+    @JsonProperty("gradeName")
+    private String gradeName;
 
     /**
      * class_name	string	R	班级名称
      */
-    @JsonProperty("class_name")
-    private Long className;
+    @JsonProperty("className")
+    private String className;
 
     /**
      * class_code	int	R	班级代码
      */
-    @JsonProperty("class_code")
-    private Long classCode;
+    @JsonProperty("classCode")
+    private String classCode;
 
+    /**
+     * 学生唯一编号
+     */
+    private Long guid;
 
+    /**
+     * 性别
+     */
+    private GenderEnum sex;
 }

@@ -1,7 +1,7 @@
 package com.uptang.cloud.score.template;
 
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.uptang.cloud.score.dto.ImportFromExcelDTO;
+import com.uptang.cloud.score.dto.RequestParameter;
 
 /**
  * @author : Lee.m.yin
@@ -20,8 +20,8 @@ public interface Excel {
      * @param gradeId      年级ID
      * @param classId      班级ID
      * @param schoolId     学校ID
-     * @param semesterCode 学期编码
+     * @param semesterId 学期编码
      * @param excelDTO
      */
-    void analysis(ExcelTypeEnum excelType, ImportFromExcelDTO excelDTO);
+    void analysis(ExcelTypeEnum excelType, RequestParameter excelDTO);
 }

@@ -19,7 +19,7 @@ import java.io.Serializable;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class AcademicResumeVO extends BaseVO<AcademicResumeVO> implements Serializable, Cloneable  {
+public class AcademicResumeVO extends BaseVO<AcademicResumeVO> implements Serializable, Cloneable {
 
     /**
      * @comment Primary key
@@ -64,13 +64,10 @@ public class AcademicResumeVO extends BaseVO<AcademicResumeVO> implements Serial
     private String className;
 
     /**
-     * @comment 学期 0 上半学期 1 下班学期
+     * @comment 学期ID
      */
-    @ApiModelProperty(notes = "学期编码 0 上半学期 1 下班学期")
-    private Integer semesterCode;
-
-    @ApiModelProperty(notes = "学期")
-    private String semesterCodeText;
+    @ApiModelProperty(notes = "学期ID")
+    private Long semesterId;
 
     /**
      * @comment 学期名称
@@ -124,13 +121,13 @@ public class AcademicResumeVO extends BaseVO<AcademicResumeVO> implements Serial
      * @comment 创建人ID
      */
     @ApiModelProperty(notes = "创建人ID")
-    private Long createdFounderId;
+    private Long creatorId;
 
     /**
      * @comment 修改人ID
      */
     @ApiModelProperty(notes = "修改人ID")
-    private Long updatedFounderId;
+    private Long modifierId;
 
     /**
      * @comment 创建时间
@@ -140,6 +137,6 @@ public class AcademicResumeVO extends BaseVO<AcademicResumeVO> implements Serial
     /**
      * @comment 修改时间
      */
-    private java.util.Date updatedTime;
+    private java.util.Date modifiedTime;
 }
 

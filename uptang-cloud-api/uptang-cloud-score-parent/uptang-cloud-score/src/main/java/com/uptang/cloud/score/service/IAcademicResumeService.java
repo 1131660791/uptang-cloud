@@ -3,8 +3,6 @@ package com.uptang.cloud.score.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.pagehelper.Page;
 import com.uptang.cloud.score.common.model.AcademicResume;
-import com.uptang.cloud.score.dto.ResumeJoinArchiveDTO;
-import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -28,13 +26,10 @@ public interface IAcademicResumeService extends IService<AcademicResume> {
     /**
      * 批量录入成绩
      *
-     * @param groupMapList   批量录入数据
-     * @param scoreGroupList Subject科目
+     * @param groupMapList 批量录入数据
      * @return
      */
-    void batchSave(Map<Integer, List<AcademicResume>> groupMapList);
-    //, Consumer<Boolean> consumer);
-    //, Map<Integer, List<List<Score>>> scoreGroupList);
+    List<Map<Long, Long>> batchSave(Map<Integer, List<AcademicResume>> groupMapList);
 
     /**
      * 履历列表
@@ -47,45 +42,35 @@ public interface IAcademicResumeService extends IService<AcademicResume> {
     Page<AcademicResume> page(Integer pageNum, Integer pageSize, AcademicResume resume);
 
     /**
-     * 获取归档详情
-     *
-     * @param academicResume 履历
-     * @return
-     */
-    ResumeJoinArchiveDTO getArchiveDetail(AcademicResume academicResume);
-
-    /**
-     * 获取未归档详情
-     *
-     * @param academicResume 履历
-     * @return
-     */
-    ResumeJoinScoreDTO getUnfileDetail(AcademicResume academicResume);
-
-    /**
-     * 获取归档数据列表
-     *
-     * @param pageNum
-     * @param pageSize
-     * @param academicResume
-     * @return
-     */
-    List<ResumeJoinArchiveDTO> getArchiveList(Integer pageNum, Integer pageSize, AcademicResume academicResume);
-
-    /**
-     * 获取未归档数据列表
-     *
-     * @param pageNum
-     * @param pageSize
-     * @param academicResume
-     * @return
-     */
-    List<ResumeJoinScoreDTO> getUnfiledList(Integer pageNum, Integer pageSize, AcademicResume academicResume);
-
-    /**
      * 批量插入
      *
      * @param resume
+     * @return
      */
-    void batchInsert(List<AcademicResume> resume);
+    Map<Long, Long> batchInsert(List<AcademicResume> resume);
+
+    /**
+     * 插入
+     *
+     * @param resume
+     * @return
+     */
+    Long insert(AcademicResume resume);
+
+    /**
+     * 检查当前年级的成绩是否已经导入过了
+     *
+     * @param resume
+     * @return true 已经导入过了 false 还未导入
+     */
+    boolean importAgain(AcademicResume resume);
+
+    /**
+     * 获取Resume ids
+     *
+     * @param resume
+     * @return
+     */
+    List<AcademicResume> getResumeIds(AcademicResume resume);
+
 }

@@ -4,36 +4,22 @@
 
     <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.Student">
         <id property="id" column="id"/>
-        <result property="school" column="school"/>
+        <result property="studentCode" column="student_code"/>
         <result property="schoolId" column="school_id"/>
         <result property="gradeId" column="grade_id"/>
-        <result property="gradeName" column="grade_name"/>
         <result property="classId" column="class_id"/>
+        <result property="schoolName" column="school_name"/>
+        <result property="gradeName" column="grade_name"/>
         <result property="className" column="class_name"/>
-        <result property="semesterCode" column="semester_code"/>
-        <result property="semesterName" column="semester_name"/>
         <result property="name" column="name"/>
         <result property="gender" column="gender"/>
         <result property="createdTime" column="created_time"/>
-        <result property="updatedTime" column="updated_time"/>
+        <result property="modifiedTime" column="modified_time"/>
     </resultMap>
 
     <!--字段名 Java属性名-->
     <sql id="columns">
-        <trim suffixOverrides=",">
-            `id` AS `id`,
-            `school` AS `school`,
-            `school_id` AS `schoolId`,
-            `grade_id` AS `gradeId`,
-            `grade_name` AS `gradeName`,
-            `class_id` AS `classId`,
-            `class_name` AS `className`,
-            `semester_code` AS `semesterCode`,
-            `semester_name` AS `semesterName`,
-            `name` AS `name`,
-            `gender` AS `gender`,
-            `created_time` AS `createdTime`,
-            `updated_time` AS `updatedTime`,
-        </trim>
+        `id`, `school`, `school_id`, `grade_id`, `grade_name`, `class_id`,
+        `class_name`, `name`, `gender`, `created_time`, `modified_time`
     </sql>
 </mapper>

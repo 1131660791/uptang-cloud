@@ -1,6 +1,6 @@
 package com.uptang.cloud.score.service;
 
-import com.uptang.cloud.score.dto.ImportFromExcelDTO;
+import com.uptang.cloud.score.dto.RequestParameter;
 
 /**
  * @author : Lee.m.yin
@@ -13,15 +13,8 @@ public interface IExcelDataServiceProcessor {
     /**
      * 处理Excel数据
      *
-     * @param token        当前用户登录凭证
-     * @param userId       当前用户ID
-     * @param type         成绩类型
-     * @param gradeId      年级ID
-     * @param classId      班级ID
-     * @param schoolId     学校ID
-     * @param semesterCode 学期编码
-     * @param excelDTO
+     * @param parameter
      * @return
      */
-    void processor(ImportFromExcelDTO excelDTO);
+    void processor(RequestParameter parameter);
 }

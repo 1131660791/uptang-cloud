@@ -1,31 +1,25 @@
 package com.uptang.cloud.score.template;
 
 import com.alibaba.excel.context.AnalysisContext;
-import com.alibaba.fastjson.JSON;
 import com.uptang.cloud.core.exception.BusinessException;
-import com.uptang.cloud.pojo.enums.GenderEnum;
-import com.uptang.cloud.score.common.dto.AcademicScoreDTO;
+import com.uptang.cloud.score.common.dto.ExcelDto;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.enums.SubjectEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
-import com.uptang.cloud.score.common.model.Score;
-import com.uptang.cloud.score.dto.ImportFromExcelDTO;
+import com.uptang.cloud.score.common.model.Subject;
+import com.uptang.cloud.score.dto.GradeCourseDTO;
+import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.service.IAcademicResumeService;
-import com.uptang.cloud.score.service.IScoreService;
+import com.uptang.cloud.score.service.ISubjectService;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategyFactory;
 import com.uptang.cloud.score.util.ApplicationContextHolder;
-import com.uptang.cloud.score.util.CacheKeys;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author : Lee.m.yin
@@ -34,100 +28,144 @@ import java.util.concurrent.ConcurrentHashMap;
  * @summary: FIXME
  */
 @Slf4j
-public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener<AcademicScoreDTO> {
-
-    private final List<AcademicResume> academicResumes = new ArrayList<>();
-
-    /**
-     * ”缓存“ Subject ids {key:学籍号,Value: ids}
-     */
-    private final Map<String, List<Long>> subjectIds = new ConcurrentHashMap<>();
+public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener<ExcelDto> {
 
     private final IAcademicResumeService resumeService =
             ApplicationContextHolder.getBean(IAcademicResumeService.class);
 
-    private final IScoreService scoreService =
-            ApplicationContextHolder.getBean(IScoreService.class);
+    private final ISubjectService scoreService =
+            ApplicationContextHolder.getBean(ISubjectService.class);
 
-    private final ThreadPoolTaskExecutor subjectExecutor =
-            ApplicationContextHolder.getBean("subjectExecutor");
-
-    private final StringRedisTemplate redisTemplate =
-            ApplicationContextHolder.getBean(StringRedisTemplate.class);
-
-    public AcademicAnalysisEventListener(ImportFromExcelDTO excel) {
+    public AcademicAnalysisEventListener(RequestParameter excel) {
         super(excel);
     }
 
     @Override
-    public void doInvoke(AcademicScoreDTO academicScore, AnalysisContext context) {
-        subjectExecutor.execute(() -> {
-            final List<Score> scoreList = buildSubjects(academicScore);
-            subjectIds.put(academicScore.getStudentCode(), scoreService.batchInsert(scoreList));
-        });
+    public List<Subject> getSubjects(Map<Integer, Object> rawData,
+                                     Integer lineNumber,
+                                     int startIndex,
+                                     List<GradeCourseDTO> gradeCourse) {
+        return Utils.getSubjects(rawData, lineNumber, startIndex, gradeCourse, ScoreTypeEnum.ACADEMIC);
+    }
 
-        AcademicResume resume = Utils.formClientRequestParam(getExcel());
-        resume.setGender(GenderEnum.parse(academicScore.getArt()));
-        resume.setScoreType(ScoreTypeEnum.ACADEMIC);
-        resume.setStudentName(academicScore.getStudentName());
-        resume.setStudentCode(academicScore.getStudentCode());
-        resume.setScoreId(0L);
-        academicResumes.add(resume);
+    /**
+     * @param data
+     * @param excel
+     * @param context
+     */
+    @Override
+    public void doInvoke(List<ExcelDto> data, RequestParameter excel, AnalysisContext context) {
+        AcademicResume resume = new AcademicResume();
+        resume.setScoreType(excel.getScoreType());
+        resume.setSchoolId(excel.getSchoolId());
+        resume.setGradeId(excel.getGradeId());
+        resume.setClassId(excel.getClassId());
+        resume.setSemesterId(excel.getSemesterId());
+
+        // 如果重复导入则覆盖原有的分数
+        if (resumeService.importAgain(resume)) {
+            override(data, excel, resume);
+            return;
+        }
+
+        // 批量插入履历表
+        List<AcademicResume> resumes = data.stream().map(ExcelDto::getResume).collect(Collectors.toList());
+        Map<Integer, List<AcademicResume>> groupList = getGroupList(resumes);
+        List<Map<Long, Long>> maps = resumeService.batchSave(groupList);
+
+        try {
+            setResumeId(data, maps);
+
+            // 插入科目
+            Map<Integer, List<Subject>> subjects = getGroupList(Utils.convert2List(data));
+            if (subjects == null || subjects.size() == 0) {
+                log.error("导入Excel。插入Subject失败，原因没有Subject需要被插入\n 客户端参数 ==> {} \n 解析Excel数据 ==> {}",
+                        excel, data);
+                throw new BusinessException("系统异常");
+            }
+            scoreService.batchInsert(subjects);
+        } catch (Exception e) {
+            maps.stream()
+                    .map(Map::values)
+                    .collect(Collectors.toList())
+                    .forEach(resumeService::removeByIds);
+            throw new BusinessException(e);
+        }
+    }
+
+    /**
+     * 设置履历ID
+     *
+     * @param data
+     * @param maps
+     */
+    private void setResumeId(List<ExcelDto> data, List<Map<Long, Long>> maps) {
+        // 设置履历ID以及批量插入科目
+        for (Map<Long, Long> map : maps) {
+            Iterator<Map.Entry<Long, Long>> iterator = map.entrySet().iterator();
+            while (iterator.hasNext()) {
+                // 设置履历ID
+                Map.Entry<Long, Long> next = iterator.next();
+                data.forEach(excelDto -> excelDto.getSubjects().forEach(subject -> {
+                    if (next.getKey().compareTo(subject.getStudentId()) == 0) {
+                        subject.setResumeId(next.getValue());
+                    }
+                }));
+            }
+        }
+    }
+
+    /**
+     * 如果重复导入则覆盖原有的分数
+     *
+     * @param data
+     * @param excel
+     * @param resume
+     */
+    private void override(List<ExcelDto> data, RequestParameter excel, AcademicResume resume) {
+        try {
+            List<Long> ids = setResumeId(data, resume);
+            scoreService.batchDelete(ids, ScoreTypeEnum.ACADEMIC);
+
+            // 插入科目
+            Map<Integer, List<Subject>> subjects = getGroupList(Utils.convert2List(data));
+            if (subjects == null || subjects.size() == 0) {
+                log.error("导入Excel并覆盖原有数据失败，原因没有Subject需要被插入\n 客户端参数 ==> {} \n 解析Excel数据 ==> {}", excel, data);
+                throw new BusinessException("系统异常");
+            }
+
+            scoreService.batchInsert(subjects);
+        } catch (Exception e) {
+            throw new BusinessException(e);
+        }
+    }
+
+    /**
+     * 设置Resume履历ID
+     *
+     * @param data
+     * @param resume
+     */
+    private List<Long> setResumeId(List<ExcelDto> data, AcademicResume resume) {
+        List<AcademicResume> resumeIds = resumeService.getResumeIds(resume);
+        if (resumeIds != null && resumeIds.size() > 0) {
+            for (ExcelDto excelDto : data) {
+                List<Subject> subjects = excelDto.getSubjects();
+                for (AcademicResume resumeId : resumeIds) {
+                    for (Subject subject : subjects) {
+                        if (subject.getResumeId().compareTo(resumeId.getId()) == 0) {
+                            subject.setResumeId(resumeId.getId());
+                        }
+                    }
+                }
+            }
+            return resumeIds.stream().map(AcademicResume::getId).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     @Override
     public ExcelProcessorStrategy getStrategy() {
         return ExcelProcessorStrategyFactory.getStrategy(ScoreTypeEnum.ACADEMIC);
-    }
-
-    @Override
-    public void doAfterAllAnalysed(AnalysisContext context) {
-        // 等待科目存储完成
-        Utils.spin(subjectIds, academicResumes);
-
-        // cache subject ids
-        HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
-        ImportFromExcelDTO excel = getExcel();
-        String cacheKey = CacheKeys.subjectIdsCacheKey(excel.getSchoolId(), excel.getGradeId(),
-                ScoreTypeEnum.ACADEMIC.getCode(), excel.getUserId());
-        String hashKey = String.join(":", excel.getUserId() + "", Instant.now().toString());
-        hashOperations.put(cacheKey, hashKey, JSON.toJSONString(subjectIds));
-
-        try {
-            Utils.setSubjectIds(subjectIds, academicResumes);
-            Map<Integer, List<AcademicResume>> groupList = getGroupList(academicResumes);
-            resumeService.batchSave(groupList);
-        } catch (Exception e) {
-            scoreService.rollback(subjectIds, ScoreTypeEnum.ACADEMIC, cacheKey, hashKey);
-            log.error("批量录入学业成绩异常", e);
-            throw new BusinessException(e);
-        } finally {
-            subjectIds.clear();
-            academicResumes.clear();
-            hashOperations.delete(cacheKey, hashKey);
-        }
-    }
-
-    private List<Score> buildSubjects(AcademicScoreDTO academicScore) {
-        final List<Score> scoreList = new ArrayList<>(18);
-        scoreList.add(SubjectEnum.MORALITY_LAW.toScore(academicScore));
-        scoreList.add(SubjectEnum.CHINESE.toScore(academicScore));
-        scoreList.add(SubjectEnum.MATH.toScore(academicScore));
-        scoreList.add(SubjectEnum.ENGLISH.toScore(academicScore));
-        scoreList.add(SubjectEnum.PHYSICS.toScore(academicScore));
-        scoreList.add(SubjectEnum.CHEMISTRY.toScore(academicScore));
-        scoreList.add(SubjectEnum.HISTORY.toScore(academicScore));
-        scoreList.add(SubjectEnum.GEOGRAPHY.toScore(academicScore));
-        scoreList.add(SubjectEnum.BIOLOGICAL.toScore(academicScore));
-        scoreList.add(SubjectEnum.PHYSICAL_CULTURE.toScore(academicScore));
-        scoreList.add(SubjectEnum.INFORMATION_TECHNOLOGY.toScore(academicScore));
-        scoreList.add(SubjectEnum.MUSIC.toScore(academicScore));
-        scoreList.add(SubjectEnum.ART.toScore(academicScore));
-        scoreList.add(SubjectEnum.PHYSICAL_EXPERIMENT.toScore(academicScore));
-        scoreList.add(SubjectEnum.CHEMISTRY_EXPERIMENT.toScore(academicScore));
-        scoreList.add(SubjectEnum.BIOLOGICAL_EXPERIMENT.toScore(academicScore));
-        scoreList.add(SubjectEnum.LABOR_TECHNICAL_EDUCATION.toScore(academicScore));
-        scoreList.add(SubjectEnum.LOCAL_CURRICULUM.toScore(academicScore));
-        return scoreList;
     }
 }

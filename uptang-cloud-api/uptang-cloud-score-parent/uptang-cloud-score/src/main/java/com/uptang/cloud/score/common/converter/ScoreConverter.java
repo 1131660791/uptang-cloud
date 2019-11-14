@@ -1,45 +1,47 @@
 package com.uptang.cloud.score.common.converter;
 
-import com.uptang.cloud.score.common.model.Score;
+import com.uptang.cloud.score.common.model.AcademicResume;
+import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.common.vo.ScoreVO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import com.uptang.cloud.score.common.vo.SubjectVO;
+import com.uptang.cloud.score.dto.RequestParameter;
+import com.uptang.cloud.score.dto.ScoreDto;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author : Lee.m.yin
- * @createtime : 2019-11-06 13:48
+ * @createtime : 2019-11-14 10:46
  * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
- * @Summary : FIXME
+ * @summary : FIXME
  */
-@Mapper
 public interface ScoreConverter {
 
-    ScoreConverter INSTANCE = Mappers.getMapper(ScoreConverter.class);
-
     /**
-     * 将附件实体转换成VO
+     * VO 2 model
      *
-     * @param score 学业成绩
-     * @return 转换后的VO
+     * @param score
+     * @return
      */
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "subject", source = "subject.code")
-    @Mapping(target = "subjectText", source = "subject.desc")
-    @Mapping(target = "type", source = "type.code")
-    @Mapping(target = "typeText", source = "type.desc")
-    @Mapping(target = "scoreNumber", expression = "java(com.uptang.cloud.score.common.util.Calculator.dev10(score.getScoreNumber()))")
-    ScoreVO toVo(Score score);
-
-    /**
-     * 将附件VO转换成实体
-     *
-     * @param score 学业成绩
-     * @return 转换后实体
-     */
-    @Mapping(target = "subject", expression = "java(SubjectEnum.code(score.getSubject()))")
-    @Mapping(target = "type", expression = "java(ScoreTypeEnum.code(score.getType()))")
-    @Mapping(target = "scoreNumber", expression = "java(com.uptang.cloud.score.common.util.Calculator.x10(score.getScoreNumber()))")
-    Score toModel(ScoreVO score);
-
+    static ScoreDto toModel(ScoreVO score, RequestParameter parameter) {
+        if (score != null) {
+            ScoreDto scoreDTO = new ScoreDto();
+            AcademicResume resume = AcademicResumeConverter.INSTANCE.toModel(score.getResume());
+            parameter.setSchoolId(resume.getSchoolId());
+            parameter.setGradeId(resume.getGradeId());
+            parameter.setClassId(resume.getClassId());
+            parameter.setSemesterId(resume.getSemesterId());
+            scoreDTO.setResume(resume);
+            scoreDTO.setParameter(parameter);
+            List<SubjectVO> subjects = score.getSubjects();
+            if (subjects != null && subjects.size() > 0) {
+                List<Subject> subjects1 = new ArrayList<>(subjects.size());
+                subjects.forEach(subjectVO -> subjects1.add(SubjectConverter.INSTANCE.toModel(subjectVO)));
+                scoreDTO.setSubjects(subjects1);
+            }
+            return scoreDTO;
+        }
+        return null;
+    }
 }

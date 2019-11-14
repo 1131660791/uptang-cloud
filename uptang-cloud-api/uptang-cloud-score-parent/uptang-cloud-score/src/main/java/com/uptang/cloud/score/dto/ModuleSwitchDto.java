@@ -1,6 +1,7 @@
 package com.uptang.cloud.score.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -20,5 +21,6 @@ public class ModuleSwitchDto extends RestRequestDto {
     /**
      * 年级编号
      */
+    @JsonProperty("grade_id")
     private Long gradeId;
 }

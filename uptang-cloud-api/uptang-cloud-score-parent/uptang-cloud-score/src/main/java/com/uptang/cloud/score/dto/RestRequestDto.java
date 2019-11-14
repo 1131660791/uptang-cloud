@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.http.HttpMethod;
 
 import java.io.Serializable;
 
@@ -32,16 +31,10 @@ public class RestRequestDto implements Serializable {
     /**
      * 从第几条数据开始查询
      */
-    private Integer offset;
+    private Long offset;
 
     /**
      * 查询行数
      */
-    private Integer rows;
-
-    /**
-     * 请求方法
-     */
-    @JsonIgnore
-    private HttpMethod method;
+    private Long rows;
 }

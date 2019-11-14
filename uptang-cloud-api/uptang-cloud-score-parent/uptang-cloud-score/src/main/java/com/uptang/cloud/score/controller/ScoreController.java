@@ -1,27 +1,23 @@
 package com.uptang.cloud.score.controller;
 
-import com.uptang.cloud.score.common.converter.AcademicResumeConverter;
-import com.uptang.cloud.score.common.converter.ResumeJoinArchiveConverter;
-import com.uptang.cloud.score.common.converter.ResumeJoinScoreConverter;
+import com.uptang.cloud.score.common.converter.ArchiveScoreConverter;
 import com.uptang.cloud.score.common.converter.ScoreConverter;
-import com.uptang.cloud.score.common.model.AcademicResume;
-import com.uptang.cloud.score.common.model.Score;
-import com.uptang.cloud.score.common.vo.AcademicResumeVO;
-import com.uptang.cloud.score.common.vo.ResumeJoinArchiveVO;
-import com.uptang.cloud.score.common.vo.ResumeJoinScoreVO;
+import com.uptang.cloud.score.common.converter.SubjectConverter;
+import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
+import com.uptang.cloud.score.common.model.Subject;
+import com.uptang.cloud.score.common.vo.ArchiveScoreVO;
 import com.uptang.cloud.score.common.vo.ScoreVO;
-import com.uptang.cloud.score.dto.ResumeJoinArchiveDTO;
-import com.uptang.cloud.score.dto.ResumeJoinScoreDTO;
-import com.uptang.cloud.score.feign.ScoreProvider;
-import com.uptang.cloud.score.service.IAcademicResumeService;
-import com.uptang.cloud.score.service.IScoreService;
+import com.uptang.cloud.score.common.vo.SubjectVO;
+import com.uptang.cloud.score.dto.ArchiveScoreDTO;
+import com.uptang.cloud.score.dto.RequestParameter;
+import com.uptang.cloud.score.dto.ScoreDto;
+import com.uptang.cloud.score.dto.SubjectDTO;
+import com.uptang.cloud.score.service.IArchiveScoreService;
+import com.uptang.cloud.score.service.ISubjectService;
 import com.uptang.cloud.starter.web.controller.BaseController;
 import com.uptang.cloud.starter.web.domain.ApiOut;
 import com.uptang.cloud.starter.web.util.PageableEntitiesConverter;
 import io.swagger.annotations.*;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
@@ -30,127 +26,114 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Jiang Chuan
- * @version 4.0.0
- * @date 2019-11-05
+ * @author : Lee.m.yin
+ * @createtime : 2019-11-12 18:55
+ * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
+ * @Summary : FIXME
  */
-@Slf4j
 @RestController
 @RequestMapping("/v1/score")
-@Api(value = "ScoreController", tags = {"成绩管理"})
-public class ScoreController extends BaseController implements ScoreProvider {
+@Api(value = "ObjectionRecordController", tags = {"成绩管理"})
+public class ScoreController extends BaseController {
 
-    private final IScoreService scoreService;
+    private final ISubjectService subjectService;
 
-    private final IAcademicResumeService academicResumeService;
+    private final IArchiveScoreService archiveScoreService;
 
-    public ScoreController(IScoreService scoreService, IAcademicResumeService academicResumeService) {
-        this.scoreService = scoreService;
-        this.academicResumeService = academicResumeService;
+    public ScoreController(ISubjectService subjectService,
+                           IArchiveScoreService archiveScoreService) {
+        this.subjectService = subjectService;
+        this.archiveScoreService = archiveScoreService;
     }
 
-    @GetMapping(path = "/unfiled/{id}")
-    @ApiOperation(value = "履历未归档分数详情-分数详情", response = AcademicResumeVO.class)
-    @ApiImplicitParam(name = "id", value = "履历ID", paramType = "path", required = true)
-    public ApiOut<ResumeJoinScoreVO> getUnfileDetail(@PathVariable Long id) {
-        AcademicResume academicResume = new AcademicResume(id);
-        final ResumeJoinScoreDTO resume = academicResumeService.getUnfileDetail(academicResume);
-        return ApiOut.newSuccessResponse(ResumeJoinScoreConverter.INSTANCE.toVo(resume));
-    }
-
-    @GetMapping(path = "/archive/{id}")
-    @ApiOperation(value = "履历归档分数详情-分数详情", response = AcademicResumeVO.class)
-    @ApiImplicitParam(name = "id", value = "履历ID", paramType = "path", required = true)
-    public ApiOut<ResumeJoinArchiveVO> getArchiveDetail(@PathVariable Long id) {
-        AcademicResume academicResume = new AcademicResume(id);
-        final ResumeJoinArchiveDTO resume = academicResumeService.getArchiveDetail(academicResume);
-        return ApiOut.newSuccessResponse(ResumeJoinArchiveConverter.INSTANCE.toVo(resume));
-    }
-
-    @GetMapping("/archive/{pageNum}/{pageSize}")
-    @ApiParam(value = "传入json格式", required = true)
-    @ApiOperation(value = "归档履历", response = AcademicResumeVO.class)
+    @GetMapping("/archive/{type}/{schoolId}/{gradeId}/{classId}/{semesterId}/{pageNum}/{pageSize}")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
+            @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "path", required = true),
-            @ApiImplicitParam(name = "pageSize", value = "条数", paramType = "path", required = true)
+            @ApiImplicitParam(name = "pageSize", value = "显示页数", paramType = "path", required = true),
     })
-    public ApiOut<List<ResumeJoinArchiveVO>> getArchiveList(@PathVariable Integer pageNum,
-                                                            @PathVariable Integer pageSize,
-                                                            @RequestBody AcademicResumeVO resumeVO) {
-
-        AcademicResume resume = AcademicResumeConverter.INSTANCE.toModel(resumeVO);
-        List<ResumeJoinArchiveDTO> resumes = academicResumeService.getArchiveList(pageNum, pageSize, resume);
-
-        return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(resumes, models -> {
-            if (resumes == null || resumes.size() == 0) {
+    @ApiOperation(value = "查询已归档数据", response = String.class)
+    public ApiOut<List<ArchiveScoreVO>> archive(@PathVariable("type") @NotNull Integer type,
+                                                @PathVariable("gradeId") @NotNull Long gradeId,
+                                                @PathVariable("classId") Long classId,
+                                                @PathVariable("schoolId") @NotNull Long schoolId,
+                                                @PathVariable("semesterId") @NotNull Long semesterId,
+                                                @PathVariable("pageNum") @NotNull Integer pageNum,
+                                                @PathVariable("pageSize") @NotNull Integer pageSize) {
+        //Long schoolId, Long gradeId, Long semesterId, ScoreTypeEnum type, Integer pageNum, Integer pageSize
+        List<ArchiveScoreDTO> page = archiveScoreService.page(schoolId, gradeId, semesterId, classId,
+                ScoreTypeEnum.code(type), pageNum, pageSize);
+        return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(page, models -> {
+            if (page == null || page.size() == 0) {
                 return Collections.emptyList();
             }
-            return models.stream().map(ResumeJoinArchiveConverter.INSTANCE::toVo).collect(Collectors.toList());
+            return models.stream().map(ArchiveScoreConverter.INSTANCE::toVo).collect(Collectors.toList());
         }));
     }
 
-
-    @GetMapping("/unfiled/{pageNum}/{pageSize}")
-    @ApiParam(value = "传入json格式", required = true)
-    @ApiOperation(value = "未归档履历", response = AcademicResumeVO.class)
+    @GetMapping("/unfiled/{type}/{schoolId}/{gradeId}/{classId}/{semesterId}/{pageNum}/{pageSize}")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
+            @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "path", required = true),
-            @ApiImplicitParam(name = "pageSize", value = "条数", paramType = "path", required = true)
+            @ApiImplicitParam(name = "pageSize", value = "显示页数", paramType = "path", required = true),
     })
-    public ApiOut<List<ResumeJoinScoreVO>> getUnfiledList(@PathVariable Integer pageNum,
-                                                          @PathVariable Integer pageSize,
-                                                          @RequestBody AcademicResumeVO resumeVO) {
-
-        AcademicResume resume = AcademicResumeConverter.INSTANCE.toModel(resumeVO);
-        List<ResumeJoinScoreDTO> resumes = academicResumeService.getUnfiledList(pageNum, pageSize, resume);
-
-        return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(resumes, models -> {
-            if (resumes == null || resumes.size() == 0) {
+    @ApiOperation(value = "查询未归档数据", response = String.class)
+    public ApiOut<List<SubjectVO>> unfiled(@PathVariable("type") @NotNull Integer type,
+                                           @PathVariable("gradeId") @NotNull Long gradeId,
+                                           @PathVariable("classId") @NotNull Long classId,
+                                           @PathVariable("schoolId") @NotNull Long schoolId,
+                                           @PathVariable("semesterId") @NotNull Long semesterId,
+                                           @PathVariable("pageNum") @NotNull Integer pageNum,
+                                           @PathVariable("pageSize") @NotNull Integer pageSize) {
+        List<SubjectDTO> page = subjectService.page(schoolId, gradeId, classId, semesterId,
+                ScoreTypeEnum.code(type), pageNum, pageSize);
+        return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(page, models -> {
+            if (page == null || page.size() == 0) {
                 return Collections.emptyList();
             }
-            return models.stream().map(ResumeJoinScoreConverter.INSTANCE::toVo).collect(Collectors.toList());
+            return models.stream().map(SubjectConverter.INSTANCE::toVo).collect(Collectors.toList());
         }));
     }
 
     @PostMapping
-    @ApiParam(value = "传入json格式", required = true)
+    @ApiParam(value = "score object", required = true)
     @ApiOperation(value = "成绩录入", response = String.class)
-    public ApiOut<String> save(@RequestBody ResumeJoinScoreVO resumeJoinScore) {
-        resumeJoinScore.setCreatedFounderId(getUserId());
-        ResumeJoinScoreDTO resumeJoinScoreDTO = ResumeJoinScoreConverter.INSTANCE.toModel(resumeJoinScore);
-//        boolean saved = scoreService.save(resumeJoinScoreDTO);
-//        String message = !saved ? "成绩录入失败" : "成功录入成绩";
-        return ApiOut.newPrompt("没实现");
+    public ApiOut<String> addScore(@RequestBody ScoreVO score) {
+        RequestParameter parameter = new RequestParameter();
+        parameter.setToken(getToken());
+        parameter.setUserId(getUserId());
+
+        ScoreDto scoreDto = ScoreConverter.toModel(score, parameter);
+        return ApiOut.newPrompt(subjectService.addScore(scoreDto));
     }
 
-    @PutMapping(path = "/{id}/{subject}/{type}")
-    @ApiOperation(value = "成绩修改", response = ScoreVO.class)
-    @ApiParam(name = "成绩", value = "传入json格式", required = true)
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "成绩ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "subject", value = "科目编码", paramType = "path", required = true),
-            @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
-            @ApiImplicitParam(name = "scoreText", value = "等级(及格,不及格.)", paramType = "query"),
-            @ApiImplicitParam(name = "scoreNumber", value = "数字分数", paramType = "query"),
-    })
-    public ApiOut<ScoreVO> update(@PathVariable("id") @NotNull Long id,
-                                  @PathVariable("subject") @NotNull Integer subject,
-                                  @PathVariable("type") @NotNull Integer type,
-                                  @RequestParam(value = "scoreText", required = false) String scoreText,
-                                  @RequestParam(value = "scoreNumber", required = false) Double scoreNumber) {
-        final boolean noneScore = StringUtils.isBlank(scoreText) && scoreNumber == 0.0D || scoreNumber == null;
-        Assert.isTrue(noneScore, "成绩不能为空");
 
-        ScoreVO scoreVO = new ScoreVO();
-        scoreVO.setId(id);
-        scoreVO.setType(type);
-        scoreVO.setSubject(subject);
-        scoreVO.setScoreNumber(scoreNumber);
-        scoreVO.setScoreText(scoreText);
+    @PutMapping
+    @ApiParam(value = "subject object", required = true)
+    @ApiOperation(value = "修改成绩", response = String.class)
+    public ApiOut<String> updateScore(@RequestBody SubjectVO subjectVO) {
+        Double scoreNumber = subjectVO.getScoreNumber();
+        Double scoreMinimum = 0.0D;
+        if (scoreNumber < scoreMinimum) {
+            return ApiOut.newPrompt("分数不能为负数");
+        }
 
-        Score score = ScoreConverter.INSTANCE.toModel(scoreVO);
-        boolean updated = scoreService.update().update(score);
-        String message = !updated ? "修改成绩失败" : "成绩修改成功";
-        return ApiOut.newPrompt(message);
+        RequestParameter parameter = new RequestParameter();
+        parameter.setToken(getToken());
+        parameter.setSchoolId(subjectVO.getSchoolId());
+        parameter.setSemesterId(subjectVO.getSemesterId());
+        parameter.setGradeId(subjectVO.getGradeId());
+        parameter.setClassId(subjectVO.getClassId());
+        parameter.setScoreType(subjectVO.getScoreType());
+        Subject subject = SubjectConverter.INSTANCE.toModel(subjectVO);
+        return ApiOut.newPrompt(subjectService.update(subject, parameter));
     }
 }

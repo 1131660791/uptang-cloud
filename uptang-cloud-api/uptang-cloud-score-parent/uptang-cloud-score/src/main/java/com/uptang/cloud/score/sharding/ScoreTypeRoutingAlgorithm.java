@@ -12,29 +12,29 @@ import java.util.Collection;
  * @Summary : 成绩类型 0 学业成绩 academic_score 1 体质健康 health_score 2 艺术成绩 art_score
  * <p>
  * 暂时先将表名写死 后续再考虑其他可行方案
- * FIXME 使用本路由时SQL条件必须带有type这一字段，前提是你配置了路由字段。
+ * FIXME 使用本路由时SQL条件必须带有score_type这一字段，前提是你配置了路由字段。
  */
 public class ScoreTypeRoutingAlgorithm implements PreciseShardingAlgorithm<Integer> {
 
     /**
      * "分片"逻辑名字
      */
-    private static final String LOGIC_TABLE_NAME = "logic_score";
+    private static final String LOGIC_TABLE_NAME = "logic_subject";
 
     /**
      * 学业成绩表名
      */
-    private static final String ACADEMIC_SCORE_TABLE_NAME = "academic_score";
+    private static final String ACADEMIC_SCORE_TABLE_NAME = "subject_academic";
 
     /**
      * 体质成绩表名
      */
-    private static final String HEALTH_SCORE_TABLE_NAME = "health_score";
+    private static final String HEALTH_SCORE_TABLE_NAME = "subject_health";
 
     /**
      * 艺术成绩表名
      */
-    private static final String ART_SCORE_TABLE_NAME = "art_score";
+    private static final String ART_SCORE_TABLE_NAME = "subject_art";
 
 
     @Override

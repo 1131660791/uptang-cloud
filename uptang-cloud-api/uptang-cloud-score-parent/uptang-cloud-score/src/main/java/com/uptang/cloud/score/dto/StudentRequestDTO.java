@@ -10,7 +10,6 @@ import lombok.*;
  * @Summary : FIXME
  */
 @Data
-@Builder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 public class StudentRequestDTO extends RestRequestDto {

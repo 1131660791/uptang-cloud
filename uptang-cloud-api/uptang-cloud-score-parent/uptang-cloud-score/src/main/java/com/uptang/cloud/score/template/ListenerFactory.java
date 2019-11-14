@@ -1,7 +1,8 @@
 package com.uptang.cloud.score.template;
 
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.uptang.cloud.score.dto.ImportFromExcelDTO;
+import com.uptang.cloud.core.exception.BusinessException;
+import com.uptang.cloud.score.dto.RequestParameter;
 
 /**
  * @author : Lee.m.yin
@@ -12,23 +13,18 @@ import com.uptang.cloud.score.dto.ImportFromExcelDTO;
 public class ListenerFactory {
 
     /**
-     * @param type         Excel数据类型
-     * @param userId       当前用户ID
-     * @param type         成绩类型
-     * @param gradeId      年级ID
-     * @param classId      班级ID
-     * @param schoolId     学校ID
-     * @param semesterCode 学期编码
      * @param excel
      */
-    public static AnalysisEventListener newListener(ImportFromExcelDTO excel) {
+    public static AnalysisEventListener newListener(RequestParameter excel) {
         switch (excel.getScoreType()) {
             case HEALTH:
                 return new HealthAnalysisEventListener(excel);
             case ART:
                 return new ArtAnalysisEventListener(excel);
-            default:
+            case ACADEMIC:
                 return new AcademicAnalysisEventListener(excel);
+            default:
+                throw new BusinessException("成绩类型不匹配");
         }
     }
 }

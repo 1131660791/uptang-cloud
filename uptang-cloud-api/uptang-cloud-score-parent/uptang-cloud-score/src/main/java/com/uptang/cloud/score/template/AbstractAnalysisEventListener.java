@@ -4,10 +4,16 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.fastjson.JSON;
-import com.uptang.cloud.score.dto.ImportFromExcelDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uptang.cloud.score.common.model.Subject;
+import com.uptang.cloud.score.dto.GradeCourseDTO;
+import com.uptang.cloud.score.dto.RequestParameter;
+import com.uptang.cloud.score.dto.StudentRequestDTO;
 import com.uptang.cloud.score.exceptions.ExcelExceptions;
 import com.uptang.cloud.score.handler.PrimitiveResolver;
+import com.uptang.cloud.score.service.IRestCallerService;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
+import com.uptang.cloud.score.util.ApplicationContextHolder;
 import com.uptang.cloud.score.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cglib.core.ReflectUtils;
@@ -15,6 +21,7 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,65 +36,125 @@ import java.util.Map;
 @Slf4j
 public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventListener<Map<Integer, Object>> {
 
-    private ImportFromExcelDTO excel;
-
     /**
      * 子类泛型
      */
     private Class<T> generic;
 
     /**
-     * 自旋时间
+     * 客户端参数
      */
-    public static final long SPIN_OVER_TIME = 30 * 1000;
+    private RequestParameter excel;
 
+    /**
+     * 数据校验信息
+     */
+    private List<GradeCourseDTO> gradeCourse;
+
+    /**
+     * data
+     */
+    private final List<T> DATA = new ArrayList<>();
+
+    protected final IRestCallerService restCallerService =
+            ApplicationContextHolder.getBean(IRestCallerService.class);
+
+    /**
+     * 获取泛型
+     *
+     * @return
+     */
     private void init() {
         Type type = this.getClass().getGenericSuperclass();
-        Type clazz = (type instanceof ParameterizedType) ? ((ParameterizedType) type).getActualTypeArguments()[0] : type;
+        Type clazz = (type instanceof ParameterizedType)
+                ? ((ParameterizedType) type).getActualTypeArguments()[0]
+                : type;
         this.generic = (Class<T>) clazz;
     }
 
-    public AbstractAnalysisEventListener(ImportFromExcelDTO excel) {
+    public AbstractAnalysisEventListener(RequestParameter excel) {
         this.excel = excel;
         init();
     }
 
-
     @Override
     public final void invoke(Map<Integer, Object> rawData, AnalysisContext context) {
-        T newInstance = (T) ReflectUtils.newInstance(this.generic);
-        ReflectionUtils.doWithFields(this.generic, field -> {
-            ExcelProperty annotation = field.getAnnotation(ExcelProperty.class);
-            if (annotation != null) {
-                ReflectionUtils.makeAccessible(field);
-                Object originalValue = rawData.get(annotation.index());
-                Object value = PrimitiveResolver.getConverter(field.getType()).convert(originalValue);
-                field.set(newInstance, value);
+        // 当前行
+        Integer lineNumber = context.readRowHolder().getRowIndex();
+        try {
+            // 实例化子类泛型
+            T newInstance = (T) ReflectUtils.newInstance(this.generic);
+            {
+                // 固定列数
+                final int[] fixedCell = new int[]{0};
+                // 设置Subject
+                final boolean[] setSubject = new boolean[]{true};
+                // 设置固定值
+                ReflectionUtils.doWithFields(this.generic, field -> {
+                    fixedCell[0]++;
+                    ExcelProperty annotation = field.getAnnotation(ExcelProperty.class);
+                    if (annotation != null) {
+                        ReflectionUtils.makeAccessible(field);
+                        Object originalValue = rawData.get(annotation.index());
+
+                        Class<?> clazz = field.getType();
+                        PrimitiveResolver converter = PrimitiveResolver.getConverter(clazz);
+                        field.set(newInstance, converter.convert(originalValue));
+                    } else {
+                        if (setSubject[0]) {
+                            ReflectionUtils.makeAccessible(field);
+                            field.set(newInstance, getSubjects(rawData, lineNumber, fixedCell[0] - 1, gradeCourse));
+                            setSubject[0] = false;
+                        }
+                    }
+                });
             }
-        });
 
-
-        final ExcelProcessorStrategy strategy = getStrategy();
-        if (strategy.check(newInstance, context, excel)) {
-            doInvoke(newInstance, context);
-        } else {
-            String message = String.format("第%d页，第%d行解析异常",
-                    context.readSheetHolder().getSheetNo(),
-                    context.readRowHolder().getRowIndex());
-
-            String rawMessageData = JSON.toJSONString(newInstance);
-            message = String.format("%s。该行数据为：%s", message, rawMessageData);
-            throw new ExcelExceptions(message);
+            DATA.add(newInstance);
+        } catch (Exception e) {
+            DATA.clear();
+            this.gradeCourse = null;
+            log.error(e.getMessage());
+            throw new ExcelExceptions(e);
         }
     }
+
+    @Override
+    public final void doAfterAllAnalysed(AnalysisContext context) {
+        try {
+            getStrategy().check(DATA, context, excel);
+            doInvoke(DATA, excel, context);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ExcelExceptions(e);
+        } finally {
+            this.gradeCourse = null;
+            DATA.clear();
+        }
+    }
+
+    /**
+     * 获取科目列表
+     *
+     * @param rawData     Sheet数据
+     * @param lineNumber  当前行
+     * @param startIndex  开始下标
+     * @param gradeCourse 科目校验信息
+     * @return
+     */
+    public abstract List<Subject> getSubjects(Map<Integer, Object> rawData,
+                                              Integer lineNumber,
+                                              int startIndex,
+                                              List<GradeCourseDTO> gradeCourse);
 
     /**
      * 数据处理
      *
      * @param data
      * @param context
+     * @param excel
      */
-    public abstract void doInvoke(T data, AnalysisContext context);
+    public abstract void doInvoke(List<T> data, RequestParameter excel, AnalysisContext context);
 
     /**
      * 分批次/分组 100条一组
@@ -103,9 +170,14 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
         if (log.isDebugEnabled()) {
             log.debug("用户{}导入{}学校{}年级{}班{}学期的{}成绩 Header ==> {}",
                     excel.getUserId(), excel.getSchoolId(), excel.getGradeId(),
-                    excel.getClassId(), excel.getSemesterCode(), headMap);
+                    excel.getClassId(), excel.getSemesterId(), headMap);
         }
-        getStrategy().headMap(headMap);
+
+        StudentRequestDTO studentRequestDTO = new StudentRequestDTO();
+        studentRequestDTO.setToken(excel.getToken());
+        studentRequestDTO.setGradeId(excel.getGradeId());
+        this.gradeCourse = restCallerService.gradeInfo(studentRequestDTO);
+        getStrategy().headMap(headMap, gradeCourse);
     }
 
     /**
@@ -124,6 +196,11 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
      */
     @Override
     public void onException(Exception exception, AnalysisContext context) {
+        if (DATA.size() != 0) {
+            DATA.clear();
+            this.gradeCourse = null;
+        }
+
         exception.printStackTrace();
 
         String message = String.format("第%d页，第%d行解析异常",
@@ -138,11 +215,11 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
 
         log.error("用户{}导入{}学校{}年级{}班{}学期 error ==> {}",
                 excel.getUserId(), excel.getSchoolId(), excel.getGradeId(),
-                excel.getClassId(), excel.getSemesterCode(), message);
+                excel.getClassId(), excel.getSemesterId(), message);
         throw new ExcelExceptions(message);
     }
 
-    public ImportFromExcelDTO getExcel() {
+    public RequestParameter getExcel() {
         return excel;
     }
 }

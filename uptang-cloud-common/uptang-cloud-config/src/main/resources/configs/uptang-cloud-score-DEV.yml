@@ -62,17 +62,17 @@ spring:
       sql.show: true
     sharding:
       tables:
-        logic_score: # 成绩类型 0 学业成绩 academic_score 1 体质健康 health_score 2 艺术成绩 art_score
+        logic_subject: # 成绩类型 0 学业成绩 academic_score 1 体质健康 health_score 2 艺术成绩 art_score
           table-strategy:
             standard:
-              shardingColumn: type
+              shardingColumn: score_type
               preciseAlgorithmClassName: com.uptang.cloud.score.sharding.ScoreTypeRoutingAlgorithm
   #            inline:
   #              sharding-column: type
   #              algorithm-expression: ${type %3}_socre
   #          key-generator-column-name: id
   #      binding-tables:
-  #        - logic_score
+  #        - logic_subject
 
   # 数数库
   #  datasource:

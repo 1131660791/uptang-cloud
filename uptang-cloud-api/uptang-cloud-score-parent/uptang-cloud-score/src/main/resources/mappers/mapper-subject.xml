@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uptang.cloud.score.repository.SubjectRepository">
+
+    <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.Subject">
+        <id property="id" column="id"/>
+        <result property="resumeId" column="resume_id"/>
+        <result property="scoreType" column="score_type"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="scoreText" column="score_text"/>
+        <result property="scoreNumber" column="score_number"/>
+    </resultMap>
+
+    <!--字段名 Java属性名-->
+    <sql id="columns">
+        `id` AS `id`, `score_type` AS `scoreType`, `name` AS `name`,`code` AS `code`,`resume_id` AS `resumeId`,
+        `score_text` AS `scoreText`, `score_number` AS `scoreNumber`
+    </sql>
+
+    <insert id="save" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.uptang.cloud.score.common.model.Subject">
+        INSERT INTO logic_subject (`score_type`,`resume_id`,`code`,`name`,`score_text`,`score_number`) VALUES
+        (#{scoreType},#{resumeId},#{code},#{name},#{scoreText},#{scoreNumber})
+    </insert>
+
+    <!--新增并返回新增的ID-->
+    <insert id="batchInsert" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.uptang.cloud.score.common.model.Subject">
+        INSERT INTO logic_subject (`score_type`,`resume_id`,`code`,`name`,`score_text`,`score_number`) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")">
+                #{item.scoreType},#{item.resumeId},#{item.code},#{item.name},#{item.scoreText},#{item.scoreNumber}
+            </trim>
+        </foreach>
+    </insert>
+
+    <!--根据主键批量删除-->
+    <delete id="batchDelete">
+        DELETE FROM logic_subject WHERE id IN
+        <foreach collection="ids" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        AND score_type=#{scoreType}
+    </delete>
+
+    <!--根据resume_id批量删除-->
+    <delete id="batchDeleteResumeIDs">
+        DELETE FROM logic_subject WHERE resume_id IN
+        <foreach collection="resumeIds" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        AND score_type=#{scoreType}
+    </delete>
+
+    <resultMap id="ResultMapDTO" type="com.uptang.cloud.score.dto.SubjectDTO">
+        <id property="id" column="id"/>
+        <result property="resumeId" column="resume_id"/>
+        <result property="scoreType" column="score_type"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="scoreText" column="score_text"/>
+        <result property="scoreNumber" column="score_number"/>
+        <result property="studentId" column="student_id"/>
+        <result property="schoolId" column="school_id"/>
+        <result property="gradeId" column="grade_id"/>
+        <result property="classId" column="class_id"/>
+        <result property="semesterId" column="semester_id"/>
+        <result property="schoolName" column="school_name"/>
+        <result property="gradeName" column="grade_name"/>
+        <result property="className" column="class_name"/>
+        <result property="name" column="name"/>
+        <result property="gender" column="gender"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="modifiedTime" column="modified_time"/>
+    </resultMap>
+
+    <!--分页-->
+    <select id="page" resultMap="ResultMapDTO">
+        SELECT
+        subjecd.score_type,subjecd.id AS subjectId,subjecd.code,subjecd.name,subjecd.score_text,subjecd.score_number,
+        resume.student_id,resume.school_id,resume.grade_id,resume.class_id,resume.semester_id,resume.school_name,
+        resume.grade_name,resume.class_name,subjecd.name,resume.gender,resume.created_time,resume.modified_time
+        FROM logic_subject subjecd INNER JOIN academic_resume resume ON subjecd.resume_id=resume.id
+        WHERE resume.school_id=#{schoolId}
+        AND resume.grade_id=#{gradeId}
+        AND resume.class_id=#{classId}
+        AND subjecd.score_type=#{type}
+    </select>
+
+    <!--修改成绩-->
+    <update id="update" parameterType="com.uptang.cloud.score.common.model.Subject">
+        UPDATE logic_subject
+        <trim suffixOverrides=",">
+            <set>
+                <if test="scoreText != null and scoreText != ''">`score_text`=#{scoreText},</if>
+                <if test="scoreNumber != null">`score_number`=#{scoreNumber},</if>
+            </set>
+        </trim>
+        WHERE `id`=#{id}
+    </update>
+</mapper>
