@@ -35,3 +35,13 @@ uptang-cloud
 ### 代码运行方式
 1. 运行环境分为 DEV / FAT / UAT / PRO
 2. 所有启动配置信息保存在配置中心（Consul）, 命名规则为：模块名称 + '-' + profile + '.yml' 标识，例如： uptang-cloud-base-DEV.yml
+
+### 数据库中业务表需要定义的5个字段
+1. id bigint(20) UNSIGNED 主键,  // 单表时自增步长为1, 核心业务使用全局ID生成器
+2. creator_id bigint(20) UNSIGNED DEFAULT NULL COMMENT '创建人',
+3. created_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+4. modifier_id bigint(20) UNSIGNED DEFAULT NULL COMMENT '修改人',
+5. modified_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+
+### 数据库中状态类字段命名
+1. [xxx_]state tinyint(1) tinyint(1) UNSIGNED NOT NULL COMMENT 'xxx状态'
