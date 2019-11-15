@@ -251,9 +251,9 @@ class Utils {
         resume.setCreatedTime(new Date());
         resume.setSemesterId(excel.getSemesterId());
         resume.setSemesterName(excel.getSemesterName());
-        resume.setSchoolId(excel.getSchoolId());
-        resume.setGradeId(excel.getGradeId());
-        resume.setClassId(excel.getClassId());
+        resume.setSchoolId(excel.getSchoolId() == null ? student.getSchoolId() : excel.getSchoolId());
+        resume.setGradeId(excel.getGradeId() == null ? student.getGradeId() : excel.getGradeId());
+        resume.setClassId(excel.getClassId() == null ? student.getClassId() : excel.getClassId());
         resume.setScoreType(excel.getScoreType());
 
         // APi 获取
@@ -286,6 +286,11 @@ class Utils {
         student.setToken(excel.getToken());
         student.setGradeId(excel.getGradeId());
         student.setSchoolId(excel.getSchoolId());
+
+        if (excel.getClassId() != null) {
+            student.setClassId(excel.getClassId());
+        }
+
         if (excelDto != null) {
             student.setStudentName(excelDto.getStudentName());
             student.setStudentCode(excelDto.getStudentCode());

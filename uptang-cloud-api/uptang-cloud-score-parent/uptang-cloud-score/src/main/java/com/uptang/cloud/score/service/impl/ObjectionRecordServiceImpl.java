@@ -6,6 +6,7 @@ import com.uptang.cloud.score.common.enums.ObjectionEnum;
 import com.uptang.cloud.score.common.enums.ReviewEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ObjectionRecord;
+import com.uptang.cloud.score.common.model.ObjectionRecordResume;
 import com.uptang.cloud.score.repository.ObjectionRecordRepository;
 import com.uptang.cloud.score.service.IObjectionRecordService;
 import org.apache.logging.log4j.util.Strings;
@@ -56,33 +57,24 @@ public class ObjectionRecordServiceImpl
     }
 
     @Override
-    public List<Integer> detail(Long schoolId,
-                                Long gradeId,
-                                Long classId,
-                                Long semesterId,
-                                ScoreTypeEnum type,
-                                Integer pageNum,
-                                Integer pageSize) {
-        Assert.notNull(schoolId, "学校ID不能为空");
-        Assert.notNull(gradeId, "年级ID不能为空");
-        Assert.notNull(semesterId, "学期ID不能为空");
-        Assert.notNull(type, "成绩类型不能为空");
-
-        PageHelper.startPage(pageNum, pageSize);
-        return getBaseMapper().detail(schoolId, gradeId, classId, semesterId, type);
-    }
-
-    @Override
     public void update(ObjectionRecord toModel) {
         toModel.setModifiedTime(new Date());
         getBaseMapper().update(toModel);
     }
 
+
     @Override
-    public List<ObjectionRecord> page(ScoreTypeEnum type, Long resumeId, Integer pageNum, Integer pageSize) {
-        Assert.notNull(resumeId, "履历ID不能为空");
+    public List<ObjectionRecordResume> page(Long schoolId,
+                                            Long gradeId,
+                                            Long classId,
+                                            Long semesterId,
+                                            ScoreTypeEnum type,
+                                            Integer pageNum,
+                                            Integer pageSize) {
+        Assert.notNull(schoolId, "学校不能为空");
         Assert.notNull(type, "成绩类型不能为空");
-        PageHelper.startPage(pageNum, pageSize);
-        return getBaseMapper().page(type, resumeId);
+        Assert.notNull(gradeId, "年级ID不能为空");
+        PageHelper.startPage(pageNum == null ? 1 : pageNum, pageSize == null ? 10 : pageSize);
+        return getBaseMapper().page(schoolId, gradeId, classId, semesterId, type);
     }
 }

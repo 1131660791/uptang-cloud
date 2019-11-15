@@ -127,7 +127,7 @@ public class SubjectServiceImpl extends ServiceImpl<SubjectRepository, Subject> 
         Assert.notNull(semesterId, "学期ID不能为空");
         Assert.notNull(type, "成绩类型不能为空");
 
-        PageHelper.startPage(pageNum, pageSize);
+        PageHelper.startPage(pageNum == null ? 1 : pageNum, pageSize == null ? 10 : pageSize);
         return getBaseMapper().page(schoolId, gradeId, classId, semesterId, type);
     }
 
@@ -153,14 +153,12 @@ public class SubjectServiceImpl extends ServiceImpl<SubjectRepository, Subject> 
         exemptionDto.setToken(excel.getToken());
         exemptionDto.setClassId(excel.getClassId());
         exemptionDto.setGradeId(excel.getGradeId());
+        List<AcademicResume> exemptions = restCallerService.exemption(exemptionDto);
 
+        // 科目信息
         StudentRequestDTO studentRequestDTO = new StudentRequestDTO();
         studentRequestDTO.setToken(excel.getToken());
         studentRequestDTO.setGradeId(excel.getGradeId());
-
-        // 免测学生信息
-        List<AcademicResume> exemptions = restCallerService.exemption(exemptionDto);
-        // 科目信息
         List<GradeCourseDTO> gradeCourse = restCallerService.gradeInfo(studentRequestDTO);
         if (exemptions != null && gradeCourse != null) {
             // 将学生信息插入
@@ -185,6 +183,16 @@ public class SubjectServiceImpl extends ServiceImpl<SubjectRepository, Subject> 
                 getBaseMapper().batchDeleteResumeIDs(collect, HEALTH);
             }
         }
+    }
+
+    @Override
+    public List<ShowScoreDTO> show(Long schoolId, Long gradeId, Long classId,
+                                   Long semesterId, ScoreTypeEnum type,
+                                   Integer pageNum, Integer pageSize) {
+        Assert.notNull(schoolId, "学校ID不能为空");
+        Assert.notNull(type, "成绩类型不能为空");
+        PageHelper.startPage(pageNum == null ? 1 : pageNum, pageSize == null ? 10 : pageSize);
+        return getBaseMapper().show(schoolId, gradeId, classId, semesterId, type);
     }
 
     /**

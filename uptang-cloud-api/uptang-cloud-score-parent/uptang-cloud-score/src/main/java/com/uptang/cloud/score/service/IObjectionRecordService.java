@@ -3,6 +3,7 @@ package com.uptang.cloud.score.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ObjectionRecord;
+import com.uptang.cloud.score.common.model.ObjectionRecordResume;
 
 import java.util.List;
 
@@ -53,22 +54,6 @@ public interface IObjectionRecordService extends IService<ObjectionRecord> {
 
 
     /**
-     * 异议详情
-     *
-     * @param schoolId   学校
-     * @param gradeId    年级
-     * @param semesterId 学期
-     * @param type       成绩类型
-     * @return
-     */
-    List<Integer> detail(
-            Long schoolId,
-            Long gradeId,
-            Long classId,
-            Long semesterId,
-            ScoreTypeEnum type, Integer pageNum, Integer pageSize);
-
-    /**
      * 审核
      *
      * @param toModel
@@ -78,10 +63,20 @@ public interface IObjectionRecordService extends IService<ObjectionRecord> {
     /**
      * 分页
      *
-     * @param type     分数类型
-     * @param resumeId 履历ID
-     * @param pageNum  页码
-     * @param pageSize 显示条数
+     * @param schoolId   学校ID
+     * @param gradeId    年级ID
+     * @param classId    班级ID
+     * @param semesterId 学期ID
+     * @param type       分数类型
+     * @param pageNum    页码
+     * @param pageSize   显示条数
+     * @return
      */
-    List<ObjectionRecord> page(ScoreTypeEnum type, Long resumeId, Integer pageNum, Integer pageSize);
+    List<ObjectionRecordResume> page(Long schoolId,
+                                     Long gradeId,
+                                     Long classId,
+                                     Long semesterId,
+                                     ScoreTypeEnum type,
+                                     Integer pageNum,
+                                     Integer pageSize);
 }

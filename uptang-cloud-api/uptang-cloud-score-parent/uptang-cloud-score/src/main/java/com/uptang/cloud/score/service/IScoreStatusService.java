@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ScoreStatus;
 
+import java.util.List;
+
 /**
  * @author : Lee.m.yin
  * @createtime : 2019-11-12 17:22
@@ -67,4 +69,12 @@ public interface IScoreStatusService extends IService<ScoreStatus> {
      * @return
      */
     boolean cancel(Long schoolId, Long gradeId, Long semesterId, ScoreTypeEnum type);
+
+    /**
+     * 批量新增
+     *
+     * @param lists
+     * @return
+     */
+    List<ScoreStatus> batchInsert(List<ScoreStatus> lists);
 }

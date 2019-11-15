@@ -53,7 +53,7 @@ public class ArchiveScoreServiceImpl
         Assert.notNull(gradeId, "年级ID不能为空");
         Assert.notNull(semesterId, "学期ID不能为空");
         Assert.notNull(type, "成绩类型不能为空");
-        PageHelper.startPage(pageNum, pageSize);
+        PageHelper.startPage(pageNum == null ? 1 : pageNum, pageSize == null ? 10 : pageSize);
         return getBaseMapper().page(schoolId, gradeId, classId, semesterId, type);
     }
 }

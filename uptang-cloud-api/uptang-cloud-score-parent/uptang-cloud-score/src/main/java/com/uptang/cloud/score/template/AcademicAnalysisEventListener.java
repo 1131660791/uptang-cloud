@@ -5,10 +5,12 @@ import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.score.common.dto.ExcelDto;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
+import com.uptang.cloud.score.common.model.ScoreStatus;
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.dto.GradeCourseDTO;
 import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.service.IAcademicResumeService;
+import com.uptang.cloud.score.service.IScoreStatusService;
 import com.uptang.cloud.score.service.ISubjectService;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategyFactory;
@@ -35,6 +37,9 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
 
     private final ISubjectService scoreService =
             ApplicationContextHolder.getBean(ISubjectService.class);
+
+    private final IScoreStatusService scoreStatusService =
+            ApplicationContextHolder.getBean(IScoreStatusService.class);
 
     public AcademicAnalysisEventListener(RequestParameter excel) {
         super(excel);
@@ -84,6 +89,9 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
                 throw new BusinessException("系统异常");
             }
             scoreService.batchInsert(subjects);
+            // 状态表
+            List<ScoreStatus> statuses = Utils.getScoreStatuses(maps);
+            scoreStatusService.batchInsert(statuses);
         } catch (Exception e) {
             maps.stream()
                     .map(Map::values)

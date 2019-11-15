@@ -32,27 +32,37 @@ public class ExcelController extends BaseController {
         this.excelDataServiceProcessor = excelDataServiceProcessor;
     }
 
-    @PostMapping("/{type}/{schoolId}/{gradeId}/{semesterId}/{semesterName}")
+    /**
+     * @param type
+     * @param gradeId
+     * @param schoolId
+     * @param semesterId
+     * @param semesterName
+     * @param classId
+     * @return
+     */
+    @PostMapping("/{type}/{schoolId}/{gradeId}/{semesterId}")
     @ApiOperation(value = "Excel导入成绩", response = String.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
-            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "semesterName", value = "学期名称", paramType = "path", required = true),
-            @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query"),
+            @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query", required = true),
+            @ApiImplicitParam(name = "semesterName", value = "学期名称", paramType = "query", required = true),
     })
     public ApiOut<String> batchInsert(@PathVariable("type") @NotNull Integer type,
                                       @PathVariable("gradeId") @NotNull Long gradeId,
                                       @PathVariable("schoolId") @NotNull Long schoolId,
                                       @PathVariable("semesterId") @NotNull Long semesterId,
-                                      @PathVariable("semesterName") @NotNull String semesterName,
-                                      @RequestParam(value = "classId", required = false) Long classId) {
+                                      @RequestParam(value = "classId", required = false) Long classId,
+                                      @RequestParam("semesterName") @NotNull String semesterName) {
+
         ImportFromExcelVo importFromExcel = new ImportFromExcelVo();
         importFromExcel.setSchoolId(schoolId);
         importFromExcel.setScoreType(ScoreTypeEnum.code(type));
-        importFromExcel.setClassId(classId);
         importFromExcel.setGradeId(gradeId);
+        importFromExcel.setClassId(classId);
         importFromExcel.setSemesterId(semesterId);
 
         RequestParameter excelDTO = ImportFromExcelConverter.INSTANCE.toModel(importFromExcel);

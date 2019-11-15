@@ -69,6 +69,20 @@ public class RestCallerServiceImpl implements IRestCallerService {
         }
     }
 
+    /**
+     * UserTypeEnum userType = UserTypeEnum.parse(UserContextThreadLocal.get().getUserType());
+     * if (userType != null) {
+     * switch (userType) {
+     * case TEACHER:
+     * case MANAGER:
+     * return true;
+     * case STUDENT:
+     * case PARENT:
+     * default:
+     * return false;
+     * }
+     * }
+     */
     @Override
     public boolean promissionCheck(RestRequestDto restRequestDto) {
         Assert.notNull(restRequestDto, "请求参数不能为空");
@@ -102,9 +116,7 @@ public class RestCallerServiceImpl implements IRestCallerService {
             Map map = mapper.readValue(payload, Map.class);
             Object status = map.get("status");
             Object data = map.get("data");
-            if (map == null || map.size() == 0
-                    || status.equals(HttpStatus.SC_OK)
-                    || data == null) {
+            if (map.size() == 0 || status.equals(HttpStatus.SC_OK) || data == null) {
                 return Collections.emptyList();
             }
 
@@ -131,7 +143,8 @@ public class RestCallerServiceImpl implements IRestCallerService {
 
         try {
             String writeValueAsString = mapper.writeValueAsString(list);
-            return mapper.readValue(writeValueAsString, new TypeReference<List<AcademicResume>>() {});
+            return mapper.readValue(writeValueAsString, new TypeReference<List<AcademicResume>>() {
+            });
         } catch (IOException e) {
             return Collections.emptyList();
         }

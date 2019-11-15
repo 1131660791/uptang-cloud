@@ -5,6 +5,7 @@ import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.dto.ScoreDto;
+import com.uptang.cloud.score.dto.ShowScoreDTO;
 import com.uptang.cloud.score.dto.SubjectDTO;
 
 import java.util.List;
@@ -85,5 +86,25 @@ public interface ISubjectService extends IService<Subject> {
      * @param excel
      */
     void exemption(RequestParameter excel);
+
+    /**
+     * 公式数据
+     *
+     * @param schoolId   学校ID
+     * @param gradeId    年级ID
+     * @param classId    班级ID
+     * @param semesterId 学期ID
+     * @param type       成绩类型
+     * @param pageNum    页码
+     * @param pageSize   每页显示行数
+     * @return
+     */
+    List<ShowScoreDTO> show(Long schoolId,
+                            Long gradeId,
+                            Long classId,
+                            Long semesterId,
+                            ScoreTypeEnum type,
+                            Integer pageNum,
+                            Integer pageSize);
 }
 

@@ -40,9 +40,20 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
     @Autowired
     private IAcademicResumeService resumeService;
 
-
     @Override
     public void processor(RequestParameter parameter) {
+        preCheck(parameter);
+        if (parameter.getScoreType() != null) {
+            super.analysis(ExcelTypeEnum.XLS, parameter);
+        }
+    }
+
+    /**
+     * 录入检查
+     *
+     * @param parameter
+     */
+    private void preCheck(RequestParameter parameter) {
         // 艺术类和体质健康类成绩一年只能导入一次
         @NotNull ScoreTypeEnum scoreType = parameter.getScoreType();
         if (scoreType == HEALTH || scoreType == ART) {
@@ -80,10 +91,6 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
         boolean isOpen = restCallerService.moduleSwitch(moduleSwitch);
         if (!isOpen) {
             throw new BusinessException("任务未开放");
-        }
-
-        if (parameter.getScoreType() != null) {
-            super.analysis(ExcelTypeEnum.XLS, parameter);
         }
     }
 }

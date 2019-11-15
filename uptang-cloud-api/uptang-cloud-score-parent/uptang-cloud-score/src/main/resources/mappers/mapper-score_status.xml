@@ -18,19 +18,15 @@
 
     <sql id="columns">`id`, `resume_id`, `state`, `finish_time`, `started_time`</sql>
 
-    <select id="queryByProperty" resultMap="ResultMap"
+    <!--新增并返回新增的ID-->
+    <insert id="batchInsert" keyProperty="id" useGeneratedKeys="true"
             parameterType="com.uptang.cloud.score.common.model.ScoreStatus">
-        SELECT <include refid="columns"/> FROM score_status
-        <where>
-            <trim suffixOverrides="AND" prefixOverrides="AND">
-                <if test="id != null">AND `id`=#{id}</if>
-                <if test="resumeId != null">AND `resume_id`=#{resumeId}</if>
-                <if test="state != null">AND `state`=#{state}</if>
-                <if test="startedTime != null">AND `started_time`=#{startedTime}</if>
-                <if test="finishTime != null">AND `finish_time`=#{finishTime}</if>
-            </trim>
-        </where>
-    </select>
+        INSERT INTO score_status (`resume_id`, `state`,`started_time`) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.resumeId},#{item.state},#{item.startedTime})
+        </foreach>
+    </insert>
+
 
     <update id="update" parameterType="com.uptang.cloud.score.common.model.ScoreStatus">
         UPDATE score_status

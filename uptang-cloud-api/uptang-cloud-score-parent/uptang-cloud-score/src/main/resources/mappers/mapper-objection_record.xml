@@ -110,7 +110,8 @@
         orecord.score_type=#{type}
     </select>
 
-    <resultMap id="DetailResultMap" type="com.uptang.cloud.score.common.model.ObjectionRecord">
+
+    <resultMap id="DetailResultMap" type="com.uptang.cloud.score.common.model.ObjectionRecordResume">
         <id property="id" column="id"/>
         <result property="resumeId" column="resume_id"/>
         <result property="state" column="state"/>
@@ -122,42 +123,43 @@
         <result property="scoreType" column="score_type"/>
         <result property="createdTime" column="created_time"/>
         <result property="modifiedTime" column="modified_time"/>
-        <result property="subjectId" column="subjectId"/>
-        <result property="subjectCode" column="code"/>
-        <result property="subjectName" column="name"/>
-        <result property="scoreText" column="score_text"/>
-        <result property="scoreNumber" column="score_number"/>
+        <!--异议表完-->
+        <result property="studentId" column="student_id"/>
+        <result property="semesterId" column="semester_id"/>
+        <result property="schoolId" column="school_id"/>
+        <result property="gradeId" column="grade_id"/>
+        <result property="classId" column="class_id"/>
         <result property="semesterName" column="semester_name"/>
         <result property="schoolName" column="school_name"/>
         <result property="gradeName" column="grade_name"/>
         <result property="className" column="class_name"/>
         <result property="studentName" column="student_name"/>
-        <result property="studentId" column="student_id"/>
+        <result property="studentCode" column="student_code"/>
         <result property="gender" column="gender"/>
+        <!--履历表完-->
+        <result property="subjectId" column="subjectId"/>
+        <result property="subjectCode" column="code"/>
+        <result property="subjectName" column="name"/>
+        <result property="scoreText" column="score_text"/>
+        <result property="scoreNumber" column="score_number"/>
+        <!--科目表完-->
     </resultMap>
 
-
-    <!--异议详情-->
-    <select id="detail" resultMap="DetailResultMap">
+    <!--分页
+     SUBJECD.id AS subjectId,SUBJECD.code, SUBJECD.name,SUBJECD.score_text,SUBJECD.score_number
+     LEFT JOIN logic_subject SUBJECD ON SUBJECD.resume_id=ORE.resume_id
+    -->
+    <select id="page" resultMap="DetailResultMap">
         SELECT
-        orecord.id,subjct.id AS subjectId,orecord.state,orecord.description,orecord.review_stat,
-        orecord.review_desc,orecord.creator_id,orecord.score_type,orecord.created_time,
-        subjct.`code`,subjct.`name`,subjct.score_text,subjct.score_number,ar.semester_name,
-        ar.school_name,ar.grade_name,ar.class_name,ar.student_name,ar.student_id,ar.gender
-        FROM objection_record orecord,
-        academic_resume ar,
-        subject_health subjct
-        WHERE ar.id=orecord.resume_id AND ar.id=subjct.resume_id
-        AND ar.school_id=#{schoolId}
-        AND ar.grade_id=#{gradeId}
-        AND ar.semester_id=#{semesterId}
-        AND subjct.score_type=#{type}
-    </select>
-
-    <!--分页-->
-    <select id="page" resultMap="ResultMap">
-        SELECT
-        <include refid="columns"/>
-        FROM objection_record WHERE resume_id=#{resumeId} AND score_type=#{type}
+        ORE.id,ORE.resume_id,ORE.state,ORE.description,ORE.review_stat,ORE.review_desc,
+        ORE.review_id, ORE.score_type,ORE.created_time,ORE.modified_time,
+        ARE.school_id,ARE.grade_id,ARE.class_id,ARE.semester_name,ARE.school_name, ARE.grade_name,
+        ARE.class_name,ARE.student_id,ARE.student_name,ARE.student_code,ARE.gender,ARE.semester_id
+        FROM objection_record ORE LEFT JOIN academic_resume ARE ON ORE.resume_id=ARE.id
+        WHERE ORE.state=1
+        <if test="schoolId != null">AND ARE.school_id=#{schoolId}</if>
+        <if test="gradeId != null">AND ARE.grade_id=#{gradeId}</if>
+        <if test="classId != null">AND ARE.class_id=#{classId}</if>
+        <if test="semesterId != null">AND ARE.semester_id=#{semesterId}</if>
     </select>
 </mapper>

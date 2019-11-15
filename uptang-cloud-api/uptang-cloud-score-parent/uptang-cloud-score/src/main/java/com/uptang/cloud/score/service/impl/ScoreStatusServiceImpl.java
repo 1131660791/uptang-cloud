@@ -1,12 +1,17 @@
 package com.uptang.cloud.score.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.uptang.cloud.score.common.enums.ScoreStatusEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ScoreStatus;
 import com.uptang.cloud.score.repository.ScoreStatusRepository;
 import com.uptang.cloud.score.service.IScoreStatusService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author : Lee.m.yin
@@ -66,5 +71,19 @@ public class ScoreStatusServiceImpl
         Assert.notNull(type, "成绩类型不能为空");
         getBaseMapper().cancel(schoolId, gradeId, semesterId, type);
         return true;
+    }
+
+    @Override
+    public List<ScoreStatus> batchInsert(List<ScoreStatus> lists) {
+        if (lists == null || lists.size() == 0) {
+            return Collections.emptyList();
+        }
+
+        lists.stream().forEach(status -> {
+            status.setStartedTime(new Date());
+            status.setState(ScoreStatusEnum.SUBMIT);
+        });
+        getBaseMapper().batchInsert(lists);
+        return lists;
     }
 }

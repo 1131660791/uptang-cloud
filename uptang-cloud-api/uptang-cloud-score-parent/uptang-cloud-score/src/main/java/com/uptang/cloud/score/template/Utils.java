@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.score.common.dto.ExcelDto;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
+import com.uptang.cloud.score.common.model.ScoreStatus;
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.common.util.Calculator;
 import com.uptang.cloud.score.dto.GradeCourseDTO;
@@ -150,5 +151,20 @@ class Utils {
                 .map(ExcelDto::getSubjects)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * @param maps
+     * @return
+     */
+    public static List<ScoreStatus> getScoreStatuses(List<Map<Long, Long>> maps) {
+        List<ScoreStatus> statuses = new ArrayList<>();
+        for (Map<Long, Long> map : maps) {
+            Set<Map.Entry<Long, Long>> entries = map.entrySet();
+            for (Map.Entry<Long, Long> entry : entries) {
+                statuses.add(new ScoreStatus(entry.getValue()));
+            }
+        }
+        return statuses;
     }
 }

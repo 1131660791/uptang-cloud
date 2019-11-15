@@ -31,20 +31,20 @@ public class ImportFromExcelVo extends BaseVO<ImportFromExcelVo> implements Seri
     /**
      * 年级ID
      */
-    @ApiModelProperty(notes = "学校ID")
+    @ApiModelProperty(notes = "年级ID")
     private Long gradeId;
 
     /**
-     * 班级学校ID
-     */
-    @ApiModelProperty(notes = "学校ID")
-    private Long classId;
-
-    /**
-     * 学期编码
+     * 学期ID
      */
     @ApiModelProperty(notes = "学期ID")
     private Long semesterId;
+
+    /**
+     * 班级ID
+     */
+    @ApiModelProperty(notes = "班级ID")
+    private Long classId;
 
     /**
      * 学期名

@@ -6,6 +6,8 @@ import com.uptang.cloud.score.common.model.ScoreStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * @author : Lee.m.yin
  * @createTime : 2019-11-12 08:18:10
@@ -15,13 +17,6 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface ScoreStatusRepository extends BaseMapper<ScoreStatus> {
 
-    /**
-     * 根据属性查询
-     *
-     * @param status
-     * @return
-     */
-    ScoreStatus queryByProperty(ScoreStatus status);
 
     /**
      * 根据ID更新
@@ -97,4 +92,12 @@ public interface ScoreStatusRepository extends BaseMapper<ScoreStatus> {
                 @Param("gradeId") Long gradeId,
                 @Param("semesterId") Long semesterId,
                 @Param("type") ScoreTypeEnum type);
+
+
+    /**
+     * 批量新增
+     *
+     * @param scoreStatuses
+     */
+    void batchInsert(List<ScoreStatus> scoreStatuses);
 }

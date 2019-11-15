@@ -64,10 +64,14 @@ public class HealthScoreExcelProcessorStrategy
         student.setToken(excel.getToken());
         student.setGradeId(excel.getGradeId());
         student.setSchoolId(excel.getSchoolId());
+
+        if (excel.getClassId() != null) {
+            student.setClassId(excel.getClassId());
+        }
+
         if (excelDto != null) {
             student.setStudentName(excelDto.getStudentName());
             student.setStudentCode(excelDto.getStudentCode());
-            student.setClassId(excel.getClassId());
         } else {
             student.setOffset(pageNum);
             student.setRows(pageSize);

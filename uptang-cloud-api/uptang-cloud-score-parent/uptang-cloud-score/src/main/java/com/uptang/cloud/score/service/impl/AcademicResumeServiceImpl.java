@@ -57,7 +57,7 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
 
     @Override
     public Page<AcademicResume> page(Integer pageNum, Integer pageSize, AcademicResume resume) {
-        PageHelper.startPage(pageNum, pageSize);
+        PageHelper.startPage(pageNum == null ? 1 : pageNum, pageSize == null ? 10 : pageSize);
         return getBaseMapper().page(resume);
     }
 
