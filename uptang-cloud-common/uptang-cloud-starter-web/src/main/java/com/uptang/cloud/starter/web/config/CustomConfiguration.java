@@ -69,7 +69,7 @@ public class CustomConfiguration implements WebMvcConfigurer {
 
         // 解析 Token
         registry.addInterceptor(new UserContextInterceptor(userTokenUtils(), gateHost))
-                .addPathPatterns("/**").excludePathPatterns("/inner/**");
+                .addPathPatterns("/v1/**", "/inner/**");
     }
 
     @Override
