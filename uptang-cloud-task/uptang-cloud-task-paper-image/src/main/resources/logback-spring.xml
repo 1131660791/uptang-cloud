@@ -16,7 +16,7 @@
     <springProperty scope="context" name="LOG_LEVEL_DAO" source="logging.level.repository" defaultValue="ERROR"/>
 
     <property name="LOG_HOME" value="${LOG_HOME_DIR}/${APP_NAME}"/>
-    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%line] %msg%n"/>
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%15.15thread] %-5level %logger{32} [%line] %msg%n"/>
     <property name="maxHistory" value="30"/>
     <property name="maxFileSize" value="30MB"/>
     <property name="totalSizeCap" value="1GB"/>

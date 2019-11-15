@@ -4,6 +4,7 @@ import com.obs.services.ObsClient;
 import com.uptang.cloud.base.common.domain.ObsProperties;
 import com.uptang.cloud.base.common.domain.PaperImage;
 import com.uptang.cloud.base.common.support.PaperImageProcessor;
+import com.uptang.cloud.core.util.StringUtils;
 import com.uptang.cloud.task.repository.PaperRepository;
 import com.uptang.cloud.task.service.PaperImageService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,6 @@ public class PaperImageServiceImpl implements PaperImageService {
         this.paperRepository = paperRepository;
     }
 
-
     @Override
     public void processImage(PaperImage paperImage) {
         long start = System.currentTimeMillis();
@@ -43,12 +43,14 @@ public class PaperImageServiceImpl implements PaperImageService {
         BufferedImage bufferedImage = processor.processImage(paperImage);
 
         // 上传图片
-        uploadImage(paperImage, bufferedImage);
+        String relativePath = uploadImage(paperImage, bufferedImage);
 
         // 确保正确性，再次更新裁切标志
         paperRepository.makeAsCropped(paperImage.getExamCode(), Collections.singletonList(paperImage.getStudentId()));
 
-        log.info("Process images, It's took: {}ms", System.currentTimeMillis() - start);
+        log.info("Process images[考试代码:{}, 科目代码:{}, 考号:{}] - ({}) , It's took: {}ms",
+                paperImage.getExamCode(), paperImage.getSubjectCode(), paperImage.getStudentId(), relativePath,
+                System.currentTimeMillis() - start);
     }
 
 
@@ -58,7 +60,7 @@ public class PaperImageServiceImpl implements PaperImageService {
      * @param paperImage 用于计算文件名
      * @param image      需要上传的图片
      */
-    private void uploadImage(PaperImage paperImage, BufferedImage image) {
+    private String uploadImage(PaperImage paperImage, BufferedImage image) {
         try {
             String relativePath = processor.generateUrlPath(paperImage);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -69,11 +71,13 @@ public class PaperImageServiceImpl implements PaperImageService {
             // getObsClient().doesObjectExist()
 
             getObsClient().putObject(properties.getBucketName(), processor.getObsKey(relativePath), is);
-            log.info("学生:{}, 考试码:{}, 科目码:{}, 题号:{}, 图片:{}", paperImage.getStudentId(),
+            log.debug("学生:{}, 考试码:{}, 科目码:{}, 题号:{}, 图片:{}", paperImage.getStudentId(),
                     paperImage.getExamCode(), paperImage.getSubjectCode(), paperImage.getItemNum(), relativePath);
+            return relativePath;
         } catch (Exception ex) {
             log.error("上传图片异常:{}", paperImage, ex);
         }
+        return StringUtils.EMPTY;
     }
 
 
