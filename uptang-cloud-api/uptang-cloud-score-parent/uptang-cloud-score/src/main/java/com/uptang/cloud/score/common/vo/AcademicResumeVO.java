@@ -100,12 +100,6 @@ public class AcademicResumeVO extends BaseVO<AcademicResumeVO> implements Serial
     private String genderText;
 
     /**
-     * @comment 成绩表ID
-     */
-    @ApiModelProperty(notes = "成绩ID")
-    private Long scoreId;
-
-    /**
      * @comment 成绩类型 0 学业成绩 1 体质健康 2 艺术成绩
      */
     @ApiModelProperty(notes = "成绩类型编码 0 学业成绩 1 体质健康 2 艺术成绩")

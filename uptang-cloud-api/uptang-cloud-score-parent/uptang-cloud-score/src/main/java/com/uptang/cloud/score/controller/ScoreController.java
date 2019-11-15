@@ -46,15 +46,13 @@ public class ScoreController extends BaseController {
         this.archiveScoreService = archiveScoreService;
     }
 
-    @GetMapping("/archive/{type}/{schoolId}/{gradeId}/{classId}/{semesterId}/{pageNum}/{pageSize}")
+    @GetMapping("/archive/{type}/{schoolId}/{gradeId}/{classId}/{semesterId}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
             @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "path", required = true),
-            @ApiImplicitParam(name = "pageSize", value = "显示页数", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true)
     })
     @ApiOperation(value = "查询已归档数据", response = String.class)
     public ApiOut<List<ArchiveScoreVO>> archive(@PathVariable("type") @NotNull Integer type,
@@ -62,8 +60,8 @@ public class ScoreController extends BaseController {
                                                 @PathVariable("classId") Long classId,
                                                 @PathVariable("schoolId") @NotNull Long schoolId,
                                                 @PathVariable("semesterId") @NotNull Long semesterId,
-                                                @PathVariable("pageNum") @NotNull Integer pageNum,
-                                                @PathVariable("pageSize") @NotNull Integer pageSize) {
+                                                @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                                @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
         //Long schoolId, Long gradeId, Long semesterId, ScoreTypeEnum type, Integer pageNum, Integer pageSize
         List<ArchiveScoreDTO> page = archiveScoreService.page(schoolId, gradeId, semesterId, classId,
                 ScoreTypeEnum.code(type), pageNum, pageSize);
@@ -75,15 +73,13 @@ public class ScoreController extends BaseController {
         }));
     }
 
-    @GetMapping("/unfiled/{type}/{schoolId}/{gradeId}/{classId}/{semesterId}/{pageNum}/{pageSize}")
+    @GetMapping("/unfiled/{type}/{schoolId}/{gradeId}/{classId}/{semesterId}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
             @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "path", required = true),
-            @ApiImplicitParam(name = "pageSize", value = "显示页数", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true)
     })
     @ApiOperation(value = "查询未归档数据", response = String.class)
     public ApiOut<List<SubjectVO>> unfiled(@PathVariable("type") @NotNull Integer type,
@@ -91,8 +87,8 @@ public class ScoreController extends BaseController {
                                            @PathVariable("classId") @NotNull Long classId,
                                            @PathVariable("schoolId") @NotNull Long schoolId,
                                            @PathVariable("semesterId") @NotNull Long semesterId,
-                                           @PathVariable("pageNum") @NotNull Integer pageNum,
-                                           @PathVariable("pageSize") @NotNull Integer pageSize) {
+                                           @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                           @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
         List<SubjectDTO> page = subjectService.page(schoolId, gradeId, classId, semesterId,
                 ScoreTypeEnum.code(type), pageNum, pageSize);
         return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(page, models -> {

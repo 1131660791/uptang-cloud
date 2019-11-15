@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 
@@ -20,13 +19,13 @@ public class RequestParameter {
     /**
      * 学校ID
      */
-    @ApiModelProperty(notes = "学校ID")
+    @ApiModelProperty(notes = "学校ID", required = true)
     private Long schoolId;
 
     /**
      * 年级ID
      */
-    @ApiModelProperty(notes = "年级ID")
+    @ApiModelProperty(notes = "年级ID", required = true)
     private Long gradeId;
 
     /**
@@ -38,7 +37,7 @@ public class RequestParameter {
     /**
      * 学期ID
      */
-    @ApiModelProperty(notes = "学期ID")
+    @ApiModelProperty(notes = "学期ID", required = true)
     private Long semesterId;
 
     /**
@@ -51,7 +50,7 @@ public class RequestParameter {
      * 成绩类型
      */
     @NotNull
-    @ApiModelProperty(notes = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩")
+    @ApiModelProperty(notes = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", required = true)
     private ScoreTypeEnum scoreType;
 
     @JsonIgnore
