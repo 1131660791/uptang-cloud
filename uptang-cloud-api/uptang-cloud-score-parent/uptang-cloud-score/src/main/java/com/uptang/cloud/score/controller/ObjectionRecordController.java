@@ -1,6 +1,5 @@
 package com.uptang.cloud.score.controller;
 
-import com.uptang.cloud.score.common.enums.ObjectionEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ObjectionRecord;
 import com.uptang.cloud.score.common.vo.ObjectionRecordVO;
@@ -36,18 +35,16 @@ public class ObjectionRecordController extends BaseController {
         this.objectionRecordService = objectionRecordService;
     }
 
-    @GetMapping("/{type}/{resumeId}/{pageNum}/{pageSize}")
+    @GetMapping("/{type}/{resumeId}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
-            @ApiImplicitParam(name = "resumeId", value = "履历ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "path", required = true),
-            @ApiImplicitParam(name = "pageSize", value = "显示页数", paramType = "path", required = true),
+            @ApiImplicitParam(name = "resumeId", value = "履历ID", paramType = "path", required = true)
     })
     @ApiOperation(value = "异议列表", response = ObjectionRecordVO.class)
     public ApiOut<List<ObjectionRecordVO>> list(@PathVariable("resumeId") @NotNull Long resumeId,
                                                 @PathVariable("type") @NotNull Integer type,
-                                                @PathVariable("pageNum") @NotNull Integer pageNum,
-                                                @PathVariable("pageSize") @NotNull Integer pageSize) {
+                                                @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                                @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
 
         List<ObjectionRecord> page = objectionRecordService.page(ScoreTypeEnum.code(type), resumeId, pageNum, pageSize);
         return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(page, models -> {
