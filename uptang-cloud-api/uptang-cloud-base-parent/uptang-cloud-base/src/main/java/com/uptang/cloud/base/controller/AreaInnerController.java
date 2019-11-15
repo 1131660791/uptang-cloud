@@ -5,6 +5,7 @@ import com.uptang.cloud.base.feign.AreaProvider;
 import com.uptang.cloud.base.service.AreaService;
 import com.uptang.cloud.core.util.NumberUtils;
 import com.uptang.cloud.starter.web.annotation.JsonResult;
+import com.uptang.cloud.starter.web.controller.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import java.util.Map;
 @ApiIgnore
 @RestController
 @RequestMapping("/inner/areas")
-public class AreaInnerController implements AreaProvider {
+public class AreaInnerController extends BaseController implements AreaProvider {
     private static final String EXCLUDE_FIELDS = "createdTime, modifiedTime";
     private final AreaService areaService;
 

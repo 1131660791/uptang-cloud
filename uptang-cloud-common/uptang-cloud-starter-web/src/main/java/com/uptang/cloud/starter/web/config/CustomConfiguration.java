@@ -57,13 +57,13 @@ public class CustomConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 解析 Token
+        // 防止重复提交
         registry.addInterceptor(new PreventRepeatSubmitInterceptor(redisTemplate))
                 .addPathPatterns("/v1/**").excludePathPatterns("/inner/**");
 
-        // 防止重复提交
+        // 解析 Token
         registry.addInterceptor(new UserContextInterceptor(userTokenUtils()))
-                .addPathPatterns("/**").excludePathPatterns("/inner/**");
+                .addPathPatterns("/v1/**", "/inner/**");
     }
 
     @Override
