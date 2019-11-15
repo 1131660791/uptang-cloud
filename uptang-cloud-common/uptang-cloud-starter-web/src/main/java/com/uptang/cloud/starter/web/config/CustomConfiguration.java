@@ -41,6 +41,12 @@ public class CustomConfiguration implements WebMvcConfigurer {
     @Value("${spring.profiles:DEV}")
     private String springProfiles;
 
+    /**
+     * 获取综合素质评价系统网关
+     */
+    @Value("${gate.pj.host}")
+    private String gateHost;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         if (StringUtils.containsIgnoreCase(springProfiles, DEV_ENV)) {
@@ -57,12 +63,12 @@ public class CustomConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 解析 Token
+        // 防止重复提交
         registry.addInterceptor(new PreventRepeatSubmitInterceptor(redisTemplate))
                 .addPathPatterns("/v1/**").excludePathPatterns("/inner/**");
 
-        // 防止重复提交
-        registry.addInterceptor(new UserContextInterceptor(userTokenUtils()))
+        // 解析 Token
+        registry.addInterceptor(new UserContextInterceptor(userTokenUtils(), gateHost))
                 .addPathPatterns("/**").excludePathPatterns("/inner/**");
     }
 

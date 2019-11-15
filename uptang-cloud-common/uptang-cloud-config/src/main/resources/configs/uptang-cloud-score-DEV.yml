@@ -38,6 +38,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+  # 数据库 - 分库分表
   shardingsphere:
     datasource:
       score:
@@ -59,40 +60,14 @@ spring:
         registerMbeans: true
       names: score
     props:
-      sql.show: true
+      sql.show: false
     sharding:
       tables:
-        logic_subject: # 成绩类型 0 学业成绩 academic_score 1 体质健康 health_score 2 艺术成绩 art_score
+        logic_subject: # 成绩类型 0:学业成绩[academic_score] 1:体质健康[health_score] 2:艺术成绩[art_score]
           table-strategy:
             standard:
               shardingColumn: score_type
               preciseAlgorithmClassName: com.uptang.cloud.score.sharding.ScoreTypeRoutingAlgorithm
-  #            inline:
-  #              sharding-column: type
-  #              algorithm-expression: ${type %3}_socre
-  #          key-generator-column-name: id
-  #      binding-tables:
-  #        - logic_subject
-
-  # 数数库
-  #  datasource:
-  #    driver-class-name: com.mysql.jdbc.Driver
-  #    name: uptang_score
-  #    url: jdbc:mysql://svc_mysql.weave.local:52198/uptang_score?useUnicode=true&useSSL=false&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
-  #    username: uptang
-  #    password: uptang408*
-  #    hikari:
-  #      auto-commit: true
-  #      connection-timeout: 30000
-  #      idle-timeout: 600000
-  #      max-lifetime: 1800000
-  #      maximum-pool-size: 5
-  #      pool-name: hikari-pool
-  #      minimum-idle: 2
-  #      validation-timeout: 60000
-  #      connection-test-query: "SELECT 1"
-  #      leak-detection-threshold: 30000
-  #      register-mbeans: true
 
   # 缓存
   redis:
@@ -107,10 +82,6 @@ spring:
         min-idle: 1
         max-active: 10
         max-wait: 1000
-
-  # 过滤返回值空值
-  #jackson:
-  #  default-property-inclusion: non_null
 
 # feign 配置
 feign:
@@ -140,12 +111,20 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+mybatis.type-handlers-package: com.uptang.cloud.score.handler
+
 # 分页插件配置
 pagehelper:
   helperDialect: mysql
   reasonable: true
   supportMethodsArguments: true
   params: count=countSql
+
+# 原有系统服务网关地址
+gate:
+  pj.host: http://192.168.0.210:28080
+  xfs.host: http://192.168.0.210:28080
+
 
 # actuator 相关配置
 info.app.author: 兴唐技术
@@ -164,6 +143,3 @@ springfox.documentation.auto-startup: true
 
 management.endpoints.web.exposure.include: '*'
 management.endpoint.health.show-details: always
-# 基础服务网关地址
-spring.uptang.gateway.host: http://192.168.0.210:28080/
-mybatis.type-handlers-package: com.uptang
