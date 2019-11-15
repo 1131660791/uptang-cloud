@@ -18,26 +18,30 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public enum UserTypeEnum {
     /**
-     * 学生用户
+     * 管理员
      */
-    STUDENT(1, "学生用户"),
-
-    /**
-     * 家长用户
-     */
-    PARENT(2, "家长用户"),
+    MANAGER(9, "管理员"),
 
     /**
      * 教师用户
      */
-    TEACHER(3, "教师用户"),
+    TEACHER(1, "教师用户"),
+
+    /**
+     * 学生用户
+     */
+    STUDENT(2, "学生用户"),
+
+    /**
+     * 家长用户
+     */
+    PARENT(3, "家长用户"),
 
     /**
      * 系统管理员
      */
     SYSTEM_ADMIN(9, "系统管理员"),
     ;
-
 
     private final static Map<Integer, UserTypeEnum> BY_CODE_MAP =
             Arrays.stream(UserTypeEnum.values())
