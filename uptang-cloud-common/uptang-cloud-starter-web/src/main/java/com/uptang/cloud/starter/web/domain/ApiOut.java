@@ -82,6 +82,24 @@ public class ApiOut<T> {
         return new Builder<T>().code(code).message(String.format(code.getTemplate(), message)).build();
     }
 
+    /**
+     * 以快捷的方式创建响应
+     * 响应给客户端提示信息 如 XXX录入成功 xxx操作失败
+     *
+     * @param message 提示的消息
+     * @param <T>     返回的类型
+     * @return ApiOut
+     */
+    public static <T> ApiOut<T> newPrompt(String message) {
+        ResponseCodeEnum success = ResponseCodeEnum.SUCCESS;
+        if (StringUtils.isBlank(message)) {
+            String defaultMessage = success.getDesc();
+            return new Builder<T>().code(success).message(defaultMessage).build();
+        }
+
+        return new Builder<T>().code(success).message(message).build();
+    }
+
     public static final class Builder<T> {
         private ResponseCodeEnum responseCode = ResponseCodeEnum.SUCCESS;
         private Integer status;

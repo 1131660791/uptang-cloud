@@ -45,3 +45,5 @@
 **/*.DS_Store
 **/*Thumbs.db
 **/*Desktop.ini
+app-logs/
+LOG_HOME_DIR_IS_UNDEFINED/

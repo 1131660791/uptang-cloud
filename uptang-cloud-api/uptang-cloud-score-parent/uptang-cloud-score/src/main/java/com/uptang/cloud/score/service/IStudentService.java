@@ -10,4 +10,5 @@ import com.uptang.cloud.score.common.model.Student;
  * @summary : FIXME
  */
 public interface IStudentService extends IService<Student> {
+
 }

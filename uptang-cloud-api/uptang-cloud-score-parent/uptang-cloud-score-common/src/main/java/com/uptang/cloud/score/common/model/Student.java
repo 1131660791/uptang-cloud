@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.uptang.cloud.pojo.enums.GenderEnum;
-import com.uptang.cloud.score.common.enums.SemesterEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -30,9 +29,11 @@ public class Student implements Serializable {
      * @type bigint(20) unsigned
      * @comment Primary key
      * @IdxName PRI
+     * 非自增
      */
     @TableId(type = IdType.NONE)
     private Long id;
+
     /**
      * @type varchar(100)
      * @comment 学校
@@ -73,7 +74,7 @@ public class Student implements Serializable {
      * @type tinyint(1) unsigned
      * @comment 学期 0 上半学期 1 下班学期
      */
-    private SemesterEnum semesterCode;
+    private Long semesterId;
 
     /**
      * @type varchar(20)
@@ -94,6 +95,11 @@ public class Student implements Serializable {
     private GenderEnum gender;
 
     /**
+     * 学籍号
+     */
+    private String studentCode;
+
+    /**
      * @type timestamp
      * @comment 创建时间
      */
@@ -102,7 +108,8 @@ public class Student implements Serializable {
     /**
      * @type timestamp
      * @comment 修改时间
+     * modified_time
      */
-    private java.util.Date updatedTime;
+    private java.util.Date modifiedTime;
 }
 

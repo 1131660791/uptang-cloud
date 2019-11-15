@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uptang.cloud.score.repository.ArchiveScoreRepository">
+    <!--字段-->
+    <sql id="columns">`id`, `type` , `detail`,`resume_id`</sql>
+
+
+    <!--批量插入-->
+    <insert id="batchInsert" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.uptang.cloud.score.common.model.ArchiveScore">
+        INSERT INTO logic_subject (resume_id,`type`,`detail`)
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.resumeId},#{item.type},#{item.detail})
+        </foreach>
+    </insert>
+
+    <!--根据履历ID批量删除-->
+    <delete id="batchDelete">
+        DELETE FROM archive_score WHERE resume_id IN
+        <foreach collection="resumeIds" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <resultMap id="ResultMap" type="com.uptang.cloud.score.dto.ArchiveScoreDTO">
+        <id property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="detail" column="detail"/>
+        <result property="resumeId" column="resume_id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="schoolId" column="school_id"/>
+        <result property="gradeId" column="grade_id"/>
+        <result property="classId" column="class_id"/>
+        <result property="semesterId" column="semester_id"/>
+        <result property="schoolName" column="school_name"/>
+        <result property="gradeName" column="grade_name"/>
+        <result property="className" column="class_name"/>
+        <result property="name" column="student_name"/>
+        <result property="studentCode" column="student_code"/>
+        <result property="gender" column="gender"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="modifiedTime" column="modified_time"/>
+    </resultMap>
+
+
+    <!--查询归档信息-->
+    <select id="page" resultMap="ResultMap">
+        SELECT archive.id,archive.detail,resume.student_id,
+        resume.school_id,resume.grade_id,resume.class_id,resume.semester_id,resume.school_name,
+        resume.grade_name,resume.class_name,resume.student_name,resume.student_code,resume.gender,resume.created_time,resume.modified_time
+        FROM archive_score archive INNER JOIN academic_resume resume ON resume.id=archive.resume_id
+        WHERE resume.school_id=#{schoolId}
+        AND resume.grade_id=#{gradeId}
+        AND resume.class_id=#{classId}
+        AND archive.type=#{type}
+    </select>
+</mapper>

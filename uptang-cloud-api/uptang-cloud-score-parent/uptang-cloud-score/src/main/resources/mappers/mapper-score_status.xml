@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uptang.cloud.score.repository.ScoreStatusRepository">
+
+    <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.ScoreStatus">
+        <id property="id" column="id"/>
+        <result property="resumeId" column="resume_id"/>
+        <result property="state" column="state"/>
+        <result property="startedTime" column="started_time"/>
+        <result property="finishTime" column="finish_time"/>
+    </resultMap>
+
+    <!--字段名 Java属性名-->
+    <sql id="mappings">
+        `id` AS `id`, `resume_id` AS `resumeId`, `state` AS `state`,
+        `started_time` AS `startedTime`, `finish_time` AS `finishTime`
+    </sql>
+
+    <sql id="columns">`id`, `resume_id`, `state`, `finish_time`, `started_time`</sql>
+
+    <select id="queryByProperty" resultMap="ResultMap"
+            parameterType="com.uptang.cloud.score.common.model.ScoreStatus">
+        SELECT <include refid="columns"/> FROM score_status
+        <where>
+            <trim suffixOverrides="AND" prefixOverrides="AND">
+                <if test="id != null">AND `id`=#{id}</if>
+                <if test="resumeId != null">AND `resume_id`=#{resumeId}</if>
+                <if test="state != null">AND `state`=#{state}</if>
+                <if test="startedTime != null">AND `started_time`=#{startedTime}</if>
+                <if test="finishTime != null">AND `finish_time`=#{finishTime}</if>
+            </trim>
+        </where>
+    </select>
+
+    <update id="update" parameterType="com.uptang.cloud.score.common.model.ScoreStatus">
+        UPDATE score_status
+        <trim suffixOverrides=",">
+            <set>
+                <if test="resumeId != null">`resume_id`=#{resumeId},</if>
+                <if test="state != null">`state`=#{state},</if>
+                <if test="startedTime != null">`started_time`=#{startedTime},</if>
+                <if test="finishTime != null">`finish_time`=#{finishTime},</if>
+            </set>
+        </trim>
+        WHERE `id`=#{id}
+    </update>
+
+    <!--是否归档-->
+    <select id="isArchive" resultType="long">
+        SELECT COUNT(0) FROM score_status SS
+        LEFT JOIN academic_resume resume ON resume.id=SS.resume_id AND SS.state=2
+        WHERE resume.school_id=#{schoolId}
+        AND resume.grade_id=#{gradeId}
+        AND resume.semester_id=#{semesterId}
+        AND resume.score_type=#{type}
+    </select>
+
+    <!--归档 [公示 1 公示中 2 归档 3 已提交]
+    ss.state &lt; 2 ==== ss.state < 2
+    -->
+    <update id="archive">
+        UPDATE score_status ss LEFT JOIN academic_resume resume ON resume.id=ss.resume_id
+        SET ss.state=2
+        WHERE ss.state &lt; 2
+        AND resume.school_id=#{schoolId}
+        AND resume.grade_id=#{gradeId}
+        AND resume.semester_id=#{semesterId}
+        AND resume.score_type=#{type}
+    </update>
+
+    <!--撤销归档-->
+    <update id="undoArchive">
+        UPDATE score_status ss LEFT JOIN academic_resume resume ON resume.id=ss.resume_id
+        SET ss.state=3 WHERE ss.state=2
+        AND resume.school_id=#{schoolId}
+        AND resume.grade_id=#{gradeId}
+        AND resume.semester_id=#{semesterId}
+        AND resume.score_type=#{type}
+    </update>
+
+    <!--公示-->
+    <update id="show">
+        UPDATE score_status ss LEFT JOIN academic_resume resume ON resume.id=ss.resume_id
+        SET ss.state=1, ss.started_time=CURRENT_TIMESTAMP
+        WHERE resume.school_id=#{schoolId}
+        AND resume.grade_id=#{gradeId}
+        AND resume.semester_id=#{semesterId}
+        AND resume.score_type=#{type}
+    </update>
+
+    <!--撤销公示-->
+    <update id="cancel">
+        UPDATE score_status ss LEFT JOIN academic_resume resume ON resume.id=ss.resume_id
+        SET ss.state=3, ss.finish_time=CURRENT_TIMESTAMP
+        WHERE resume.school_id=#{schoolId}
+        AND resume.grade_id=#{gradeId}
+        AND resume.semester_id=#{semesterId}
+        AND resume.score_type=#{type}
+    </update>
+</mapper>

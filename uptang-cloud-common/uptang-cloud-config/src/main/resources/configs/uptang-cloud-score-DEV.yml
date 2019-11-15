@@ -38,25 +38,61 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+  shardingsphere:
+    datasource:
+      score:
+        type: com.zaxxer.hikari.HikariDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        jdbcUrl: jdbc:mysql://svc_mysql.weave.local:52198/uptang_score?useUnicode=true&useSSL=false&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+        username: uptang
+        password: uptang408*
+        autoCommit: true
+        connectionTimeout: 30000
+        idleTimeout: 600000
+        maxLifetime: 1800000
+        maximumPoolSize: 5
+        poolName: hikari-pool
+        minimumIdle: 2
+        validationTimeout: 60000
+        connectionTestQuery: "SELECT 1"
+        leakDetectionThreshold: 30000
+        registerMbeans: true
+      names: score
+    props:
+      sql.show: true
+    sharding:
+      tables:
+        logic_subject: # 成绩类型 0 学业成绩 academic_score 1 体质健康 health_score 2 艺术成绩 art_score
+          table-strategy:
+            standard:
+              shardingColumn: score_type
+              preciseAlgorithmClassName: com.uptang.cloud.score.sharding.ScoreTypeRoutingAlgorithm
+  #            inline:
+  #              sharding-column: type
+  #              algorithm-expression: ${type %3}_socre
+  #          key-generator-column-name: id
+  #      binding-tables:
+  #        - logic_subject
+
   # 数数库
-  datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    name: uptang_score
-    url: jdbc:mysql://svc_mysql.weave.local:52198/uptang_score?useUnicode=true&useSSL=false&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
-    username: uptang
-    password: uptang408*
-    hikari:
-      auto-commit: true
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      maximum-pool-size: 5
-      pool-name: hikari-pool
-      minimum-idle: 2
-      validation-timeout: 60000
-      connection-test-query: "SELECT 1"
-      leak-detection-threshold: 30000
-      register-mbeans: true
+  #  datasource:
+  #    driver-class-name: com.mysql.jdbc.Driver
+  #    name: uptang_score
+  #    url: jdbc:mysql://svc_mysql.weave.local:52198/uptang_score?useUnicode=true&useSSL=false&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+  #    username: uptang
+  #    password: uptang408*
+  #    hikari:
+  #      auto-commit: true
+  #      connection-timeout: 30000
+  #      idle-timeout: 600000
+  #      max-lifetime: 1800000
+  #      maximum-pool-size: 5
+  #      pool-name: hikari-pool
+  #      minimum-idle: 2
+  #      validation-timeout: 60000
+  #      connection-test-query: "SELECT 1"
+  #      leak-detection-threshold: 30000
+  #      register-mbeans: true
 
   # 缓存
   redis:
@@ -128,3 +164,6 @@ springfox.documentation.auto-startup: true
 
 management.endpoints.web.exposure.include: '*'
 management.endpoint.health.show-details: always
+# 基础服务网关地址
+spring.uptang.gateway.host: http://192.168.0.210:28080/
+mybatis.type-handlers-package: com.uptang

@@ -1,5 +1,6 @@
 package com.uptang.cloud.score;
 
+import com.uptang.cloud.score.util.ApplicationContextHolder;
 import com.uptang.cloud.starter.web.UptangCloudApplication;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -18,6 +19,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class ScoreApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ScoreApplication.class, args);
+        ApplicationContextHolder.set(SpringApplication.run(ScoreApplication.class, args));
     }
 }

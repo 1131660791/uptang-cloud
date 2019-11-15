@@ -31,10 +31,19 @@
         <!-- 文档 -->
         <jackson.version>2.9.9</jackson.version>
         <swagger.version>2.9.2</swagger.version>
+
+        <!--Excel-->
+        <easyexcel.version>2.0.5</easyexcel.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>easyexcel</artifactId>
+                <version>${easyexcel.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>

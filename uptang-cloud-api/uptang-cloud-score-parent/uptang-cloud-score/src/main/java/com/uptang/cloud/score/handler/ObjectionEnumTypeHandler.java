@@ -1,13 +1,10 @@
 package com.uptang.cloud.score.handler;
 
 import com.uptang.cloud.score.common.enums.ObjectionEnum;
-import org.apache.ibatis.type.BaseTypeHandler;
+import com.uptang.cloud.starter.data.mybaits.handler.BaseObjectHandler;
 import org.apache.ibatis.type.JdbcType;
-
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.apache.ibatis.type.MappedJdbcTypes;
+import org.apache.ibatis.type.MappedTypes;
 
 /**
  * @author : Lee.m.yin
@@ -15,25 +12,17 @@ import java.sql.SQLException;
  * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
  * @Summary : FIXME
  */
-public class ObjectionEnumTypeHandler extends BaseTypeHandler<ObjectionEnum> {
+@MappedTypes(Integer.class)
+@MappedJdbcTypes({JdbcType.TINYINT})
+public class ObjectionEnumTypeHandler extends BaseObjectHandler<ObjectionEnum> {
 
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, ObjectionEnum parameter, JdbcType jdbcType) throws SQLException {
-        ps.setInt(i, parameter.getCode());
+    public int getCode(ObjectionEnum enumeration) {
+        return enumeration.getCode();
     }
 
     @Override
-    public ObjectionEnum getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        return ObjectionEnum.code(rs.getInt(columnName));
-    }
-
-    @Override
-    public ObjectionEnum getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        return ObjectionEnum.code(rs.getInt(columnIndex));
-    }
-
-    @Override
-    public ObjectionEnum getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        return ObjectionEnum.code(cs.getInt(columnIndex));
+    public ObjectionEnum getObject(int code) {
+        return ObjectionEnum.code(code);
     }
 }
