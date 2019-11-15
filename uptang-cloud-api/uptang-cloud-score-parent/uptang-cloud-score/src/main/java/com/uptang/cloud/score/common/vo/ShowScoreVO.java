@@ -28,6 +28,7 @@ public class ShowScoreVO extends BaseVO<ShowScoreVO> implements Serializable, Cl
     private Long classId;
     private Long schoolId;
     private Long semesterId;
+    private Long resumeId;
 
     private String subjectName;
     private String scoreText;

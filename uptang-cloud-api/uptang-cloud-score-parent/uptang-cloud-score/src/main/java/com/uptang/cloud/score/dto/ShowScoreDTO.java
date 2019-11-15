@@ -24,6 +24,7 @@ public class ShowScoreDTO implements Serializable {
     private Long classId;
     private Long schoolId;
     private Long semesterId;
+    private Long resumeId;
 
     private String subjectName;
     private String scoreText;
@@ -38,4 +39,5 @@ public class ShowScoreDTO implements Serializable {
 
     private Date startedTime;
     private Date finishTime;
+
 }
