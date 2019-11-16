@@ -18,14 +18,15 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
 
+import java.util.Objects;
+
 import static com.uptang.cloud.score.common.enums.ScoreTypeEnum.ART;
 import static com.uptang.cloud.score.common.enums.ScoreTypeEnum.HEALTH;
 
 /**
- * @author : Lee.m.yin
- * @createtime : 2019-11-08 10:39
- * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
- * @Summary : FIXME
+ * @author Lee.m.yin <lmy@uptong.com.cn>
+ * @version 4.0.0
+ * @date 2019-11-11
  */
 @Slf4j
 @Service
@@ -42,10 +43,12 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
 
     @Override
     public void processor(RequestParameter parameter) {
-        preCheck(parameter);
-        if (parameter.getScoreType() != null) {
-            super.analysis(ExcelTypeEnum.XLS, parameter);
+        if (Objects.isNull(parameter.getScoreType())) {
+            return;
         }
+
+        preCheck(parameter);
+        super.analysis(ExcelTypeEnum.XLS, parameter);
     }
 
     /**
@@ -55,7 +58,7 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
      */
     private void preCheck(RequestParameter parameter) {
         // 艺术类和体质健康类成绩一年只能导入一次
-        @NotNull ScoreTypeEnum scoreType = parameter.getScoreType();
+        ScoreTypeEnum scoreType = parameter.getScoreType();
         if (scoreType == HEALTH || scoreType == ART) {
             AcademicResume resume = new AcademicResume();
             resume.setScoreType(scoreType);
@@ -69,10 +72,8 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
         }
 
         // 数据是否归档
-        boolean archive = statusService.isArchive(parameter.getSchoolId(),
-                parameter.getGradeId(),
-                parameter.getSemesterId(),
-                parameter.getScoreType());
+        boolean archive = statusService.isArchive(parameter.getSchoolId(), parameter.getGradeId(),
+                parameter.getSemesterId(), parameter.getScoreType());
         if (archive) {
             throw new BusinessException("数据已归档");
         }
@@ -80,8 +81,8 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
         // 权限校验
         RestRequestDto restRequestDto = new RestRequestDto();
         restRequestDto.setToken(parameter.getToken());
-        boolean hasPromission = restCallerService.promissionCheck(restRequestDto);
-        if (!hasPromission) {
+        boolean hasPermission = restCallerService.promissionCheck(restRequestDto);
+        if (!hasPermission) {
             throw new BusinessException("无权操作");
         }
 

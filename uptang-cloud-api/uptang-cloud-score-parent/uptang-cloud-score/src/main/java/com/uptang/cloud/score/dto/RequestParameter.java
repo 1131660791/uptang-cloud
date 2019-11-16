@@ -3,17 +3,23 @@ package com.uptang.cloud.score.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * @author : Lee.m.yin
- * @createtime : 2019-11-11 11:41
- * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
- * @Summary : FIXME
+ * @author Lee.m.yin <lmy@uptong.com.cn>
+ * @version 4.0.0
+ * @date 2019-11-11
  */
 @Data
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
 public class RequestParameter {
 
     /**
@@ -50,7 +56,7 @@ public class RequestParameter {
      * 成绩类型
      */
     @NotNull
-    @ApiModelProperty(notes = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", required = true)
+    @ApiModelProperty(notes = "成绩类型 0:学业成绩 1:体质健康 2:艺术成绩", required = true)
     private ScoreTypeEnum scoreType;
 
     @JsonIgnore
@@ -59,8 +65,17 @@ public class RequestParameter {
     @JsonIgnore
     private Long userId;
 
-    @Override
-    public String toString() {
-        return "{\"schoolId\":\"" + schoolId + "\", \"gradeId\":\"" + gradeId + "\", \"classId\":\"" + classId + "\", \"semesterId\":\"" + semesterId + "\", \"semesterName\":\"" + semesterName + "\", \"scoreType\":\"" + scoreType + "\", \"token\":\"" + token + "\", \"userId\":\"" + userId + "\"}";
+
+    @Builder
+    public RequestParameter(Long schoolId, Long gradeId, Long classId, Long semesterId, String semesterName,
+                            ScoreTypeEnum scoreType, String token, Long userId) {
+        this.schoolId = schoolId;
+        this.gradeId = gradeId;
+        this.classId = classId;
+        this.semesterId = semesterId;
+        this.semesterName = semesterName;
+        this.scoreType = scoreType;
+        this.token = token;
+        this.userId = userId;
     }
 }
