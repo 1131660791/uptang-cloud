@@ -26,11 +26,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * TODO: 建议使用 RestTemplate
  * @author : Lee.m.yin
  * @createtime : 2019-07-28 12:58
  * @mailto: webb.lee.cn@gmail.com
  * @Summary : FIXME
  */
+@Deprecated
 class HttpClientOps {
 
     /**

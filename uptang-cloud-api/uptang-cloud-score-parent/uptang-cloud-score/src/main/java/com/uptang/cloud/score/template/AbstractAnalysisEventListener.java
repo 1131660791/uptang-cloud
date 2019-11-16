@@ -4,12 +4,11 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.dto.GradeCourseDTO;
 import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.dto.StudentRequestDTO;
-import com.uptang.cloud.score.exceptions.ExcelExceptions;
+import com.uptang.cloud.score.exception.ExcelException;
 import com.uptang.cloud.score.handler.PrimitiveResolver;
 import com.uptang.cloud.score.service.IRestCallerService;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
@@ -115,7 +114,7 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
             DATA.clear();
             this.gradeCourse = null;
             log.error(e.getMessage());
-            throw new ExcelExceptions(e);
+            throw new ExcelException(e);
         }
     }
 
@@ -126,7 +125,7 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
             doInvoke(DATA, excel, context);
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new ExcelExceptions(e);
+            throw new ExcelException(e);
         } finally {
             this.gradeCourse = null;
             DATA.clear();
@@ -216,7 +215,7 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
         log.error("用户{}导入{}学校{}年级{}班{}学期 error ==> {}",
                 excel.getUserId(), excel.getSchoolId(), excel.getGradeId(),
                 excel.getClassId(), excel.getSemesterId(), message);
-        throw new ExcelExceptions(message);
+        throw new ExcelException(message);
     }
 
     public RequestParameter getExcel() {

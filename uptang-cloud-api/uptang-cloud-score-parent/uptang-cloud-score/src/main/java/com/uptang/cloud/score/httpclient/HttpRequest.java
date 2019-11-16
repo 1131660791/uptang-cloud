@@ -7,11 +7,13 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 /**
+ * TODO: 建议使用 RestTemplate
  * @Author : Lee
  * @CreateTime : 2018/11/25 8:46 PM
  * @Mailto: webb.lee.cn@gmail.com / lmyboblee@gmail.com
  * @Summary : FIXME
  */
+@Deprecated
 public interface HttpRequest {
 
     /**

@@ -9,7 +9,7 @@ import com.uptang.cloud.score.common.Api;
 import com.uptang.cloud.score.common.enums.PublicityTypeEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.dto.*;
-import com.uptang.cloud.score.exceptions.HttpClientException;
+import com.uptang.cloud.score.exception.HttpClientException;
 import com.uptang.cloud.score.httpclient.HttpRequest;
 import com.uptang.cloud.score.httpclient.HttpResponseEvent;
 import com.uptang.cloud.score.service.IRestCallerService;

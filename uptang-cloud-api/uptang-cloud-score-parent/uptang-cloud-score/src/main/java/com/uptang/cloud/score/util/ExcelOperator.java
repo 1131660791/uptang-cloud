@@ -2,7 +2,7 @@ package com.uptang.cloud.score.util;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.uptang.cloud.score.exceptions.ExcelExceptions;
+import com.uptang.cloud.score.exception.ExcelException;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -50,7 +50,7 @@ public class ExcelOperator {
             try (ServletOutputStream outputStream = response.getOutputStream()) {
                 EasyExcel.write(outputStream, clazz).sheet(sheetName).doWrite(data);
             } catch (IOException e) {
-                throw new ExcelExceptions(e);
+                throw new ExcelException(e);
             }
         });
     }
@@ -74,7 +74,7 @@ public class ExcelOperator {
             String attachment = String.format("attachment;filename=%s.%s", newExcelName, ExcelTypeEnum.XLSX.getValue());
             response.setHeader("Content-disposition", attachment);
         } catch (UnsupportedEncodingException e) {
-            throw new ExcelExceptions(e);
+            throw new ExcelException(e);
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.uptang.cloud.score.conf;
 
-import com.uptang.cloud.score.exceptions.HttpClientException;
+import com.uptang.cloud.score.exception.HttpClientException;
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
 import org.apache.http.HeaderIterator;

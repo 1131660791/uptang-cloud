@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/v1/score")
-@Api(value = "ObjectionRecordController", tags = {"成绩管理"})
+@Api(tags = "成绩管理")
 public class ScoreController extends BaseController {
 
     private final ISubjectService subjectService;

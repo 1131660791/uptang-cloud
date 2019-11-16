@@ -1,4 +1,4 @@
-package com.uptang.cloud.score.exceptions;
+package com.uptang.cloud.score.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
