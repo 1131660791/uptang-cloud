@@ -2,7 +2,7 @@ package com.uptang.cloud.score.template;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.uptang.cloud.core.exception.BusinessException;
-import com.uptang.cloud.score.common.dto.ExcelDto;
+import com.uptang.cloud.score.common.dto.ExcelDTO;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.common.model.ScoreStatus;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * @summary: FIXME
  */
 @Slf4j
-public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener<ExcelDto> {
+public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener<ExcelDTO> {
 
     private final IAcademicResumeService resumeService =
             ApplicationContextHolder.getBean(IAcademicResumeService.class);
@@ -59,7 +59,7 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
      * @param context
      */
     @Override
-    public void doInvoke(List<ExcelDto> data, RequestParameter excel, AnalysisContext context) {
+    public void doInvoke(List<ExcelDTO> data, RequestParameter excel, AnalysisContext context) {
         AcademicResume resume = new AcademicResume();
         resume.setScoreType(excel.getScoreType());
         resume.setSchoolId(excel.getSchoolId());
@@ -74,7 +74,7 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
         }
 
         // 批量插入履历表
-        List<AcademicResume> resumes = data.stream().map(ExcelDto::getResume).collect(Collectors.toList());
+        List<AcademicResume> resumes = data.stream().map(ExcelDTO::getResume).collect(Collectors.toList());
         Map<Integer, List<AcademicResume>> groupList = getGroupList(resumes);
         List<Map<Long, Long>> maps = resumeService.batchSave(groupList);
 
@@ -107,7 +107,7 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
      * @param data
      * @param maps
      */
-    private void setResumeId(List<ExcelDto> data, List<Map<Long, Long>> maps) {
+    private void setResumeId(List<ExcelDTO> data, List<Map<Long, Long>> maps) {
         // 设置履历ID以及批量插入科目
         for (Map<Long, Long> map : maps) {
             Iterator<Map.Entry<Long, Long>> iterator = map.entrySet().iterator();
@@ -130,7 +130,7 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
      * @param excel
      * @param resume
      */
-    private void override(List<ExcelDto> data, RequestParameter excel, AcademicResume resume) {
+    private void override(List<ExcelDTO> data, RequestParameter excel, AcademicResume resume) {
         try {
             List<Long> ids = setResumeId(data, resume);
             scoreService.batchDelete(ids, ScoreTypeEnum.ACADEMIC);
@@ -154,10 +154,10 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
      * @param data
      * @param resume
      */
-    private List<Long> setResumeId(List<ExcelDto> data, AcademicResume resume) {
+    private List<Long> setResumeId(List<ExcelDTO> data, AcademicResume resume) {
         List<AcademicResume> resumeIds = resumeService.getResumeIds(resume);
         if (resumeIds != null && resumeIds.size() > 0) {
-            for (ExcelDto excelDto : data) {
+            for (ExcelDTO excelDto : data) {
                 List<Subject> subjects = excelDto.getSubjects();
                 for (AcademicResume resumeId : resumeIds) {
                     for (Subject subject : subjects) {

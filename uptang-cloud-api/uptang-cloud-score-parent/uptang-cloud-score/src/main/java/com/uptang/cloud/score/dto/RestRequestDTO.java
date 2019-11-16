@@ -20,7 +20,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class RestRequestDto implements Serializable {
+public class RestRequestDTO implements Serializable {
 
     /**
      * 用户登录后Token信息

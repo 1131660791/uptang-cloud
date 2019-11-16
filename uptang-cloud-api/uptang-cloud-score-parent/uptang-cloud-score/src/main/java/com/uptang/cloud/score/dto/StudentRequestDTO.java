@@ -12,7 +12,7 @@ import lombok.*;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class StudentRequestDTO extends RestRequestDto {
+public class StudentRequestDTO extends RestRequestDTO {
 
     @JsonProperty("student_name")
     private String studentName;

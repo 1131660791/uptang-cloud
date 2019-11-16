@@ -2,7 +2,7 @@ package com.uptang.cloud.score.template;
 
 import com.alibaba.fastjson.JSON;
 import com.uptang.cloud.core.exception.BusinessException;
-import com.uptang.cloud.score.common.dto.ExcelDto;
+import com.uptang.cloud.score.common.dto.ExcelDTO;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ScoreStatus;
 import com.uptang.cloud.score.common.model.Subject;
@@ -146,9 +146,9 @@ class Utils {
      * @param data
      * @return
      */
-    public static List<Subject> convert2List(List<ExcelDto> data) {
+    public static List<Subject> convert2List(List<ExcelDTO> data) {
         return data.stream()
-                .map(ExcelDto::getSubjects)
+                .map(ExcelDTO::getSubjects)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }

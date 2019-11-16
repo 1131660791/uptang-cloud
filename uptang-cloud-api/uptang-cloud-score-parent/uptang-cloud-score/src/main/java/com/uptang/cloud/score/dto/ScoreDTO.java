@@ -13,7 +13,7 @@ import java.util.List;
  * @summary : FIXME
  */
 @Data
-public class ScoreDto {
+public class ScoreDTO {
 
     /**
      * 科目成绩

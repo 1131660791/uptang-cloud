@@ -15,5 +15,5 @@ public class SwitchResponseDto {
 
     private Long count;
 
-    private List<ModuleSwitchResponseDto> list;
+    private List<ModuleSwitchResponseDTO> list;
 }

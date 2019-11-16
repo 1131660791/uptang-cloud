@@ -2,7 +2,7 @@ package com.uptang.cloud.score.strategy;
 
 import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.score.common.dto.Excel;
-import com.uptang.cloud.score.common.dto.ExcelDto;
+import com.uptang.cloud.score.common.dto.ExcelDTO;
 import com.uptang.cloud.score.common.dto.HealthScoreDTO;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
@@ -41,11 +41,11 @@ class Utils {
      * @param supplier
      * @param function
      */
-    public static void setUserInfo(List<ExcelDto> sheetData,
+    public static void setUserInfo(List<ExcelDTO> sheetData,
                                    RequestParameter excel,
                                    Supplier<StuListDTO> supplier,
                                    BiFunction<Long, Long, StuListDTO> function,
-                                   Function<ExcelDto, StuListDTO> queryByStudentCode) {
+                                   Function<ExcelDTO, StuListDTO> queryByStudentCode) {
         StuListDTO stuInfo = supplier.get();
         if (stuInfo != null) {
             Utils.setStudentInfo(sheetData, excel, stuInfo);
@@ -64,7 +64,7 @@ class Utils {
 
             // 检查
             StringBuilder errMessage = new StringBuilder();
-            for (ExcelDto sheetDatum : sheetData) {
+            for (ExcelDTO sheetDatum : sheetData) {
                 AcademicResume resume = sheetDatum.getResume();
                 if (resume == null || resume.getStudentId() == null) {
                     StuListDTO apply = queryByStudentCode.apply(sheetDatum);
@@ -204,13 +204,13 @@ class Utils {
      * @param excel   前端请求参数
      * @param stuInfo 学生信息
      */
-    public static void setStudentInfo(List<ExcelDto> data,
+    public static void setStudentInfo(List<ExcelDTO> data,
                                       RequestParameter excel,
                                       StuListDTO stuInfo) {
 
         if (stuInfo != null && stuInfo.getList() != null) {
             for (StudentDTO student : stuInfo.getList()) {
-                for (ExcelDto datum : data) {
+                for (ExcelDTO datum : data) {
                     //  同一个人
                     if (student.getStudentCode().equals(datum.getStudentCode())) {
                         setResume(excel, student, datum);
@@ -279,7 +279,7 @@ class Utils {
      * @return
      */
     public static StudentRequestDTO getStudentRequestDTO(RequestParameter excel,
-                                                         ExcelDto excelDto,
+                                                         ExcelDTO excelDto,
                                                          long pageNum,
                                                          long pageSize) {
         StudentRequestDTO student = new StudentRequestDTO();

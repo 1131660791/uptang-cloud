@@ -47,9 +47,9 @@ public class RestCallerServiceImpl implements IRestCallerService {
     private ObjectMapper mapper;
 
     @Override
-    public boolean moduleSwitch(ModuleSwitchDto moduleSwitchDto) {
+    public boolean moduleSwitch(ModuleSwitchDTO moduleSwitchDto) {
         String api = Api.getApi("http://192.168.0.127:8083", Api.Manager.MODULE_SWITCH);
-        ModuleSwitchResponseDto moduleSwitch = postJson(api, moduleSwitchDto, ModuleSwitchResponseDto.class);
+        ModuleSwitchResponseDTO moduleSwitch = postJson(api, moduleSwitchDto, ModuleSwitchResponseDTO.class);
         if (moduleSwitch == null) {
             throw new BusinessException("未设置任务");
         }
@@ -84,7 +84,7 @@ public class RestCallerServiceImpl implements IRestCallerService {
      * }
      */
     @Override
-    public boolean promissionCheck(RestRequestDto restRequestDto) {
+    public boolean promissionCheck(RestRequestDTO restRequestDto) {
         Assert.notNull(restRequestDto, "请求参数不能为空");
         String api = Api.getApi(serverHost, Api.Promission.CHECK);
         PromissionDTO promission = postJson(api, restRequestDto, PromissionDTO.class);
@@ -137,7 +137,7 @@ public class RestCallerServiceImpl implements IRestCallerService {
     }
 
     @Override
-    public List<AcademicResume> exemption(ExemptionDto exemptionDto) {
+    public List<AcademicResume> exemption(ExemptionDTO exemptionDto) {
         String api = Api.getApi(serverHost, Api.UserCenter.EXEMPTION);
         List list = postJson(api, exemptionDto, List.class);
 
@@ -173,7 +173,7 @@ public class RestCallerServiceImpl implements IRestCallerService {
         }
     }
 
-    private <T> T postJson(String api, RestRequestDto restRequestDto, Class<T> clazz) {
+    private <T> T postJson(String api, RestRequestDTO restRequestDto, Class<T> clazz) {
         try {
             String json = mapper.writeValueAsString(restRequestDto);
             Header[] headers = new Header[]{new BasicHeader("Token", restRequestDto.getToken())};

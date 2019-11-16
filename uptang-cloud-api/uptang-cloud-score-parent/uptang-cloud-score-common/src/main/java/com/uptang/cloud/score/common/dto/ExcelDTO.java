@@ -23,7 +23,7 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class ExcelDto extends Excel implements Serializable {
+public class ExcelDTO extends Excel implements Serializable {
 
     /**
      * 年级编号

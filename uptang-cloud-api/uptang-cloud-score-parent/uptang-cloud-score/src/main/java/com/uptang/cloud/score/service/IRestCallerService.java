@@ -21,7 +21,7 @@ public interface IRestCallerService {
      * @param moduleSwitchDto 请求参数
      * @return
      */
-    boolean moduleSwitch(ModuleSwitchDto moduleSwitchDto);
+    boolean moduleSwitch(ModuleSwitchDTO moduleSwitchDto);
 
 
     /**
@@ -38,7 +38,7 @@ public interface IRestCallerService {
      * @param restRequestDto
      * @return
      */
-    boolean promissionCheck(RestRequestDto restRequestDto);
+    boolean promissionCheck(RestRequestDTO restRequestDto);
 
     /**
      * 年级课程信息
@@ -55,7 +55,7 @@ public interface IRestCallerService {
      * @param exemptionDto
      * @return 学籍号列表
      */
-    List<AcademicResume> exemption(ExemptionDto exemptionDto);
+    List<AcademicResume> exemption(ExemptionDTO exemptionDto);
 
     /**
      * 公示时间接口

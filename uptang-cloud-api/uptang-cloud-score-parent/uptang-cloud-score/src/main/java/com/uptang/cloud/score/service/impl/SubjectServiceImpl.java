@@ -72,7 +72,7 @@ public class SubjectServiceImpl extends ServiceImpl<SubjectRepository, Subject> 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String addScore(ScoreDto score) {
+    public String addScore(ScoreDTO score) {
         Assert.notNull(score, "请求参数不能为空");
         Assert.notNull(score.getParameter(), "请求参数不能为空");
         Assert.notNull(score.getResume(), "履历信息不能为空");
@@ -149,7 +149,7 @@ public class SubjectServiceImpl extends ServiceImpl<SubjectRepository, Subject> 
     @Transactional(rollbackFor = Exception.class)
     public void exemption(RequestParameter excel) {
         // 免测学生
-        ExemptionDto exemptionDto = new ExemptionDto();
+        ExemptionDTO exemptionDto = new ExemptionDTO();
         exemptionDto.setToken(excel.getToken());
         exemptionDto.setClassId(excel.getClassId());
         exemptionDto.setGradeId(excel.getGradeId());
@@ -242,7 +242,7 @@ public class SubjectServiceImpl extends ServiceImpl<SubjectRepository, Subject> 
         }
 
         // 权限校验
-        RestRequestDto restRequestDto = new RestRequestDto();
+        RestRequestDTO restRequestDto = new RestRequestDTO();
         restRequestDto.setToken(parameter.getToken());
         boolean hasPromission = restCallerService.promissionCheck(restRequestDto);
         if (!hasPromission) {
@@ -250,7 +250,7 @@ public class SubjectServiceImpl extends ServiceImpl<SubjectRepository, Subject> 
         }
 
         // 任务是否开放
-        ModuleSwitchDto moduleSwitch = ModuleSwitchDto.builder().gradeId(parameter.getGradeId()).build();
+        ModuleSwitchDTO moduleSwitch = ModuleSwitchDTO.builder().gradeId(parameter.getGradeId()).build();
         moduleSwitch.setToken(parameter.getToken());
         boolean isOpen = restCallerService.moduleSwitch(moduleSwitch);
         if (!isOpen) {

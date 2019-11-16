@@ -4,9 +4,9 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
-import com.uptang.cloud.score.dto.ModuleSwitchDto;
+import com.uptang.cloud.score.dto.ModuleSwitchDTO;
 import com.uptang.cloud.score.dto.RequestParameter;
-import com.uptang.cloud.score.dto.RestRequestDto;
+import com.uptang.cloud.score.dto.RestRequestDTO;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import com.uptang.cloud.score.service.IExcelDataServiceProcessor;
 import com.uptang.cloud.score.service.IRestCallerService;
@@ -15,8 +15,6 @@ import com.uptang.cloud.score.template.ExcelTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.validation.constraints.NotNull;
 
 import java.util.Objects;
 
@@ -79,7 +77,7 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
         }
 
         // 权限校验
-        RestRequestDto restRequestDto = new RestRequestDto();
+        RestRequestDTO restRequestDto = new RestRequestDTO();
         restRequestDto.setToken(parameter.getToken());
         boolean hasPermission = restCallerService.promissionCheck(restRequestDto);
         if (!hasPermission) {
@@ -87,7 +85,7 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
         }
 
         // 任务是否开放
-        ModuleSwitchDto moduleSwitch = ModuleSwitchDto.builder().gradeId(parameter.getGradeId()).build();
+        ModuleSwitchDTO moduleSwitch = ModuleSwitchDTO.builder().gradeId(parameter.getGradeId()).build();
         moduleSwitch.setToken(parameter.getToken());
         boolean isOpen = restCallerService.moduleSwitch(moduleSwitch);
         if (!isOpen) {

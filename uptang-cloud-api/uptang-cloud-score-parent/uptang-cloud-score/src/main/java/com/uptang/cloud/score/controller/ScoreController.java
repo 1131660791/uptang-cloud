@@ -137,7 +137,7 @@ public class ScoreController extends BaseController {
         parameter.setToken(getToken());
         parameter.setUserId(getUserId());
 
-        ScoreDto scoreDto = ScoreConverter.toModel(score, parameter);
+        ScoreDTO scoreDto = ScoreConverter.toModel(score, parameter);
         return ApiOut.newPrompt(subjectService.addScore(scoreDto));
     }
 

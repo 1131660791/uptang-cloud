@@ -1,7 +1,7 @@
 package com.uptang.cloud.score.template;
 
 import com.alibaba.excel.context.AnalysisContext;
-import com.uptang.cloud.score.common.dto.ExcelDto;
+import com.uptang.cloud.score.common.dto.ExcelDTO;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.dto.GradeCourseDTO;
@@ -20,7 +20,7 @@ import java.util.Map;
  * @summary: FIXME
  */
 @Slf4j
-public class ArtAnalysisEventListener extends AbstractAnalysisEventListener<ExcelDto> {
+public class ArtAnalysisEventListener extends AbstractAnalysisEventListener<ExcelDTO> {
 
     public ArtAnalysisEventListener(RequestParameter excel) {
         super(excel);
@@ -35,7 +35,7 @@ public class ArtAnalysisEventListener extends AbstractAnalysisEventListener<Exce
     }
 
     @Override
-    public void doInvoke(List<ExcelDto> data, RequestParameter excel, AnalysisContext context) {
+    public void doInvoke(List<ExcelDTO> data, RequestParameter excel, AnalysisContext context) {
         new AcademicAnalysisEventListener(excel).doInvoke(data, excel, context);
     }
 

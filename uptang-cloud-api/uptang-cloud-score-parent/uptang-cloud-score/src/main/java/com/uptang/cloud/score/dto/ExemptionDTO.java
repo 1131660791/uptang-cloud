@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ExemptionDto extends RestRequestDto {
+public class ExemptionDTO extends RestRequestDTO {
 
     /**
      * int	O	年级编号
@@ -23,7 +23,7 @@ public class ExemptionDto extends RestRequestDto {
      */
     private Long classId;
 
-    public ExemptionDto(String token, Long gradeId, Long classId) {
+    public ExemptionDTO(String token, Long gradeId, Long classId) {
         super.setToken(token);
         this.gradeId = gradeId;
         this.classId = classId;

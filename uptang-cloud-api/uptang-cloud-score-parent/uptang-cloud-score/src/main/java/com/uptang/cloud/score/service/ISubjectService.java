@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.dto.RequestParameter;
-import com.uptang.cloud.score.dto.ScoreDto;
+import com.uptang.cloud.score.dto.ScoreDTO;
 import com.uptang.cloud.score.dto.ShowScoreDTO;
 import com.uptang.cloud.score.dto.SubjectDTO;
 
@@ -70,7 +70,7 @@ public interface ISubjectService extends IService<Subject> {
      * @param score
      * @return
      */
-    String addScore(ScoreDto score);
+    String addScore(ScoreDTO score);
 
     /**
      * 根据ResumeID批量删除

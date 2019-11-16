@@ -5,7 +5,7 @@ import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.common.vo.ScoreVO;
 import com.uptang.cloud.score.common.vo.SubjectVO;
 import com.uptang.cloud.score.dto.RequestParameter;
-import com.uptang.cloud.score.dto.ScoreDto;
+import com.uptang.cloud.score.dto.ScoreDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +24,9 @@ public interface ScoreConverter {
      * @param score
      * @return
      */
-    static ScoreDto toModel(ScoreVO score, RequestParameter parameter) {
+    static ScoreDTO toModel(ScoreVO score, RequestParameter parameter) {
         if (score != null) {
-            ScoreDto scoreDTO = new ScoreDto();
+            ScoreDTO scoreDTO = new ScoreDTO();
             AcademicResume resume = AcademicResumeConverter.INSTANCE.toModel(score.getResume());
             parameter.setSchoolId(resume.getSchoolId());
             parameter.setGradeId(resume.getGradeId());

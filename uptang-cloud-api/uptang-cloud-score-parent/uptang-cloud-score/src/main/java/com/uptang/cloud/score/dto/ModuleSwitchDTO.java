@@ -16,7 +16,7 @@ import lombok.ToString;
 @Builder
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ModuleSwitchDto extends RestRequestDto {
+public class ModuleSwitchDTO extends RestRequestDTO {
 
     /**
      * 年级编号
