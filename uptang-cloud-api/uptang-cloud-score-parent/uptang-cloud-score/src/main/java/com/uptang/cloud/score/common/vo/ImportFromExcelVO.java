@@ -20,7 +20,7 @@ import java.io.Serializable;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class ImportFromExcelVo extends BaseVO<ImportFromExcelVo> implements Serializable, Cloneable {
+public class ImportFromExcelVO extends BaseVO<ImportFromExcelVO> implements Serializable, Cloneable {
 
     /**
      * 学校ID
