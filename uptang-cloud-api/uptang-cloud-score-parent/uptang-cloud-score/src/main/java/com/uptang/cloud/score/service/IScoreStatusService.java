@@ -1,8 +1,10 @@
 package com.uptang.cloud.score.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.uptang.cloud.score.common.enums.ScoreStatusEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ScoreStatus;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -77,4 +79,20 @@ public interface IScoreStatusService extends IService<ScoreStatus> {
      * @return
      */
     List<ScoreStatus> batchInsert(List<ScoreStatus> lists);
+
+    /**
+     * 单条插入
+     *
+     * @param scoreStatus
+     * @return
+     */
+    Long insert(ScoreStatus scoreStatus);
+
+    /**
+     * 检查数据是否在公示期
+     *
+     * @param resumeId
+     * @return 总数
+     */
+    Long checkState(@Param("resumeId") Long resumeId);
 }

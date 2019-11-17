@@ -25,7 +25,7 @@ public enum ResponseCodeEnum {
     /**
      * 失败
      */
-    Failed(50_001, "%s"),
+    Failed(50_001, "失败", "%s"),
 
     // 全局错误
     SYSTEM_ERROR(99_010, "系统异常"),

@@ -50,16 +50,18 @@ public class ObjectionRecordController extends BaseController {
             @ApiImplicitParam(name = "pageSize", value = "显示条数", paramType = "query"),
     })
     @ApiOperation(value = "异议列表", response = ObjectionRecordVO.class)
-    public ApiOut<List<ObjectionRecordResumeVO>> list(@PathVariable("type") @NotNull Integer type,
-                                                      @PathVariable("schoolId") @NotNull Long schoolId,
-                                                      @PathVariable("gradeId") @NotNull Long gradeId,
-                                                      @PathVariable("semesterId") @NotNull Long semesterId,
-                                                      @RequestParam(value = "classId", required = false) Long classId,
-                                                      @RequestParam(value = "pageNum", defaultValue = "1", required = false) Integer pageNum,
-                                                      @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
+    public ApiOut<List<ObjectionRecordResumeVO>> list(
+            @PathVariable("type") @NotNull Integer type,
+            @PathVariable("schoolId") @NotNull Long schoolId,
+            @PathVariable("gradeId") @NotNull Long gradeId,
+            @PathVariable("semesterId") @NotNull Long semesterId,
+            @RequestParam(value = "classId", required = false) Long classId,
+            @RequestParam(value = "pageNum", defaultValue = "1", required = false) Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
 
         ScoreTypeEnum typeEnum = ScoreTypeEnum.code(type);
-        List<ObjectionRecordResume> page = objectionRecordService.page(schoolId, gradeId, classId, semesterId, typeEnum, pageNum, pageSize);
+        List<ObjectionRecordResume> page =
+                objectionRecordService.page(schoolId, gradeId, classId, semesterId, typeEnum, pageNum, pageSize);
         return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(page, models -> {
             if (page == null || page.size() == 0) {
                 return Collections.emptyList();
@@ -87,33 +89,20 @@ public class ObjectionRecordController extends BaseController {
         objectionRecord.setCreatorId(getUserId());
         ObjectionRecord record =
                 ObjectionRecordConverter.INSTANCE.toModel(objectionRecord);
-        objectionRecordService.add(record);
-        return ApiOut.newSuccessResponse(true);
+        return ApiOut.newPrompt(objectionRecordService.add(record));
     }
 
-
-    /**
-
-     *
-     *
-     * @param objectionRecord
-     * @return
-     */
 
     @PutMapping
     @ApiParam(value = "传入json格式", required = true)
     @ApiOperation(value = "异议审核", response = Boolean.class)
-    public ApiOut<Boolean> update(@RequestBody ObjectionRecordVO objectionRecord) {
-        if (objectionRecord.getScoreType() == null) {
-            return ApiOut.newPrompt("成绩类型不能为空");
-        }
-
+    public ApiOut<Boolean> verify(@RequestBody ObjectionRecordVO objectionRecord) {
         if (objectionRecord.getReviewStat() == null) {
             return ApiOut.newPrompt("审核状态不能为空");
         }
 
-        if (objectionRecord.getResumeId() == null) {
-            return ApiOut.newPrompt("履历ID不能为空");
+        if (objectionRecord.getId() == null) {
+            return ApiOut.newPrompt("ID不能为空");
         }
 
         if (StringUtils.isBlank(objectionRecord.getReviewDesc())) {
@@ -123,7 +112,7 @@ public class ObjectionRecordController extends BaseController {
         objectionRecord.setReviewId(getUserId());
         ObjectionRecord record =
                 ObjectionRecordConverter.INSTANCE.toModel(objectionRecord);
-        objectionRecordService.update(record);
+        objectionRecordService.verify(record);
         return ApiOut.newSuccessResponse(true);
     }
 }

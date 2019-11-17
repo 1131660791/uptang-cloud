@@ -5,7 +5,7 @@
     <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.Subject">
         <id property="id" column="id"/>
         <result property="resumeId" column="resume_id"/>
-        <result property="scoreType" column="score_type"/>
+        <result property="scoreType" column="score_type" typeHandler="com.uptang.cloud.score.handler.ScoreTypeEnumTypeHandler"/>
         <result property="code" column="code"/>
         <result property="name" column="name"/>
         <result property="scoreText" column="score_text"/>
@@ -14,9 +14,26 @@
 
     <!--字段名 Java属性名-->
     <sql id="columns">
-        `id` AS `id`, `score_type` AS `scoreType`, `name` AS `name`,`code` AS `code`,`resume_id` AS `resumeId`,
-        `score_text` AS `scoreText`, `score_number` AS `scoreNumber`
+        `id`, `score_type`, `name`,`code`,`resume_id`, `score_text`, `score_number`
     </sql>
+
+    <!--根据属性进行查询-->
+    <select id="queryByProperty" resultMap="ResultMap" parameterType="com.uptang.cloud.score.common.model.Subject">
+        SELECT <include refid="columns"/> FROM logic_subject WHERE score_type=#{scoreType}
+        <if test="name != null and name != ''">AND `name`=#{name}</if>
+        <if test="code != null">AND `code`=#{code}</if>
+        <if test="resumeId != null">AND `resume_id`=#{resumeId}</if>
+        <if test="scoreNumber != null">AND `score_number`=#{scoreNumber}</if>
+        <if test="scoreText != null and scoreText!= ''">AND `score_text`=#{scoreText}</if>
+    </select>
+
+    <!--根据履历进行查询-->
+    <select id="queryByResumeIds" resultMap="ResultMap">
+        SELECT <include refid="columns"/> FROM logic_subject WHERE score_type=#{scoreType} AND resume_id IN
+        <foreach collection="resumeIds" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
 
     <!--新增并返回新增的ID-->
     <insert id="batchInsert" keyProperty="id" useGeneratedKeys="true"
@@ -47,41 +64,6 @@
         AND score_type=#{scoreType}
     </delete>
 
-    <resultMap id="ResultMapDTO" type="com.uptang.cloud.score.dto.SubjectDTO">
-        <id property="id" column="id"/>
-        <result property="resumeId" column="resume_id"/>
-        <result property="scoreType" column="score_type"/>
-        <result property="code" column="code"/>
-        <result property="name" column="name"/>
-        <result property="scoreText" column="score_text"/>
-        <result property="scoreNumber" column="score_number"/>
-        <result property="studentId" column="student_id"/>
-        <result property="schoolId" column="school_id"/>
-        <result property="gradeId" column="grade_id"/>
-        <result property="classId" column="class_id"/>
-        <result property="semesterId" column="semester_id"/>
-        <result property="schoolName" column="school_name"/>
-        <result property="gradeName" column="grade_name"/>
-        <result property="className" column="class_name"/>
-        <result property="name" column="name"/>
-        <result property="gender" column="gender"/>
-        <result property="createdTime" column="created_time"/>
-        <result property="modifiedTime" column="modified_time"/>
-    </resultMap>
-
-    <!--分页-->
-    <select id="page" resultMap="ResultMapDTO">
-        SELECT
-        subjecd.score_type,subjecd.id AS subjectId,subjecd.code,subjecd.name,subjecd.score_text,subjecd.score_number,
-        resume.student_id,resume.school_id,resume.grade_id,resume.class_id,resume.semester_id,resume.school_name,
-        resume.grade_name,resume.class_name,resume.gender,resume.created_time,resume.modified_time
-        FROM logic_subject subjecd INNER JOIN academic_resume resume ON subjecd.resume_id=resume.id
-        WHERE resume.school_id=#{schoolId}
-        AND resume.grade_id=#{gradeId}
-        AND resume.class_id=#{classId}
-        AND subjecd.score_type=#{type}
-    </select>
-
     <!--修改成绩-->
     <update id="update" parameterType="com.uptang.cloud.score.common.model.Subject">
         UPDATE logic_subject
@@ -93,41 +75,4 @@
         </trim>
         WHERE `id`=#{id}
     </update>
-
-
-    <resultMap id="ResultMapDTO2" type="com.uptang.cloud.score.dto.ShowScoreDTO">
-        <result property="scoreType" column="score_type"/>
-        <result property="subjectId" column="subjectId"/>
-        <result property="subjectCode" column="code"/>
-        <result property="subjectName" column="name"/>
-        <result property="scoreText" column="score_text"/>
-        <result property="scoreNumber" column="score_number"/>
-        <result property="studentId" column="student_id"/>
-        <result property="schoolId" column="school_id"/>
-        <result property="gradeId" column="grade_id"/>
-        <result property="classId" column="class_id"/>
-        <result property="semesterId" column="semester_id"/>
-        <result property="schoolName" column="school_name"/>
-        <result property="gradeName" column="grade_name"/>
-        <result property="className" column="class_name"/>
-        <result property="state" column="state"/>
-        <result property="gender" column="gender"/>
-        <result property="startedTime" column="started_time"/>
-        <result property="finishTime" column="finish_time"/>
-    </resultMap>
-
-
-    <select id="show" resultMap="ResultMapDTO2">
-        SELECT
-        subjecd.score_type,subjecd.id AS subjectId,subjecd.code,subjecd.name,subjecd.score_text,subjecd.score_number,
-        resume.student_id,resume.school_id,resume.grade_id,resume.class_id,resume.semester_id,resume.school_name,
-        resume.grade_name,resume.class_name,resume.gender,ss.state,ss.started_time,ss.finish_time
-        FROM logic_subject subjecd LEFT JOIN academic_resume resume on resume.id=subjecd.resume_id
-        LEFT JOIN score_status ss on ss.resume_id=subjecd.resume_id
-        WHERE subjecd.score_type=#{type} AND ss.state=1
-        <if test="schoolId != null">AND resume.school_id=#{schoolId}</if>
-        <if test="gradeId != null">AND resume.grade_id=#{gradeId}</if>
-        <if test="classId != null">AND resume.class_id=#{classId}</if>
-        <if test="semesterId != null">AND resume.semester_id=#{semesterId}</if>
-    </select>
 </mapper>

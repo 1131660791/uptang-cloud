@@ -11,4 +11,9 @@ import com.uptang.cloud.score.common.model.Student;
  */
 public interface IStudentService extends IService<Student> {
 
+    /**
+     * 同步基础服务学生信息
+     */
+    void sync();
+
 }

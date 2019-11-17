@@ -52,7 +52,7 @@ public class ObjectionRecord implements Serializable {
 
     /**
      * @type tinyint(1) unsigned
-     * @comment 审核状态 1 通过 2 拒绝
+     * @comment 审核状态 1 通过 2 拒绝 9 不表示
      * @Column(name = "review_stat")
      */
     private ReviewEnum reviewStat;

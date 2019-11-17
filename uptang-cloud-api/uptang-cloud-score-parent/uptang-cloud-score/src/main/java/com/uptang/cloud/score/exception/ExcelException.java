@@ -9,12 +9,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @mailTo: webb.lee.cn@gmail.com
  * @summary: FIXME
  */
-@ResponseStatus
+@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class ExcelException extends RuntimeException {
-
-    public ExcelException() {
-        this(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-    }
 
     public ExcelException(String msg) {
         this(msg, false);
@@ -26,9 +22,5 @@ public class ExcelException extends RuntimeException {
 
     public ExcelException(String msg, boolean recordStackTrace) {
         super((msg == null || "".equals(msg) ? "解析Excel失败" : msg), null, false, recordStackTrace);
-    }
-
-    public ExcelException(String msg, Throwable cause) {
-        super(msg, cause, false, true);
     }
 }

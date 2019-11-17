@@ -14,4 +14,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StudentServiceImpl extends ServiceImpl<StudentRepository, Student> implements IStudentService {
+
+    @Override
+    public void sync() {
+       // 获取基础服务学生信息
+       // 插入/更新基础服务表
+    }
 }

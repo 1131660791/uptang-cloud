@@ -28,9 +28,7 @@ import java.util.Map;
  * @author : Lee.m.yin
  * @createTime : 2019-11-08 20:55
  * @mailTo: webb.lee.cn@gmail.com
- * @summary: FIXME
- * final Map<Integer, List<T>> groupMapList = Collections.groupList(sheetData);
- * resumeService.batchSave(groupMapList, scoreTypeEnum);
+ * @summary: FIXME 烂
  */
 @Slf4j
 public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventListener<Map<Integer, Object>> {
@@ -55,6 +53,9 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
      */
     private final List<T> DATA = new ArrayList<>();
 
+    /**
+     * Rest接口调用Service
+     */
     protected final IRestCallerService restCallerService =
             ApplicationContextHolder.getBean(IRestCallerService.class);
 
@@ -66,8 +67,7 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
     private void init() {
         Type type = this.getClass().getGenericSuperclass();
         Type clazz = (type instanceof ParameterizedType)
-                ? ((ParameterizedType) type).getActualTypeArguments()[0]
-                : type;
+                ? ((ParameterizedType) type).getActualTypeArguments()[0] : type;
         this.generic = (Class<T>) clazz;
     }
 

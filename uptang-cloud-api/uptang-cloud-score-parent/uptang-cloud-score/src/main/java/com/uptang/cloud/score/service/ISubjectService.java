@@ -6,7 +6,6 @@ import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.dto.ScoreDTO;
 import com.uptang.cloud.score.dto.ShowScoreDTO;
-import com.uptang.cloud.score.dto.SubjectDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,7 @@ public interface ISubjectService extends IService<Subject> {
 
 
     /**
-     * 分页
+     * 查询未归档数据
      *
      * @param schoolId   学校
      * @param gradeId    年级
@@ -40,12 +39,12 @@ public interface ISubjectService extends IService<Subject> {
      * @param pageSize   显示条数
      * @return
      */
-    List<SubjectDTO> page(Long schoolId,
-                          Long gradeId,
-                          Long classId,
-                          Long semesterId,
-                          ScoreTypeEnum type,
-                          Integer pageNum, Integer pageSize);
+    List<ShowScoreDTO> unfiled(Long schoolId,
+                               Long gradeId,
+                               Long classId,
+                               Long semesterId,
+                               ScoreTypeEnum type,
+                               Integer pageNum, Integer pageSize);
 
     /**
      * 批量新增
@@ -106,5 +105,21 @@ public interface ISubjectService extends IService<Subject> {
                             ScoreTypeEnum type,
                             Integer pageNum,
                             Integer pageSize);
+
+    /**
+     * 分页
+     *
+     * @param sub
+     * @return
+     */
+    List<Subject> queryByProperty(Subject sub);
+
+    /**
+     * 根据ResumeID进行删除
+     *
+     * @param resumeIds
+     * @param scoreType
+     */
+    void batchDeleteResumeIDs(Map<Integer,List<Long>> resumeIds, ScoreTypeEnum scoreType);
 }
 

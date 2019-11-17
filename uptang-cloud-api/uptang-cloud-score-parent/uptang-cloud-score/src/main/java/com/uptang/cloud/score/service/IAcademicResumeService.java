@@ -2,7 +2,10 @@ package com.uptang.cloud.score.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.pagehelper.Page;
+import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
+import com.uptang.cloud.score.dto.RequestParameter;
+import com.uptang.cloud.score.dto.ShowScoreDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -60,10 +63,10 @@ public interface IAcademicResumeService extends IService<AcademicResume> {
     /**
      * 检查当前年级的成绩是否已经导入过了
      *
-     * @param resume
+     * @param parameter web参数
      * @return true 已经导入过了 false 还未导入
      */
-    boolean importAgain(AcademicResume resume);
+    boolean importAgain(RequestParameter parameter);
 
     /**
      * 获取Resume ids
@@ -71,6 +74,20 @@ public interface IAcademicResumeService extends IService<AcademicResume> {
      * @param resume
      * @return
      */
-    List<AcademicResume> getResumeIds(AcademicResume resume);
+    List<AcademicResume> resume(AcademicResume resume);
 
+    /**
+     *
+     * @param resume
+     * @return
+     */
+    Page<ShowScoreDTO> query(Integer pageNum, Integer pageSize, AcademicResume resume);
+
+    /**
+     * 是否存在
+     *
+     * @param resum
+     * @return
+     */
+    Long exists(AcademicResume resum);
 }

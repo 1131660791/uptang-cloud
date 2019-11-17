@@ -1,32 +1,36 @@
 package com.uptang.cloud.score.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uptang.cloud.core.exception.BusinessException;
+import com.uptang.cloud.pojo.domain.context.UserContextThreadLocal;
+import com.uptang.cloud.pojo.enums.UserTypeEnum;
 import com.uptang.cloud.score.common.Api;
 import com.uptang.cloud.score.common.enums.PublicityTypeEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.dto.*;
-import com.uptang.cloud.score.exception.HttpClientException;
-import com.uptang.cloud.score.httpclient.HttpRequest;
-import com.uptang.cloud.score.httpclient.HttpResponseEvent;
 import com.uptang.cloud.score.service.IRestCallerService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
 import org.apache.http.HttpStatus;
-import org.apache.http.message.BasicHeader;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.OK;
 
 /**
  * @author : Lee.m.yin
@@ -38,24 +42,36 @@ import java.util.Map;
 @Service
 public class RestCallerServiceImpl implements IRestCallerService {
 
-
-    //    static final String DEV = "http://192.168.127:8082";
-//    @Value("${spring.uptang.gateway.host:" + DEV + "}")
-    private String serverHost = "http://192.168.0.127:8081";
+    /**
+     * FIXME 记得改
+     */
+    @Value("${gate.pj.hostxxxxxxxxxxxxxxxxxxx:http://192.168.0.127:8081}")
+    private String serverHost;
 
     @Autowired
     private ObjectMapper mapper;
 
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    /**
+     * FIXME 记得修改
+     *
+     * @param moduleSwitchDto 请求参数
+     * @return
+     */
     @Override
     public boolean moduleSwitch(ModuleSwitchDTO moduleSwitchDto) {
-        String api = Api.getApi("http://192.168.0.127:8083", Api.Manager.MODULE_SWITCH);
-        ModuleSwitchResponseDTO moduleSwitch = postJson(api, moduleSwitchDto, ModuleSwitchResponseDTO.class);
-        if (moduleSwitch == null) {
-            throw new BusinessException("未设置任务");
-        }
-
-        Instant instant = moduleSwitch.getEnd().toInstant();
-        return instant.compareTo(Instant.now()) > 0 ? true : false;
+        return true;
+//        String api = Api.getApi("http://192.168.0.127:8083", Api.Manager.MODULE_SWITCH);
+//        ModuleSwitchResponseDTO moduleSwitch =
+//                postJson(api, moduleSwitchDto, ModuleSwitchResponseDTO.class);
+//        if (moduleSwitch == null) {
+//            throw new BusinessException("未设置任务");
+//        }
+//
+//        // 用当前时间比较任务结束时间
+//        Instant endTime = moduleSwitch.getEnd().toInstant();
+//        return endTime.compareTo(Instant.now()) > 0 ? true : false;
     }
 
     @Override
@@ -63,78 +79,73 @@ public class RestCallerServiceImpl implements IRestCallerService {
         String api = Api.getApi(serverHost, Api.UserCenter.STUDENT_INFO);
         String payload = postJson(api, studentRequest, String.class);
         try {
+            payload = payload == null ? "" : payload;
             return mapper.readValue(payload, StuListDTO.class);
         } catch (IOException e) {
+            log.error("获取用户信息异常 url ==> {} ,Ex. ==> {}", api, e.getMessage());
             return JSON.parseObject(payload, StuListDTO.class);
         }
     }
 
-    /**
-     * UserTypeEnum userType = UserTypeEnum.parse(UserContextThreadLocal.get().getUserType());
-     * if (userType != null) {
-     * switch (userType) {
-     * case TEACHER:
-     * case MANAGER:
-     * return true;
-     * case STUDENT:
-     * case PARENT:
-     * default:
-     * return false;
-     * }
-     * }
-     */
+
     @Override
-    public boolean promissionCheck(RestRequestDTO restRequestDto) {
-        Assert.notNull(restRequestDto, "请求参数不能为空");
-        String api = Api.getApi(serverHost, Api.Promission.CHECK);
-        PromissionDTO promission = postJson(api, restRequestDto, PromissionDTO.class);
-        if (promission != null) {
-            switch (promission.getUserType()) {
+    public boolean permissionCheck() {
+        Integer userType = UserContextThreadLocal.get().getUserType();
+        userType = userType == null ? 0 : userType;
+        UserTypeEnum type = UserTypeEnum.parse(userType);
+        if (type != null) {
+            switch (type) {
                 case TEACHER:
                 case MANAGER:
                     return true;
                 case STUDENT:
-                case PARENTS:
+                case PARENT:
                 default:
                     return false;
             }
         }
-        return false;
+
+        if (log.isWarnEnabled()) {
+            log.warn("用户鉴权失败 userType ==> {}", userType);
+        }
+        // FIXME DEV true
+        return true;
     }
 
     @Override
     public List<GradeCourseDTO> gradeInfo(StudentRequestDTO studentRequest) {
         String api = Api.getApi(serverHost, Api.Grade.INFO, studentRequest.getGradeId());
-        Header[] headers = new Header[]{new BasicHeader("Token", studentRequest.getToken())};
-
         try {
-            String payload = HttpRequest.HttpClient.get(api, headers);
-            if (payload == null || "".equals(payload)) {
-                return Collections.emptyList();
-            }
+            // JSONObject ext Map
+            ResponseEntity<JSONObject> exchange =
+                    restTemplate.exchange(api, GET, buildEntity(studentRequest), JSONObject.class);
+            if (exchange.getStatusCode().compareTo(OK) == 0) {
+                JSONObject body = exchange.getBody();
+                if (body != null && body.size() > 0) {
 
-            Map map = mapper.readValue(payload, Map.class);
-            Object status = map.get("status");
-            Object data = map.get("data");
-            if (map.size() == 0 || status.equals(HttpStatus.SC_OK) || data == null) {
-                return Collections.emptyList();
-            }
+                    Object status = body.getOrDefault("status", SC_INTERNAL_SERVER_ERROR);
+                    if (status.equals(String.valueOf(HttpStatus.SC_OK))) {
 
-            String json = mapper.writeValueAsString(data);
-            if (JSON.isValidArray(json)) {
-                return mapper.readValue(json, new TypeReference<List<GradeCourseDTO>>() {
-                });
+                        Object data = body.getOrDefault("data", Strings.EMPTY);
+                        String json = mapper.writeValueAsString(data);
+                        if (JSON.isValidArray(json)) {
+                            return mapper.readValue(json, new TypeReference<List<GradeCourseDTO>>() {
+                            });
+                        }
+                    }
+                }
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("api ==> {} response body ==> {}", api, json);
+                log.debug("api ==> {} response body ==> {}", api, studentRequest.toString());
             }
-
             return Collections.emptyList();
         } catch (IOException e) {
+            log.error("获取年级信息异常 url ==> {} Ex. ==> {}", api, e.getMessage());
             throw new BusinessException(e);
         }
     }
+
 
     @Override
     public List<AcademicResume> exemption(ExemptionDTO exemptionDto) {
@@ -146,75 +157,100 @@ public class RestCallerServiceImpl implements IRestCallerService {
             return mapper.readValue(writeValueAsString, new TypeReference<List<AcademicResume>>() {
             });
         } catch (IOException e) {
+            log.error("获取免测学生列表异常 url ==> {} Ex. ==> {}", api, e.getMessage());
             return Collections.emptyList();
         }
     }
 
     @Override
     public PublicityDTO publicity(String token, PublicityTypeEnum type) {
-        Header[] headers = new Header[]{new BasicHeader("Token", token)};
         String api = Api.getApi(serverHost, Api.Manager.PUBLICITY, type.getCode() + "");
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Token", token);
+        httpHeaders.set("token", token);
+
+        ResponseEntity<JSONObject> response =
+                restTemplate.postForEntity(api, httpHeaders, JSONObject.class);
+
+        if (log.isDebugEnabled()) {
+            log.debug("request ==> {} response ==> {}", api, response);
+        }
+
         try {
-            HttpResponseEvent response = HttpRequest.HttpClient.post(api, headers);
+            if (response.getStatusCode().compareTo(OK) == 0) {
+                JSONObject body = response.getBody();
+                if (body != null && body.size() > 0) {
 
-            if (log.isDebugEnabled()) {
-                log.debug("request ==> {} response ==> {}", api, response);
+                    Object status = body.getOrDefault("status", SC_INTERNAL_SERVER_ERROR);
+                    if (status.equals(HttpStatus.SC_OK)) {
+                        Object data = body.getOrDefault("data", Strings.EMPTY);
+                        return mapper.readValue(mapper.writeValueAsString(data), PublicityDTO.class);
+                    }
+                }
             }
-
-            if (response.getCode() == HttpStatus.SC_OK) {
-                return mapper.readValue(response.getPayload(), PublicityDTO.class);
-            }
-
-            //StringUtils.isBlank(response.getMessage()) ? response.getPayload() : response.getMessage()
             return null;
         } catch (IOException e) {
             log.error("request ==> {} error ==> {}", api, e.getMessage());
-            throw new HttpClientException(e);
+            throw new RestClientException(e.getMessage());
         }
     }
 
-    private <T> T postJson(String api, RestRequestDTO restRequestDto, Class<T> clazz) {
-        try {
-            String json = mapper.writeValueAsString(restRequestDto);
-            Header[] headers = new Header[]{new BasicHeader("Token", restRequestDto.getToken())};
-            HttpResponseEvent response = HttpRequest.HttpClient.postJson(api, json, headers);
-
-            if (log.isDebugEnabled()) {
-                log.debug("request ==> {} body ==> {} response ==> {}", api, json, response);
-            }
-
-            if (response.getCode() == HttpStatus.SC_OK) {
-                Map<String, Object> payload =
-                        mapper.readValue(response.getPayload(), Map.class);
-                Object status = payload.get("status");
-
-                if (status != null && status.equals(HttpStatus.SC_OK + "")) {
-                    String data = mapper.writeValueAsString(payload.get("data"));
-                    if (clazz.isAssignableFrom(String.class)) {
-                        return (T) data;
-                    }
-
-                    return mapper.readValue(data, clazz);
-                }
-            }
-
-            String message = StringUtils.isBlank(response.getMessage()) ? response.getPayload() : response.getMessage();
-            throw new HttpClientException(message);
-        } catch (IOException e) {
-            log.error("request ==> {} error ==> {}", api, e.getMessage());
-            throw new HttpClientException(e);
-        }
-    }
 
     /**
-     * 获取泛型的Collection Type
+     * Post
      *
-     * @param collectionClass 泛型的Collection
-     * @param elementClasses  元素类
-     * @return JavaType Java类型
-     * @since 1.0
+     * @param api         请求地址
+     * @param restRequest 请求参数
+     * @param clazz       返回结果接收模型Class
+     * @param <T>         返回结果接收模型
+     * @return 返回结果
      */
-    public JavaType getCollectionType(Class<?> collectionClass, Class<?>... elementClasses) {
-        return mapper.getTypeFactory().constructParametricType(collectionClass, elementClasses);
+    private <T> T postJson(String api, RestRequestDTO restRequest, Class<T> clazz) {
+        ResponseEntity<JSONObject> response =
+                restTemplate.postForEntity(api, buildEntity(restRequest), JSONObject.class);
+
+        if (log.isDebugEnabled()) {
+            log.debug("request ==> {} body ==> {} response ==> {}", api, restRequest, response);
+        }
+
+        try {
+            if (response.getStatusCode().compareTo(OK) == 0) {
+                JSONObject body = response.getBody();
+                if (body != null && body.size() > 0) {
+
+                    Object status = body.getOrDefault("status", SC_INTERNAL_SERVER_ERROR);
+                    if (status.equals(String.valueOf(HttpStatus.SC_OK))) {
+
+                        // FIXME  可以将try catch 范围缩小到这里
+                        Object data = body.getOrDefault("data", Strings.EMPTY);
+                        String json = mapper.writeValueAsString(data);
+                        if (clazz.isAssignableFrom(String.class)) {
+                            return (T) json;
+                        }
+
+                        return mapper.readValue(json, clazz);
+                    }
+                }
+            }
+            return null;
+        } catch (IOException e) {
+            log.error("request ==> {} error ==> {}", api, e.getMessage());
+            throw new RestClientException(e.getMessage());
+        }
+    }
+
+
+    /**
+     * 构建HTTP请求参数及Header
+     *
+     * @param studentRequest
+     * @return
+     */
+    private HttpEntity<RestRequestDTO> buildEntity(RestRequestDTO studentRequest) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Token", studentRequest.getToken());
+        httpHeaders.set("token", studentRequest.getToken());
+        return new HttpEntity<>(studentRequest, httpHeaders);
     }
 }

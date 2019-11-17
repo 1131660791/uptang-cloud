@@ -1,5 +1,6 @@
 package com.uptang.cloud.score.common.vo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.uptang.cloud.starter.web.domain.BaseVO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResumeJoinArchiveVO extends BaseVO<ResumeJoinArchiveVO> implements Serializable, Cloneable {
 
     /**

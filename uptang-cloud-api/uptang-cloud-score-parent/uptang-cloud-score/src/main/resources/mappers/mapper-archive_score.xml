@@ -4,14 +4,14 @@
     <!--字段-->
     <sql id="columns">`id`, `type` , `detail`,`resume_id`</sql>
 
-
     <!--批量插入-->
-    <insert id="batchInsert" keyProperty="id" useGeneratedKeys="true"
+    <insert id="batchInsert"
             parameterType="com.uptang.cloud.score.common.model.ArchiveScore">
-        INSERT INTO logic_subject (resume_id,`type`,`detail`)
+        INSERT INTO archive_score (`resume_id`,`type`,`detail`) VALUES
         <foreach collection="list" item="item" index="index" separator=",">
             (#{item.resumeId},#{item.type},#{item.detail})
         </foreach>
+        ON DUPLICATE KEY UPDATE `resume_id`=VALUES(`resume_id`),`type`=VALUES(`type`),`detail`=VALUES(`detail`);
     </insert>
 
     <!--根据履历ID批量删除-->
@@ -21,7 +21,6 @@
             #{item}
         </foreach>
     </delete>
-
 
     <resultMap id="ResultMap" type="com.uptang.cloud.score.dto.ArchiveScoreDTO">
         <id property="id" column="id"/>
@@ -38,11 +37,10 @@
         <result property="className" column="class_name"/>
         <result property="name" column="student_name"/>
         <result property="studentCode" column="student_code"/>
-        <result property="gender" column="gender"/>
+        <result property="gender" column="gender" typeHandler="com.uptang.cloud.score.handler.GenderEnumTypeHandler"/>
         <result property="createdTime" column="created_time"/>
         <result property="modifiedTime" column="modified_time"/>
     </resultMap>
-
 
     <!--查询归档信息-->
     <select id="page" resultMap="ResultMap">
@@ -52,7 +50,8 @@
         FROM archive_score archive INNER JOIN academic_resume resume ON resume.id=archive.resume_id
         WHERE resume.school_id=#{schoolId}
         AND resume.grade_id=#{gradeId}
-        AND resume.class_id=#{classId}
+        AND resume.`semester_id`=#{semesterId}
+        <if test="classId != null">AND resume.`class_id`=#{classId}</if>
         AND archive.type=#{type}
     </select>
 </mapper>

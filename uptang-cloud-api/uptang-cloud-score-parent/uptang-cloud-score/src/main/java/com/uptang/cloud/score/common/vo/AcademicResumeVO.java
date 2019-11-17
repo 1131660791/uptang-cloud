@@ -1,5 +1,6 @@
 package com.uptang.cloud.score.common.vo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.uptang.cloud.starter.web.domain.BaseVO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AcademicResumeVO extends BaseVO<AcademicResumeVO> implements Serializable, Cloneable {
 
     /**
@@ -31,7 +33,7 @@ public class AcademicResumeVO extends BaseVO<AcademicResumeVO> implements Serial
      * @comment 学校名称
      */
     @ApiModelProperty(notes = "学校名称")
-    private String school;
+    private String schoolName;
 
     /**
      * @comment 学校ID
@@ -116,6 +118,10 @@ public class AcademicResumeVO extends BaseVO<AcademicResumeVO> implements Serial
      */
     @ApiModelProperty(notes = "创建人ID")
     private Long creatorId;
+
+
+    @ApiModelProperty("学生ID/guid")
+    private Long studentId;
 
     /**
      * @comment 修改人ID

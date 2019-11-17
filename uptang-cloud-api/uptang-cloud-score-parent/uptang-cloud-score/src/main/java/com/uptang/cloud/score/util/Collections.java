@@ -12,6 +12,8 @@ import java.util.Map;
  */
 public class Collections {
 
+    private static final int GROUP_MAX = 100;
+
     /**
      * 实现java 中 list集合中有几十万条数据,每100条为一组取出
      *
@@ -23,12 +25,12 @@ public class Collections {
         int toIndex = 100;
 
         // 用map存起来新的分组后数据
-        Map<Integer, List<T>> map = new HashMap();
+        Map<Integer, List<T>> map = new HashMap<>();
         int keyToken = 0;
 
-        for (int i = 0; i < list.size(); i += 100) {
+        for (int i = 0; i < list.size(); i += GROUP_MAX) {
             // 作用为toIndex最后没有100条数据则剩余几条newList中就装几条
-            if (i + 100 > listSize) {
+            if (i + GROUP_MAX > listSize) {
                 toIndex = listSize - i;
             }
 

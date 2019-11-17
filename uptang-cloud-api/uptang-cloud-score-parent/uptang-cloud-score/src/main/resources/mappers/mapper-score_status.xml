@@ -5,7 +5,8 @@
     <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.ScoreStatus">
         <id property="id" column="id"/>
         <result property="resumeId" column="resume_id"/>
-        <result property="state" column="state"/>
+        <result property="state" column="state"
+                typeHandler="com.uptang.cloud.score.handler.ScoreStatusEnumTypeHandler"/>
         <result property="startedTime" column="started_time"/>
         <result property="finishTime" column="finish_time"/>
     </resultMap>
@@ -25,8 +26,24 @@
         <foreach collection="list" item="item" index="index" separator=",">
             (#{item.resumeId},#{item.state},#{item.startedTime})
         </foreach>
+        ON DUPLICATE KEY UPDATE `resume_id`=VALUES(`resume_id`);
     </insert>
 
+    <!--单条插入
+    ON DUPLICATE KEY UPDATE `resume_id`=VALUES(resume_id);
+    -->
+    <insert id="save" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.uptang.cloud.score.common.model.ScoreStatus">
+        INSERT INTO score_status (`resume_id`, `state`,`started_time`) VALUES (#{resumeId},#{state},#{startedTime})
+    </insert>
+
+    <!--归档-->
+    <update id="archive" parameterType="com.uptang.cloud.score.common.model.ScoreStatus">
+        UPDATE score_status SET `state`=#{state} WHERE state &lt; 2 AND resume_id IN
+        <foreach collection="resumeIds" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
 
     <update id="update" parameterType="com.uptang.cloud.score.common.model.ScoreStatus">
         UPDATE score_status
@@ -51,19 +68,6 @@
         AND resume.score_type=#{type}
     </select>
 
-    <!--归档 [公示 1 公示中 2 归档 3 已提交]
-    ss.state &lt; 2 ==== ss.state < 2
-    -->
-    <update id="archive">
-        UPDATE score_status ss LEFT JOIN academic_resume resume ON resume.id=ss.resume_id
-        SET ss.state=2
-        WHERE ss.state &lt; 2
-        AND resume.school_id=#{schoolId}
-        AND resume.grade_id=#{gradeId}
-        AND resume.semester_id=#{semesterId}
-        AND resume.score_type=#{type}
-    </update>
-
     <!--撤销归档-->
     <update id="undoArchive">
         UPDATE score_status ss LEFT JOIN academic_resume resume ON resume.id=ss.resume_id
@@ -77,8 +81,8 @@
     <!--公示-->
     <update id="show">
         UPDATE score_status ss LEFT JOIN academic_resume resume ON resume.id=ss.resume_id
-        SET ss.state=1, ss.started_time=CURRENT_TIMESTAMP
-        WHERE resume.school_id=#{schoolId}
+        SET ss.state=1, ss.started_time=CURRENT_TIMESTAMP()
+        WHERE resume.school_id=#{schoolId} AND ss.state=3
         AND resume.grade_id=#{gradeId}
         AND resume.semester_id=#{semesterId}
         AND resume.score_type=#{type}
@@ -87,10 +91,16 @@
     <!--撤销公示-->
     <update id="cancel">
         UPDATE score_status ss LEFT JOIN academic_resume resume ON resume.id=ss.resume_id
-        SET ss.state=3, ss.finish_time=CURRENT_TIMESTAMP
-        WHERE resume.school_id=#{schoolId}
+        SET ss.state=3, ss.finish_time=CURRENT_TIMESTAMP()
+        WHERE resume.school_id=#{schoolId} AND ss.state=1
         AND resume.grade_id=#{gradeId}
         AND resume.semester_id=#{semesterId}
         AND resume.score_type=#{type}
     </update>
+
+
+    <!--检查成绩是否在公示期-->
+    <select id="checkState" resultType="long">
+        SELECT COUNT(0) FROM score_status WHERE state=1 AND resume_id=#{resumeId}
+    </select>
 </mapper>

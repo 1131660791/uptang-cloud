@@ -1,5 +1,6 @@
 package com.uptang.cloud.score.common.vo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.uptang.cloud.pojo.enums.GenderEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.starter.web.domain.BaseVO;
@@ -22,6 +23,7 @@ import java.util.Date;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ArchiveScoreVO extends BaseVO<ArchiveScoreVO> implements Serializable, Cloneable {
 
     @ApiModelProperty(notes = "归档ID")

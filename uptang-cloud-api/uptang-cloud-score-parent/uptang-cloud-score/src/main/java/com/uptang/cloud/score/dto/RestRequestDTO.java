@@ -16,7 +16,6 @@ import java.io.Serializable;
  * @Summary : FIXME
  */
 @Data
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -37,4 +36,14 @@ public class RestRequestDTO implements Serializable {
      * 查询行数
      */
     private Long rows;
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("{");
+        sb.append("\"token\":\"").append(token).append('\"');
+        sb.append(",\"offset\":").append(offset);
+        sb.append(",\"rows\":").append(rows);
+        sb.append('}');
+        return sb.toString();
+    }
 }

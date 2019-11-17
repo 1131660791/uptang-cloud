@@ -3,11 +3,6 @@ package com.uptang.cloud.pojo.enums;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Jiang Chuan
@@ -40,21 +35,29 @@ public enum UserTypeEnum {
     /**
      * 系统管理员
      */
-    SYSTEM_ADMIN(9, "系统管理员"),
-    ;
+    SYSTEM_ADMIN(9, "系统管理员");
 
-    private final static Map<Integer, UserTypeEnum> BY_CODE_MAP =
-            Arrays.stream(UserTypeEnum.values())
-                    .collect(Collectors.toMap(UserTypeEnum::getCode, type -> type));
 
-    private final static Map<String, UserTypeEnum> BY_NAME_MAP
-            = Arrays.stream(UserTypeEnum.values())
-            .collect(Collectors.toMap(type -> type.name().toLowerCase(), type -> type));
+    /**
+     * org.springframework.web.util.NestedServletException:
+     * Handler dispatch failed; nested exception is java.lang.NoClassDefFoundError: Could not initialize class com.uptang.cloud.pojo.enums.UserTypeEnum
+     * at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1054)
+     * at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:942)
+     * at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1005)
+     * at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:908)
+     * <p>
+     * private final static Map<Integer, UserTypeEnum> BY_CODE_MAP =
+     * Arrays.stream(UserTypeEnum.values())
+     * .collect(Collectors.toMap(UserTypeEnum::getCode, type -> type));
+     * <p>
+     * private final static Map<String, UserTypeEnum> BY_NAME_MAP
+     * = Arrays.stream(UserTypeEnum.values())
+     * .collect(Collectors.toMap(type -> type.name().toLowerCase(), type -> type));
+     */
 
     @EnumValue
     private final int code;
     private final String desc;
-
 
     /**
      * 将代码转成枚举
@@ -63,8 +66,15 @@ public enum UserTypeEnum {
      * @return 转换出来的用户类型
      */
     public static UserTypeEnum parse(Integer code) {
-        return BY_CODE_MAP.get(code);
+        UserTypeEnum[] values = UserTypeEnum.values();
+        for (UserTypeEnum typeEnum : values) {
+            if (code.compareTo(typeEnum.code) == 0) {
+                return typeEnum;
+            }
+        }
+        return null;
     }
+
 
     /**
      * 将名字转换成枚举
@@ -73,6 +83,12 @@ public enum UserTypeEnum {
      * @return 转换出来的用户类型
      */
     public static UserTypeEnum parse(String name) {
-        return BY_NAME_MAP.get(StringUtils.trimToEmpty(name).toLowerCase());
+        UserTypeEnum[] values = UserTypeEnum.values();
+        for (UserTypeEnum typeEnum : values) {
+            if (name.compareTo(typeEnum.desc) == 0) {
+                return typeEnum;
+            }
+        }
+        return null;
     }
 }

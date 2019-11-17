@@ -6,9 +6,12 @@ import com.uptang.cloud.score.common.vo.ScoreVO;
 import com.uptang.cloud.score.common.vo.SubjectVO;
 import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.dto.ScoreDTO;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.uptang.cloud.score.common.converter.AcademicResumeConverter.INSTANCE;
 
 /**
  * @author : Lee.m.yin
@@ -27,11 +30,17 @@ public interface ScoreConverter {
     static ScoreDTO toModel(ScoreVO score, RequestParameter parameter) {
         if (score != null) {
             ScoreDTO scoreDTO = new ScoreDTO();
-            AcademicResume resume = AcademicResumeConverter.INSTANCE.toModel(score.getResume());
+            AcademicResume resume = INSTANCE.toModel(score.getResume());
+
+            Assert.notNull(resume, "履历信息不能为空");
+            Assert.notNull(resume.getScoreType(), "成绩类型不能为空");
+
+            resume.setCreatorId(parameter.getUserId());
             parameter.setSchoolId(resume.getSchoolId());
             parameter.setGradeId(resume.getGradeId());
             parameter.setClassId(resume.getClassId());
             parameter.setSemesterId(resume.getSemesterId());
+            parameter.setScoreType(resume.getScoreType());
             scoreDTO.setResume(resume);
             scoreDTO.setParameter(parameter);
             List<SubjectVO> subjects = score.getSubjects();

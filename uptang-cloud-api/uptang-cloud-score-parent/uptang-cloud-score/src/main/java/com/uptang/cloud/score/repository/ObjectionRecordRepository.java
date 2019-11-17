@@ -32,7 +32,7 @@ public interface ObjectionRecordRepository extends BaseMapper<ObjectionRecord> {
      *
      * @param objectionRecord
      */
-    void update(ObjectionRecord objectionRecord);
+    void verify(ObjectionRecord objectionRecord);
 
     /**
      * 新增
@@ -86,4 +86,24 @@ public interface ObjectionRecordRepository extends BaseMapper<ObjectionRecord> {
                                      @Param("classId") Long classId,
                                      @Param("semesterId") Long semesterId,
                                      @Param("type") ScoreTypeEnum type);
+
+    /**
+     * 异议数据
+     *
+     * @param type
+     * @param resumeIds
+     * @return
+     */
+    List<Long> records(@Param("type") ScoreTypeEnum type,
+                       @Param("resumeIds") List<Long> resumeIds);
+
+    /**
+     * @param resumeId  履历ID
+     * @param scoreType 成绩类型
+     * @param creatorId 异议创建人
+     * @return 条数
+     */
+    Long exists(@Param("resumeId") Long resumeId,
+                @Param("scoreType") ScoreTypeEnum scoreType,
+                @Param("creatorId") Long creatorId);
 }

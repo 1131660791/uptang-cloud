@@ -33,12 +33,12 @@ public interface IRestCallerService {
     StuListDTO studentList(StudentRequestDTO studentRequest);
 
     /**
+     * FIXME 暂时写在这里
      * 当前用户权限校验接口
      *
-     * @param restRequestDto
-     * @return
+     * @return 是否有权限
      */
-    boolean promissionCheck(RestRequestDTO restRequestDto);
+    boolean permissionCheck();
 
     /**
      * 年级课程信息

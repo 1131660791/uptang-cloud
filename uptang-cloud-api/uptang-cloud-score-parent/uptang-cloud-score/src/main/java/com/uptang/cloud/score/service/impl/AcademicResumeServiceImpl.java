@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.uptang.cloud.score.common.model.AcademicResume;
+import com.uptang.cloud.score.dto.RequestParameter;
+import com.uptang.cloud.score.dto.ShowScoreDTO;
 import com.uptang.cloud.score.repository.AcademicResumeRepository;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import org.springframework.stereotype.Service;
@@ -57,7 +59,7 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
 
     @Override
     public Page<AcademicResume> page(Integer pageNum, Integer pageSize, AcademicResume resume) {
-        PageHelper.startPage(pageNum == null ? 1 : pageNum, pageSize == null ? 10 : pageSize);
+        PageHelper.startPage(pageNum, pageSize);
         return getBaseMapper().page(resume);
     }
 
@@ -82,10 +84,24 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
     }
 
 
+    /**
+     * 内部使用 直接接受Web参数
+     *
+     * @param parameter web参数
+     * @return
+     */
     @Override
-    public boolean importAgain(AcademicResume resume) {
+    public boolean importAgain(RequestParameter parameter) {
+        Assert.notNull(parameter, "请求参数不能为空");
+
+        AcademicResume resume = new AcademicResume();
+        resume.setScoreType(parameter.getScoreType());
+        resume.setSchoolId(parameter.getSchoolId());
+        resume.setGradeId(parameter.getGradeId());
+        resume.setClassId(parameter.getClassId());
+        resume.setSemesterId(parameter.getSemesterId());
+
         // false 还未导入
-        Assert.notNull(resume, "请求参数不能为空");
         Date date = getBaseMapper().importAgain(resume);
         if (date == null) {
             return false;
@@ -101,9 +117,22 @@ public class AcademicResumeServiceImpl extends ServiceImpl<AcademicResumeReposit
     }
 
     @Override
-    public List<AcademicResume> getResumeIds(AcademicResume resume) {
+    public List<AcademicResume> resume(AcademicResume resume) {
         Assert.notNull(resume, "请求参数不能为空");
         Assert.notNull(resume.getScoreType(), "成绩类型不能为空");
-        return getBaseMapper().getResumeIds(resume);
+        return getBaseMapper().resume(resume);
+    }
+
+    @Override
+    public Page<ShowScoreDTO> query(Integer pageNum, Integer pageSize, AcademicResume resume) {
+        Assert.notNull(resume, "请求参数不能为空");
+        PageHelper.startPage(pageNum, pageSize);
+        return getBaseMapper().query(resume);
+    }
+
+    @Override
+    public Long exists(AcademicResume resume) {
+        Assert.notNull(resume, "请求参数不能为空");
+        return getBaseMapper().exists(resume);
     }
 }

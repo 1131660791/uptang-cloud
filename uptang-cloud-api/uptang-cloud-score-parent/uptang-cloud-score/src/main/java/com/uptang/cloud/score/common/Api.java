@@ -79,9 +79,10 @@ public interface Api extends com.uptang.cloud.core.Constants {
     /**
      * 拼接请求路径
      *
-     * @param serverHost
-     * @param api
-     * @return
+     * @param serverHost 请求服务网关地址
+     * @param api        请求地址
+     * @param param      请求参数
+     * @return 返回完整请求路径
      */
     static String getApi(String serverHost, String api, Object param) {
         return String.format(api, serverHost, param);
@@ -90,9 +91,9 @@ public interface Api extends com.uptang.cloud.core.Constants {
     /**
      * 拼接请求路径
      *
-     * @param serverHost
-     * @param api
-     * @return
+     * @param serverHost 请求服务网关地址
+     * @param api        请求地址
+     * @return 返回完整请求路径
      */
     static String getApi(String serverHost, String api) {
         return String.format(api, serverHost);

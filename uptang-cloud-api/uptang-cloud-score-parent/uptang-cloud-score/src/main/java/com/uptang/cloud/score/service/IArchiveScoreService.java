@@ -7,6 +7,7 @@ import com.uptang.cloud.score.dto.ArchiveScoreDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author : Lee.m.yin
@@ -19,14 +20,16 @@ public interface IArchiveScoreService extends IService<ArchiveScore> {
     /**
      * 批量插入
      *
-     * @param archiveScores
+     * @param archiveScores 待归档数据
+     * @return
      */
-    List<ArchiveScore> batchInsert(List<ArchiveScore> archiveScores);
+    List<List<Long>> batchInsert(Map<Integer, List<ArchiveScore>> archiveScores);
 
     /**
      * 根据履历ID批量删除
      *
      * @param resumeIds 履历ID
+     * @return 是否删除
      */
     boolean batchDelete(@Param("resumeIds") List<Long> resumeIds);
 

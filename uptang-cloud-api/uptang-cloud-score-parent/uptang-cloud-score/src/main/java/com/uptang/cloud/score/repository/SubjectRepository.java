@@ -1,11 +1,8 @@
 package com.uptang.cloud.score.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.github.pagehelper.Page;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.Subject;
-import com.uptang.cloud.score.dto.ShowScoreDTO;
-import com.uptang.cloud.score.dto.SubjectDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -45,20 +42,6 @@ public interface SubjectRepository extends BaseMapper<Subject> {
      */
     void update(Subject score);
 
-    /**
-     * 分页
-     *
-     * @param schoolId   学校ID
-     * @param gradeId    年级ID
-     * @param semesterId 学期ID
-     * @param type       成绩类型
-     * @return
-     */
-    Page<SubjectDTO> page(@Param("schoolId") Long schoolId,
-                          @Param("gradeId") Long gradeId,
-                          @Param("classId") Long classId,
-                          @Param("semesterId") Long semesterId,
-                          @Param("type") ScoreTypeEnum type);
 
     /**
      * 根据ResumeID进行删除
@@ -71,18 +54,19 @@ public interface SubjectRepository extends BaseMapper<Subject> {
 
 
     /**
-     * 公示数据
+     * 分页
      *
-     * @param schoolId   学校ID
-     * @param gradeId    年级ID
-     * @param classId    班级ID
-     * @param semesterId 学期ID
-     * @param type       成绩类型
+     * @param sub
      * @return
      */
-    Page<ShowScoreDTO> show(@Param("schoolId") Long schoolId,
-                            @Param("gradeId") Long gradeId,
-                            @Param("classId") Long classId,
-                            @Param("semesterId") Long semesterId,
-                            @Param("type") ScoreTypeEnum type);
+    List<Subject> queryByProperty(Subject sub);
+
+
+    /**
+     * @param resumeIds
+     * @param scoreType
+     * @return
+     */
+    List<Subject> queryByResumeIds(@Param("resumeIds") List<Long> resumeIds,
+                                   @Param("scoreType") ScoreTypeEnum scoreType);
 }

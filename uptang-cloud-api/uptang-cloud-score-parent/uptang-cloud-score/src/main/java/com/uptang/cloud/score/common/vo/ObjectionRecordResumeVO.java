@@ -1,6 +1,8 @@
 package com.uptang.cloud.score.common.vo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.uptang.cloud.pojo.enums.GenderEnum;
+import com.uptang.cloud.score.common.enums.ObjectionEnum;
 import com.uptang.cloud.score.common.enums.ReviewEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.starter.web.domain.BaseVO;
@@ -22,6 +24,7 @@ import java.util.Date;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ObjectionRecordResumeVO extends BaseVO<ObjectionRecordResumeVO> implements Serializable, Cloneable {
     private Long id;
     private Long subjectId;
@@ -48,7 +51,7 @@ public class ObjectionRecordResumeVO extends BaseVO<ObjectionRecordResumeVO> imp
     private String scoreText;
     private String className;
 
-    private Integer state;
+    private ObjectionEnum state;
     private ReviewEnum reviewStat;
     private Integer subjectCode;
     private Double scoreNumber;

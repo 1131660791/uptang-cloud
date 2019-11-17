@@ -1,13 +1,14 @@
 package com.uptang.cloud.score.common.vo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.uptang.cloud.score.common.enums.ObjectionEnum;
 import com.uptang.cloud.score.common.enums.ReviewEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.starter.web.domain.BaseVO;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -20,6 +21,7 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Serializable, Cloneable {
 
     /**
@@ -27,6 +29,7 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment Primary key
      * @IdxName PRI
      */
+    @ApiModelProperty("异议ID")
     private Long id;
 
     /**
@@ -34,6 +37,7 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment 履历ID
      * @Column(name = "resume_id")
      */
+    @ApiModelProperty("履历ID")
     private Long resumeId;
 
     /**
@@ -41,6 +45,7 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment 异议状态 1 异议处理期 2 完成
      * @Column(name = "state")
      */
+    @ApiModelProperty("异议状态 1 异议处理期 2 完成")
     private ObjectionEnum state;
 
     /**
@@ -48,6 +53,7 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment 异议文本, 异议描述
      * @Column(name = "description")
      */
+    @ApiModelProperty("异议文本, 异议描述")
     private String description;
 
     /**
@@ -55,6 +61,7 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment 审核状态 1 通过 2 拒绝
      * @Column(name = "review_stat")
      */
+    @ApiModelProperty("审核状态 1 通过 2 拒绝")
     private ReviewEnum reviewStat;
 
     /**
@@ -62,6 +69,7 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment 审核信息
      * @Column(name = "review_desc")
      */
+    @ApiModelProperty("审核意见")
     private String reviewDesc;
 
     /**
@@ -69,6 +77,7 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment 审核人
      * @Column(name = "review_id")
      */
+    @ApiModelProperty("审核人")
     private Long reviewId;
 
     /**
@@ -76,6 +85,7 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment 异议创建人
      * @Column(name = "creator_id")
      */
+    @ApiModelProperty("审核人")
     private Long creatorId;
 
     /**
@@ -83,6 +93,7 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment 成绩类型 0 学业成绩 1 体质健康 2 艺术成绩
      * @Column(name = "score_type")
      */
+    @ApiModelProperty("成绩类型 0 学业成绩 1 体质健康 2 艺术成绩")
     private ScoreTypeEnum scoreType;
 
     /**
@@ -90,6 +101,7 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment 创建时间
      * @Column(name = "created_time")
      */
+    @ApiModelProperty("异议创建时间")
     private java.util.Date createdTime;
 
     /**
@@ -97,6 +109,6 @@ public class ObjectionRecordVO extends BaseVO<ObjectionRecordVO> implements Seri
      * @comment 审核时间
      * @Column(name = "modified_time")
      */
+    @ApiModelProperty("异议审核时间")
     private java.util.Date modifiedTime;
-
 }

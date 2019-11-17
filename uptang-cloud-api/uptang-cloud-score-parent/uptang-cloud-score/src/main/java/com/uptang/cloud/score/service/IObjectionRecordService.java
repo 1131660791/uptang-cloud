@@ -20,7 +20,7 @@ public interface IObjectionRecordService extends IService<ObjectionRecord> {
      *
      * @param objectionRecord
      */
-    void add(ObjectionRecord objectionRecord);
+    String add(ObjectionRecord objectionRecord);
 
     /**
      * 异议成绩
@@ -58,7 +58,7 @@ public interface IObjectionRecordService extends IService<ObjectionRecord> {
      *
      * @param toModel
      */
-    void update(ObjectionRecord toModel);
+    void verify(ObjectionRecord toModel);
 
     /**
      * 分页
@@ -79,4 +79,13 @@ public interface IObjectionRecordService extends IService<ObjectionRecord> {
                                      ScoreTypeEnum type,
                                      Integer pageNum,
                                      Integer pageSize);
+
+    /**
+     * 异议数据
+     *
+     * @param type
+     * @param resumeIds
+     * @return
+     */
+    List<Long> records(ScoreTypeEnum type, List<Long> resumeIds);
 }

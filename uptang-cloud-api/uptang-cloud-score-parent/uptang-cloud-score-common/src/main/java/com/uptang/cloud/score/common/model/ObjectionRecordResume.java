@@ -1,6 +1,7 @@
 package com.uptang.cloud.score.common.model;
 
 import com.uptang.cloud.pojo.enums.GenderEnum;
+import com.uptang.cloud.score.common.enums.ObjectionEnum;
 import com.uptang.cloud.score.common.enums.ReviewEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import lombok.Data;
@@ -42,7 +43,7 @@ public class ObjectionRecordResume implements Serializable {
     private String scoreText;
     private String className;
 
-    private Integer state;
+    private ObjectionEnum state;
     private ReviewEnum reviewStat;
     private Integer subjectCode;
     private Integer scoreNumber;

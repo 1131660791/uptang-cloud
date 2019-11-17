@@ -3,7 +3,6 @@ package com.uptang.cloud.score.service.impl;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
-import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.dto.ModuleSwitchDTO;
 import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.dto.RestRequestDTO;
@@ -58,13 +57,7 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
         // 艺术类和体质健康类成绩一年只能导入一次
         ScoreTypeEnum scoreType = parameter.getScoreType();
         if (scoreType == HEALTH || scoreType == ART) {
-            AcademicResume resume = new AcademicResume();
-            resume.setScoreType(scoreType);
-            resume.setSchoolId(parameter.getSchoolId());
-            resume.setGradeId(parameter.getGradeId());
-            resume.setClassId(parameter.getClassId());
-            resume.setSemesterId(parameter.getSemesterId());
-            if (resumeService.importAgain(resume)) {
+            if (resumeService.importAgain(parameter)) {
                 throw new BusinessException(scoreType.getDesc() + "已录入");
             }
         }
@@ -79,7 +72,7 @@ public class ExcelDataServiceProcessor extends ExcelTemplate implements IExcelDa
         // 权限校验
         RestRequestDTO restRequestDto = new RestRequestDTO();
         restRequestDto.setToken(parameter.getToken());
-        boolean hasPermission = restCallerService.promissionCheck(restRequestDto);
+        boolean hasPermission = restCallerService.permissionCheck();
         if (!hasPermission) {
             throw new BusinessException("无权操作");
         }

@@ -2,7 +2,6 @@ package com.uptang.cloud.score.common.converter;
 
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.common.vo.SubjectVO;
-import com.uptang.cloud.score.dto.SubjectDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -19,14 +18,14 @@ public interface SubjectConverter {
     SubjectConverter INSTANCE = Mappers.getMapper(SubjectConverter.class);
 
     /**
-     * 将附件实体转换成VO
+     * model => VO
      *
-     * @param subject 履历表
-     * @return 转换后的VO
+     * @param subject model
+     * @return VO
      */
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "scoreNumber",expression = "java(com.uptang.cloud.score.common.util.Calculator.dev10(subject.getScoreNumber()))")
-    SubjectVO toVo(SubjectDTO subject);
+    @Mapping(target = "subjectId", source = "id")
+    @Mapping(target = "scoreNumber", expression = "java(com.uptang.cloud.score.common.util.Calculator.dev10(subject.getScoreNumber()))")
+    SubjectVO toVO(Subject subject);
 
     /**
      * 将附件VO转换成实体
@@ -34,15 +33,7 @@ public interface SubjectConverter {
      * @param subject 履历表
      * @return 转换后实体
      */
-    @Mapping(target = "scoreNumber",expression = "java(com.uptang.cloud.score.common.util.Calculator.defaultNumberScore(subject.getScoreNumber()))")
-    SubjectDTO toDTO(SubjectVO subject);
-
-    /**
-     * 将附件VO转换成实体
-     *
-     * @param subject 履历表
-     * @return 转换后实体
-     */
-    @Mapping(target = "scoreNumber",expression = "java(com.uptang.cloud.score.common.util.Calculator.defaultNumberScore(subject.getScoreNumber()))")
+    @Mapping(target = "scoreNumber", expression = "java(com.uptang.cloud.score.common.util.Calculator.defaultNumberScore(subject.getScoreNumber()))")
+    @Mapping(source = "subjectId", target = "id")
     Subject toModel(SubjectVO subject);
 }

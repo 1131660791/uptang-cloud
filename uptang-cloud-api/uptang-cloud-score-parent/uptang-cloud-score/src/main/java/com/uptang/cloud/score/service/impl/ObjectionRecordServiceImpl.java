@@ -9,10 +9,12 @@ import com.uptang.cloud.score.common.model.ObjectionRecord;
 import com.uptang.cloud.score.common.model.ObjectionRecordResume;
 import com.uptang.cloud.score.repository.ObjectionRecordRepository;
 import com.uptang.cloud.score.service.IObjectionRecordService;
+import com.uptang.cloud.score.service.IScoreStatusService;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -27,15 +29,39 @@ public class ObjectionRecordServiceImpl
         extends ServiceImpl<ObjectionRecordRepository, ObjectionRecord>
         implements IObjectionRecordService {
 
+    private final IScoreStatusService statusService;
+
+    public ObjectionRecordServiceImpl(IScoreStatusService statusService) {
+        this.statusService = statusService;
+    }
+
     @Override
-    public void add(ObjectionRecord objectionRecord) {
-        if (objectionRecord != null) {
-            objectionRecord.setCreatedTime(new Date());
-            objectionRecord.setReviewStat(ReviewEnum.NONE);
-            objectionRecord.setReviewDesc(Strings.EMPTY);
-            objectionRecord.setState(ObjectionEnum.PROCESS);
-            getBaseMapper().add(objectionRecord);
+    public String add(ObjectionRecord record) {
+        if (record != null
+                || record.getResumeId() == null
+                || record.getScoreType() == null) {
+            // 公示状态检查
+            Long count = statusService.checkState(record.getResumeId());
+            if (count != null && count != 0) {
+                ObjectionRecordRepository baseMapper = getBaseMapper();
+                // 异议记录是否已经存在
+                Long records = baseMapper.exists(record.getResumeId(),
+                        record.getScoreType(),
+                        record.getCreatorId());
+                // 同一个人只能提交一次异议
+                if (records != null && records.compareTo(0L) == 0) {
+                    record.setCreatedTime(new Date());
+                    record.setReviewStat(ReviewEnum.NONE);
+                    record.setReviewDesc(Strings.EMPTY);
+                    record.setState(ObjectionEnum.PROCESS);
+                    record.setReviewDesc(Strings.EMPTY);
+                    baseMapper.add(record);
+                }
+                return "已接收您的意见";
+            }
+            return "该成绩不在公示期内";
         }
+        return "请求数据不能为空";
     }
 
     @Override
@@ -57,9 +83,9 @@ public class ObjectionRecordServiceImpl
     }
 
     @Override
-    public void update(ObjectionRecord toModel) {
+    public void verify(ObjectionRecord toModel) {
         toModel.setModifiedTime(new Date());
-        getBaseMapper().update(toModel);
+        getBaseMapper().verify(toModel);
     }
 
 
@@ -74,7 +100,16 @@ public class ObjectionRecordServiceImpl
         Assert.notNull(schoolId, "学校不能为空");
         Assert.notNull(type, "成绩类型不能为空");
         Assert.notNull(gradeId, "年级ID不能为空");
-        PageHelper.startPage(pageNum == null ? 1 : pageNum, pageSize == null ? 10 : pageSize);
+
+        PageHelper.startPage(pageNum, pageSize);
         return getBaseMapper().page(schoolId, gradeId, classId, semesterId, type);
+    }
+
+    @Override
+    public List<Long> records(ScoreTypeEnum type, List<Long> resumeIds) {
+        if (type == null || resumeIds == null || resumeIds.size() == 0) {
+            return Collections.emptyList();
+        }
+        return getBaseMapper().records(type, resumeIds);
     }
 }
