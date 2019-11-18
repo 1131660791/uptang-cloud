@@ -37,17 +37,17 @@ public class ExcelController extends BaseController {
     @ApiOperation(value = "Excel导入成绩", response = String.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0:学业成绩 1:体质健康 2:艺术成绩", paramType = "path", dataTypeClass = int.class, required = true),
-            @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", dataTypeClass = long.class, required = true),
-            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", dataTypeClass = long.class, required = true),
-            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", dataTypeClass = long.class, required = true),
+            @ApiImplicitParam(name = "school-id", value = "学校ID", paramType = "path", dataTypeClass = long.class, required = true),
+            @ApiImplicitParam(name = "grade-id", value = "年级ID", paramType = "path", dataTypeClass = long.class, required = true),
+            @ApiImplicitParam(name = "semester-id", value = "学期ID", paramType = "path", dataTypeClass = long.class, required = true),
             @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query", dataTypeClass = long.class),
             @ApiImplicitParam(name = "semesterName", value = "学期名称", paramType = "query", required = true),
     })
-    @PostMapping("/{type}/{schoolId}/{gradeId}/{semesterId}")
+    @PostMapping("/{type}/{school-id}/{grade-id}/{semester-id}")
     public ApiOut<String> batchInsert(@PathVariable("type") @NotNull Integer type,
-                                      @PathVariable("gradeId") @NotNull Long gradeId,
-                                      @PathVariable("schoolId") @NotNull Long schoolId,
-                                      @PathVariable("semesterId") @NotNull Long semesterId,
+                                      @PathVariable("grade-id") @NotNull Long gradeId,
+                                      @PathVariable("school-id") @NotNull Long schoolId,
+                                      @PathVariable("semester-id") @NotNull Long semesterId,
                                       @RequestParam(value = "classId", required = false) Long classId,
                                       @RequestParam("semesterName") @NotNull String semesterName) {
 

@@ -31,48 +31,66 @@ public class ScoreStatusController {
         this.scoreStatusService = scoreStatusService;
     }
 
-    @PutMapping("/archive/{type}/{schoolId}/{gradeId}/{semesterId}")
+    @PutMapping("/archive/{type}/{school-id}/{grade-id}/{semester-id}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
-            @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "school-id", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "grade-id", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semester-id", value = "学期ID", paramType = "path", required = true),
     })
     @ApiOperation(value = "归档", response = Boolean.class)
-    public ApiOut<Boolean> archive(@PathVariable("schoolId") @NotNull Long schoolId,
-                                   @PathVariable("gradeId") @NotNull Long gradeId,
-                                   @PathVariable("semesterId") @NotNull Long semesterId,
+    public ApiOut<Boolean> archive(@PathVariable("school-id") @NotNull Long schoolId,
+                                   @PathVariable("grade-id") @NotNull Long gradeId,
+                                   @PathVariable("semester-id") @NotNull Long semesterId,
                                    @PathVariable("type") @NotNull Integer type) {
         boolean archive = scoreStatusService.archive(schoolId, gradeId, semesterId, ScoreTypeEnum.code(type));
         return ApiOut.newSuccessResponse(archive);
     }
 
-    @PutMapping("/undoArchive/{type}/{schoolId}/{gradeId}/{semesterId}")
+    @PutMapping("/undoArchive/{type}/{school-id}/{grade-id}/{semester-id}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
+            @ApiImplicitParam(name = "school-id", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "grade-id", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semester-id", value = "学期ID", paramType = "path", required = true),
+    })
     @ApiOperation(value = "撤销归档", response = String.class)
-    public ApiOut<Boolean> undoArchive(@PathVariable("schoolId") @NotNull Long schoolId,
-                                       @PathVariable("gradeId") @NotNull Long gradeId,
-                                       @PathVariable("semesterId") @NotNull Long semesterId,
+    public ApiOut<Boolean> undoArchive(@PathVariable("school-id") @NotNull Long schoolId,
+                                       @PathVariable("grade-id") @NotNull Long gradeId,
+                                       @PathVariable("semester-id") @NotNull Long semesterId,
                                        @PathVariable("type") @NotNull Integer type) {
 
         boolean undoArchive = scoreStatusService.undoArchive(schoolId, gradeId, semesterId, ScoreTypeEnum.code(type));
         return ApiOut.newSuccessResponse(undoArchive);
     }
 
-    @PutMapping("/show/{type}/{schoolId}/{gradeId}/{semesterId}")
+    @PutMapping("/show/{type}/{school-id}/{grade-id}/{semester-id}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
+            @ApiImplicitParam(name = "school-id", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "grade-id", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semester-id", value = "学期ID", paramType = "path", required = true),
+    })
     @ApiOperation(value = "公示", response = Boolean.class)
-    public ApiOut<Boolean> show(@PathVariable("schoolId") @NotNull Long schoolId,
-                                @PathVariable("gradeId") @NotNull Long gradeId,
-                                @PathVariable("semesterId") @NotNull Long semesterId,
+    public ApiOut<Boolean> show(@PathVariable("school-id") @NotNull Long schoolId,
+                                @PathVariable("grade-id") @NotNull Long gradeId,
+                                @PathVariable("semester-id") @NotNull Long semesterId,
                                 @PathVariable("type") @NotNull Integer type) {
         boolean show = scoreStatusService.show(schoolId, gradeId, semesterId, ScoreTypeEnum.code(type));
         return ApiOut.newSuccessResponse(show);
     }
 
-    @PutMapping("/cancel/{type}/{schoolId}/{gradeId}/{semesterId}")
+    @PutMapping("/cancel/{type}/{school-id}/{grade-id}/{semester-id}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
+            @ApiImplicitParam(name = "school-id", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "grade-id", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semester-id", value = "学期ID", paramType = "path", required = true),
+    })
     @ApiOperation(value = "撤销公示", response = Boolean.class)
-    public ApiOut<Boolean> cancel(@PathVariable("schoolId") @NotNull Long schoolId,
-                                  @PathVariable("gradeId") @NotNull Long gradeId,
-                                  @PathVariable("semesterId") @NotNull Long semesterId,
+    public ApiOut<Boolean> cancel(@PathVariable("school-id") @NotNull Long schoolId,
+                                  @PathVariable("grade-id") @NotNull Long gradeId,
+                                  @PathVariable("semester-id") @NotNull Long semesterId,
                                   @PathVariable("type") @NotNull Integer type) {
         boolean cancel = scoreStatusService.cancel(schoolId, gradeId, semesterId, ScoreTypeEnum.code(type));
         return ApiOut.newSuccessResponse(cancel);

@@ -49,21 +49,21 @@ public class ScoreController extends BaseController {
         this.archiveScoreService = archiveScoreService;
     }
 
-    @GetMapping("/show/{type}/{schoolId}/{gradeId}/{semesterId}")
+    @GetMapping("/show/{type}/{school-id}/{grade-id}/{semester-id}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
-            @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "school-id", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "grade-id", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semester-id", value = "学期ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query", required = true),
             @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", paramType = "query")
     })
     @ApiOperation(value = "查询公示数据", response = String.class)
     public ApiOut<List<ShowScoreVO>> show(@PathVariable("type") @NotNull Integer type,
-                                          @PathVariable("gradeId") @NotNull Long gradeId,
-                                          @PathVariable("schoolId") @NotNull Long schoolId,
-                                          @PathVariable("semesterId") @NotNull Long semesterId,
+                                          @PathVariable("grade-id") @NotNull Long gradeId,
+                                          @PathVariable("school-id") @NotNull Long schoolId,
+                                          @PathVariable("semester-id") @NotNull Long semesterId,
                                           @RequestParam(value = "classId", required = false) Long classId,
                                           @RequestParam(value = "pageNum", defaultValue = "1", required = false) Integer pageNum,
                                           @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
@@ -73,21 +73,21 @@ public class ScoreController extends BaseController {
         return toVO(page);
     }
 
-    @GetMapping("/archive/{type}/{schoolId}/{gradeId}/{semesterId}")
+    @GetMapping("/archive/{type}/{school-id}/{grade-id}/{semester-id}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
-            @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "school-id", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "grade-id", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semester-id", value = "学期ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query"),
             @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", paramType = "query")
     })
     @ApiOperation(value = "查询已归档数据", response = String.class)
     public ApiOut<List<ArchiveScoreVO>> archive(@PathVariable("type") @NotNull Integer type,
-                                                @PathVariable("gradeId") @NotNull Long gradeId,
-                                                @PathVariable("schoolId") @NotNull Long schoolId,
-                                                @PathVariable("semesterId") @NotNull Long semesterId,
+                                                @PathVariable("grade-id") @NotNull Long gradeId,
+                                                @PathVariable("school-id") @NotNull Long schoolId,
+                                                @PathVariable("semester-id") @NotNull Long semesterId,
                                                 @RequestParam(value = "classId", required = false) Long classId,
                                                 @RequestParam(value = "pageNum", defaultValue = "1", required = false) Integer pageNum,
                                                 @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
@@ -105,21 +105,21 @@ public class ScoreController extends BaseController {
     /**
      * 单词没有拼错 拷贝粘贴的
      */
-    @GetMapping("/unfiled/{type}/{schoolId}/{gradeId}/{semesterId}")
+    @GetMapping("/unfiled/{type}/{school-id}/{grade-id}/{semester-id}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
-            @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "school-id", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "grade-id", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semester-id", value = "学期ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query", required = true),
             @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", paramType = "query")
     })
     @ApiOperation(value = "查询未归档数据", response = String.class)
     public ApiOut<List<ShowScoreVO>> unfiled(@PathVariable("type") @NotNull Integer type,
-                                             @PathVariable("gradeId") @NotNull Long gradeId,
-                                             @PathVariable("schoolId") @NotNull Long schoolId,
-                                             @PathVariable("semesterId") @NotNull Long semesterId,
+                                             @PathVariable("grade-id") @NotNull Long gradeId,
+                                             @PathVariable("school-id") @NotNull Long schoolId,
+                                             @PathVariable("semester-id") @NotNull Long semesterId,
                                              @RequestParam(value = "classId", required = false) Long classId,
                                              @RequestParam(value = "pageNum", defaultValue = "1", required = false) Integer pageNum,
                                              @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
