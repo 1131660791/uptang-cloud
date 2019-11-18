@@ -145,7 +145,7 @@ public class ScoreController extends BaseController {
     @ApiOperation(value = "修改成绩", response = String.class)
     public ApiOut<String> updateScore(@RequestBody SubjectVO subjectVO) {
         Double scoreMinimum = 0.0D;
-        if (scoreMinimum.compareTo(subjectVO.getScoreNumber()) < 0) {
+        if (scoreMinimum.compareTo(subjectVO.getScoreNumber()) > 0) {
             return ApiOut.newPrompt("成绩不能为负数");
         }
 
