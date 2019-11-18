@@ -114,7 +114,7 @@
         <if test="schoolId != null">AND resume.`school_id`=#{schoolId}</if>
         <if test="gradeId != null">AND resume.`grade_id`=#{gradeId}</if>
         <if test="gradeName != null and gradeName != ''">AND resume.`grade_name`=#{gradeName}</if>
-        <if test="classId != null">AND `resume.class_id`=#{classId}</if>
+        <if test="classId != null">AND resume`.class_id`=#{classId}</if>
         <if test="className != null and className != ''">AND resume.`class_name`=#{className}</if>
         <if test="semesterId != null">AND `semester_id`=#{semesterId}</if>
         <if test="semesterName != null and semesterName != ''">AND resume.`semester_name`=#{semesterName}</if>
