@@ -28,7 +28,7 @@ import java.util.Date;
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ModuleSwitchResponseDto {
+public class ModuleSwitchResponseDTO {
 
     /**
      * module_type	int	R	模块类型，值为9代表学业成绩、体质测评

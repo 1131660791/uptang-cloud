@@ -2,16 +2,17 @@ package com.uptang.cloud.score.controller;
 
 import com.uptang.cloud.score.common.converter.ArchiveScoreConverter;
 import com.uptang.cloud.score.common.converter.ScoreConverter;
-import com.uptang.cloud.score.common.converter.SubjectConverter;
+import com.uptang.cloud.score.common.converter.ShowScoreConverter;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.common.vo.ArchiveScoreVO;
 import com.uptang.cloud.score.common.vo.ScoreVO;
+import com.uptang.cloud.score.common.vo.ShowScoreVO;
 import com.uptang.cloud.score.common.vo.SubjectVO;
 import com.uptang.cloud.score.dto.ArchiveScoreDTO;
 import com.uptang.cloud.score.dto.RequestParameter;
-import com.uptang.cloud.score.dto.ScoreDto;
-import com.uptang.cloud.score.dto.SubjectDTO;
+import com.uptang.cloud.score.dto.ScoreDTO;
+import com.uptang.cloud.score.dto.ShowScoreDTO;
 import com.uptang.cloud.score.service.IArchiveScoreService;
 import com.uptang.cloud.score.service.ISubjectService;
 import com.uptang.cloud.starter.web.controller.BaseController;
@@ -25,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.uptang.cloud.score.common.converter.SubjectConverter.INSTANCE;
+
 /**
  * @author : Lee.m.yin
  * @createtime : 2019-11-12 18:55
@@ -33,7 +36,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/v1/score")
-@Api(value = "ObjectionRecordController", tags = {"成绩管理"})
+@Api(tags = "成绩管理")
 public class ScoreController extends BaseController {
 
     private final ISubjectService subjectService;
@@ -46,24 +49,50 @@ public class ScoreController extends BaseController {
         this.archiveScoreService = archiveScoreService;
     }
 
-    @GetMapping("/archive/{type}/{schoolId}/{gradeId}/{classId}/{semesterId}")
+    @GetMapping("/show/{type}/{schoolId}/{gradeId}/{semesterId}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
             @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true)
+            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query", required = true),
+            @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", paramType = "query")
+    })
+    @ApiOperation(value = "查询公示数据", response = String.class)
+    public ApiOut<List<ShowScoreVO>> show(@PathVariable("type") @NotNull Integer type,
+                                          @PathVariable("gradeId") @NotNull Long gradeId,
+                                          @PathVariable("schoolId") @NotNull Long schoolId,
+                                          @PathVariable("semesterId") @NotNull Long semesterId,
+                                          @RequestParam(value = "classId", required = false) Long classId,
+                                          @RequestParam(value = "pageNum", defaultValue = "1", required = false) Integer pageNum,
+                                          @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
+
+        List<ShowScoreDTO> page = subjectService.show(schoolId, gradeId, classId, semesterId,
+                ScoreTypeEnum.code(type), pageNum, pageSize);
+        return toVO(page);
+    }
+
+    @GetMapping("/archive/{type}/{schoolId}/{gradeId}/{semesterId}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
+            @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query"),
+            @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", paramType = "query")
     })
     @ApiOperation(value = "查询已归档数据", response = String.class)
     public ApiOut<List<ArchiveScoreVO>> archive(@PathVariable("type") @NotNull Integer type,
                                                 @PathVariable("gradeId") @NotNull Long gradeId,
-                                                @PathVariable("classId") Long classId,
                                                 @PathVariable("schoolId") @NotNull Long schoolId,
                                                 @PathVariable("semesterId") @NotNull Long semesterId,
-                                                @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-                                                @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
-        //Long schoolId, Long gradeId, Long semesterId, ScoreTypeEnum type, Integer pageNum, Integer pageSize
-        List<ArchiveScoreDTO> page = archiveScoreService.page(schoolId, gradeId, semesterId, classId,
+                                                @RequestParam(value = "classId", required = false) Long classId,
+                                                @RequestParam(value = "pageNum", defaultValue = "1", required = false) Integer pageNum,
+                                                @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
+
+        List<ArchiveScoreDTO> page = archiveScoreService.page(schoolId, gradeId, classId, semesterId,
                 ScoreTypeEnum.code(type), pageNum, pageSize);
         return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(page, models -> {
             if (page == null || page.size() == 0) {
@@ -73,30 +102,30 @@ public class ScoreController extends BaseController {
         }));
     }
 
-    @GetMapping("/unfiled/{type}/{schoolId}/{gradeId}/{classId}/{semesterId}")
+    /**
+     * 单词没有拼错 拷贝粘贴的
+     */
+    @GetMapping("/unfiled/{type}/{schoolId}/{gradeId}/{semesterId}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
             @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true)
+            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query", required = true),
+            @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", paramType = "query")
     })
     @ApiOperation(value = "查询未归档数据", response = String.class)
-    public ApiOut<List<SubjectVO>> unfiled(@PathVariable("type") @NotNull Integer type,
-                                           @PathVariable("gradeId") @NotNull Long gradeId,
-                                           @PathVariable("classId") @NotNull Long classId,
-                                           @PathVariable("schoolId") @NotNull Long schoolId,
-                                           @PathVariable("semesterId") @NotNull Long semesterId,
-                                           @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-                                           @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
-        List<SubjectDTO> page = subjectService.page(schoolId, gradeId, classId, semesterId,
+    public ApiOut<List<ShowScoreVO>> unfiled(@PathVariable("type") @NotNull Integer type,
+                                             @PathVariable("gradeId") @NotNull Long gradeId,
+                                             @PathVariable("schoolId") @NotNull Long schoolId,
+                                             @PathVariable("semesterId") @NotNull Long semesterId,
+                                             @RequestParam(value = "classId", required = false) Long classId,
+                                             @RequestParam(value = "pageNum", defaultValue = "1", required = false) Integer pageNum,
+                                             @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
+        List<ShowScoreDTO> page = subjectService.unfiled(schoolId, gradeId, classId, semesterId,
                 ScoreTypeEnum.code(type), pageNum, pageSize);
-        return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(page, models -> {
-            if (page == null || page.size() == 0) {
-                return Collections.emptyList();
-            }
-            return models.stream().map(SubjectConverter.INSTANCE::toVo).collect(Collectors.toList());
-        }));
+        return toVO(page);
     }
 
     @PostMapping
@@ -107,19 +136,17 @@ public class ScoreController extends BaseController {
         parameter.setToken(getToken());
         parameter.setUserId(getUserId());
 
-        ScoreDto scoreDto = ScoreConverter.toModel(score, parameter);
+        ScoreDTO scoreDto = ScoreConverter.toModel(score, parameter);
         return ApiOut.newPrompt(subjectService.addScore(scoreDto));
     }
-
 
     @PutMapping
     @ApiParam(value = "subject object", required = true)
     @ApiOperation(value = "修改成绩", response = String.class)
     public ApiOut<String> updateScore(@RequestBody SubjectVO subjectVO) {
-        Double scoreNumber = subjectVO.getScoreNumber();
         Double scoreMinimum = 0.0D;
-        if (scoreNumber < scoreMinimum) {
-            return ApiOut.newPrompt("分数不能为负数");
+        if (scoreMinimum.compareTo(subjectVO.getScoreNumber()) < 0) {
+            return ApiOut.newPrompt("成绩不能为负数");
         }
 
         RequestParameter parameter = new RequestParameter();
@@ -129,7 +156,16 @@ public class ScoreController extends BaseController {
         parameter.setGradeId(subjectVO.getGradeId());
         parameter.setClassId(subjectVO.getClassId());
         parameter.setScoreType(subjectVO.getScoreType());
-        Subject subject = SubjectConverter.INSTANCE.toModel(subjectVO);
+        Subject subject = INSTANCE.toModel(subjectVO);
         return ApiOut.newPrompt(subjectService.update(subject, parameter));
+    }
+
+    private ApiOut<List<ShowScoreVO>> toVO(List<ShowScoreDTO> page) {
+        return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(page, models -> {
+            if (page == null || page.size() == 0) {
+                return Collections.emptyList();
+            }
+            return models.stream().map(ShowScoreConverter::toVo).collect(Collectors.toList());
+        }));
     }
 }

@@ -11,9 +11,9 @@ import java.util.List;
  * @summary : FIXME
  */
 @Data
-public class SwitchResponseDto {
+public class SwitchResponseDTO {
 
     private Long count;
 
-    private List<ModuleSwitchResponseDto> list;
+    private List<ModuleSwitchResponseDTO> list;
 }

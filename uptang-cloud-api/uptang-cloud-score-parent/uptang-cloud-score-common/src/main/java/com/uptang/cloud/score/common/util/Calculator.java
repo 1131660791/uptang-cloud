@@ -40,6 +40,9 @@ public class Calculator {
      * @return
      */
     public static Double dev10(Integer score) {
+        if (score == null || UNSIGNED_SMALLINT_MAX_VALUE.compareTo(score) == 0) {
+            return null;
+        }
         return new BigDecimal(score).divide(new BigDecimal(10)).doubleValue();
     }
 

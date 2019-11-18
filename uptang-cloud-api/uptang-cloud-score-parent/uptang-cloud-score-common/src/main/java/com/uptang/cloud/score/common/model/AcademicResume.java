@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.uptang.cloud.pojo.enums.GenderEnum;
+import com.uptang.cloud.score.common.enums.ScoreStatusEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -152,5 +153,10 @@ public class AcademicResume implements Serializable {
      * @Column(name = "modified_time")
      */
     private java.util.Date modifiedTime;
+
+    /**
+     * 状态
+     */
+    private ScoreStatusEnum state;
 }
 

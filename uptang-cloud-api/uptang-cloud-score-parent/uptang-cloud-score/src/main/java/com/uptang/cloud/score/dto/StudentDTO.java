@@ -13,6 +13,8 @@ import lombok.Data;
 @Data
 public class StudentDTO {
 
+    /**
+     */
     private Long id;
 
     /**
@@ -62,6 +64,21 @@ public class StudentDTO {
      */
     @JsonProperty("classCode")
     private String classCode;
+
+    /**
+     * 学校编号
+     */
+    private Long schoolId;
+
+    /**
+     * 年级编号
+     */
+    private Long gradeId;
+
+    /**
+     * 班级编号
+     */
+    private Long classId;
 
     /**
      * 学生唯一编号

@@ -1,6 +1,7 @@
 package com.uptang.cloud.starter.web.interceptor;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.uptang.cloud.pojo.domain.context.UserContextThreadLocal;
@@ -141,11 +142,14 @@ public class UserContextInterceptor extends HandlerInterceptorAdapter {
         }
 
         // 根据返回信息获取到用户信息的JSON
-        String userJson = Optional.ofNullable(JSON.parseObject(result))
+        final JSONObject data = Optional.ofNullable(JSON.parseObject(result))
                 .map(json -> json.getJSONObject("data"))
-                .map(json -> json.getString("user"))
-                .orElse(StringUtils.EMPTY);
+                .orElse(null);
+        if (Objects.isNull(data)) {
+            return null;
+        }
 
+        final String userJson = data.getString("user");
         if (StringUtils.isBlank(userJson)) {
             return null;
         }
@@ -155,6 +159,7 @@ public class UserContextInterceptor extends HandlerInterceptorAdapter {
                     .userId(json.getLong("guid"))
                     .userName(json.getString("name"))
                     .mobile(json.getString("phone"))
+                    .userType(data.getInteger("user_type"))
                     .build();
         }).orElse(null);
 

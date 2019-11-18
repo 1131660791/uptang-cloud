@@ -5,13 +5,13 @@
     <resultMap id="ResultMap" type="com.uptang.cloud.score.common.model.ObjectionRecord">
         <id property="id" column="id"/>
         <result property="resumeId" column="resume_id"/>
-        <result property="state" column="state"/>
+        <result property="state" column="state" typeHandler="com.uptang.cloud.score.handler.ObjectionEnumTypeHandler"/>
         <result property="description" column="description"/>
-        <result property="reviewStat" column="review_stat"/>
+        <result property="reviewStat" column="review_stat" typeHandler="com.uptang.cloud.score.handler.ReviewEnumTypeHandler"/>
         <result property="reviewDesc" column="review_desc"/>
         <result property="reviewId" column="review_id"/>
         <result property="creatorId" column="creator_id"/>
-        <result property="scoreType" column="score_type"/>
+        <result property="scoreType" column="score_type" typeHandler="com.uptang.cloud.score.handler.ScoreTypeEnumTypeHandler"/>
         <result property="createdTime" column="created_time"/>
         <result property="modifiedTime" column="modified_time"/>
     </resultMap>
@@ -19,54 +19,36 @@
     <!--字段名 Java属性名-->
     <sql id="columns">
         `id`, `resume_id`, `state`, `description`, `review_stat`, `review_desc`, `creator_id`,
-        `modifier_id`, `score_type`, `created_time`, `updated_time`
+        `review_id`, `score_type`, `created_time`, `modified_time`
     </sql>
 
-    <!--根据传入属性插入-->
+    <!--根据传入属性插入
+    ON DUPLICATE KEY UPDATE resume_id=VALUES(resume_id)
+    -->
     <insert id="add" keyProperty="id" useGeneratedKeys="true"
             parameterType="com.uptang.cloud.score.common.model.ObjectionRecord">
-
-        INSERT INTO objection_record
-        <trim suffixOverrides="," prefix="(" suffix=")">
-            <if test="resumeId != null">`resume_id`,</if>
-            <if test="state != null">`state`,</if>
-            <if test="description != null and description != ''">`description`,</if>
-            <if test="reviewStat != null">`review_stat`,</if>
-            <if test="reviewDesc != null">`review_desc`,</if>
-            <if test="creatorId != null">`creator_id`,</if>
-            <if test="reviewId != null">`modifier_id`,</if>
-            <if test="scoreType != null">`score_type`,</if>
-            <if test="createdTime != null">`created_time`,</if>
-        </trim>
-        VALUES
-        <trim suffixOverrides="," prefix="(" suffix=")">
-            <if test="state != null">#{state},</if>
-            <if test="resumeId != null">#{resumeId},</if>
-            <if test="description != null and description != ''">#{description},</if>
-            <if test="reviewStat != null">#{reviewStat},</if>
-            <if test="reviewDesc != null">#{reviewDesc},</if>
-            <if test="creatorId != null">#{creatorId},</if>
-            <if test="reviewId != null">#{reviewId},</if>
-            <if test="scoreType != null">#{scoreType},</if>
-            <if test="createdTime != null">#{createdTime},</if>
-        </trim>
+        INSERT INTO objection_record (resume_id,state,description,creator_id,score_type,created_time,review_stat,review_desc)
+        VALUES (#{resumeId},#{state},#{description},#{creatorId},#{scoreType},#{createdTime},#{reviewStat},#{reviewDesc})
     </insert>
+
+    <!--记录是否已经存在-->
+    <select id="exists" resultType="long">
+        SELECT COUNT(0) FROM objection_record
+        WHERE `resume_id`=#{resumeId}
+        AND `score_type`=#{scoreType}
+        AND creator_id=#{creatorId}
+    </select>
 
     <!--根据属性查询-->
     <select id="queryByProperty" resultMap="ResultMap">
-        SELECT
-        <include refid="columns"/>
-        FROM objection_record
+        SELECT <include refid="columns"/> FROM objection_record
         <where>
             <trim suffixOverrides="AND" prefixOverrides="AND">
-                <if test="id != null">AND `id`=#{id}</if>
                 <if test="state != null">AND `state`=#{state}</if>
                 <if test="resumeId != null">AND `resume_id`=#{resumeId}</if>
-                <if test="description != null and description != ''">AND `description`=#{description}</if>
                 <if test="reviewStat != null">AND `review_stat`=#{reviewStat}</if>
-                <if test="reviewDesc != null">AND `review_desc`=#{reviewDesc}</if>
                 <if test="creatorId != null">AND `creator_id`=#{creatorId}</if>
-                <if test="reviewId != null">AND `modifier_id`=#{reviewId}</if>
+                <if test="reviewId != null">AND `review_id`=#{reviewId}</if>
                 <if test="scoreType != null">AND `score_type`=#{scoreType}</if>
                 <if test="createdTime != null">AND `created_time`=#{createdTime}</if>
                 <if test="modifiedTime != null">AND `modified_time`=#{modifiedTime}</if>
@@ -74,24 +56,20 @@
         </where>
     </select>
 
-    <!--根据主键更新-->
-    <update id="update" parameterType="com.uptang.cloud.score.common.model.ObjectionRecord">
+    <!--审核-->
+    <update id="verify" parameterType="com.uptang.cloud.score.common.model.ObjectionRecord">
         UPDATE objection_record
         <trim suffixOverrides=",">
             <set>
                 <if test="state != null">`state`=#{state},</if>
-                <if test="resumeId != null">`resume_id`=#{resumeId},</if>
                 <if test="description != null and description != ''">`description`=#{description},</if>
                 <if test="reviewStat != null">`review_stat`=#{reviewStat},</if>
                 <if test="reviewDesc != null">`review_desc`=#{reviewDesc},</if>
-                <if test="creatorId != null">`creator_id`=#{creatorId},</if>
                 <if test="reviewId != null">`review_id`=#{reviewId},</if>
-                <if test="scoreType != null">`score_type`=#{scoreType},</if>
-                <if test="createdTime != null">`created_time`=#{createdTime},</if>
                 <if test="modifiedTime != null">`modified_time`=#{modifiedTime},</if>
             </set>
         </trim>
-        WHERE `id`=#{id}
+        WHERE `id`=#{id} AND state=1 AND review_stat >1
     </update>
 
 
@@ -110,54 +88,68 @@
         orecord.score_type=#{type}
     </select>
 
-    <resultMap id="DetailResultMap" type="com.uptang.cloud.score.common.model.ObjectionRecord">
+    <!--
+    异议记录
+    公示 1 公示中 2 归档 3 已提交
+    审核状态 1 通过 2 拒绝 9 不表示
+    -->
+    <select id="records" resultType="long">
+        SELECT resume_id FROM objection_record WHERE state=1 AND review_stat > 1
+        AND score_type=#{type} AND resume_id IN
+        <foreach collection="resumeIds" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <resultMap id="DetailResultMap" type="com.uptang.cloud.score.common.model.ObjectionRecordResume">
         <id property="id" column="id"/>
         <result property="resumeId" column="resume_id"/>
-        <result property="state" column="state"/>
+        <result property="state" column="state" typeHandler="com.uptang.cloud.score.handler.ObjectionEnumTypeHandler"/>
         <result property="description" column="description"/>
-        <result property="reviewStat" column="review_stat"/>
+        <result property="reviewStat" column="review_stat" typeHandler="com.uptang.cloud.score.handler.ReviewEnumTypeHandler"/>
         <result property="reviewDesc" column="review_desc"/>
         <result property="reviewId" column="review_id"/>
         <result property="creatorId" column="creator_id"/>
-        <result property="scoreType" column="score_type"/>
+        <result property="scoreType" column="score_type" typeHandler="com.uptang.cloud.score.handler.ScoreTypeEnumTypeHandler"/>
         <result property="createdTime" column="created_time"/>
         <result property="modifiedTime" column="modified_time"/>
-        <result property="subjectId" column="subjectId"/>
-        <result property="subjectCode" column="code"/>
-        <result property="subjectName" column="name"/>
-        <result property="scoreText" column="score_text"/>
-        <result property="scoreNumber" column="score_number"/>
+        <!--异议表完-->
+        <result property="studentId" column="student_id"/>
+        <result property="semesterId" column="semester_id"/>
+        <result property="schoolId" column="school_id"/>
+        <result property="gradeId" column="grade_id"/>
+        <result property="classId" column="class_id"/>
         <result property="semesterName" column="semester_name"/>
         <result property="schoolName" column="school_name"/>
         <result property="gradeName" column="grade_name"/>
         <result property="className" column="class_name"/>
         <result property="studentName" column="student_name"/>
-        <result property="studentId" column="student_id"/>
-        <result property="gender" column="gender"/>
+        <result property="studentCode" column="student_code"/>
+        <result property="gender" column="gender" typeHandler="com.uptang.cloud.score.handler.GenderEnumTypeHandler"/>
+        <!--履历表完-->
+        <result property="subjectId" column="subjectId"/>
+        <result property="subjectCode" column="code"/>
+        <result property="subjectName" column="name"/>
+        <result property="scoreText" column="score_text"/>
+        <result property="scoreNumber" column="score_number"/>
+        <!--科目表完-->
     </resultMap>
 
-
-    <!--异议详情-->
-    <select id="detail" resultMap="DetailResultMap">
+    <!--分页
+     SUBJECD.id AS subjectId,SUBJECD.code, SUBJECD.name,SUBJECD.score_text,SUBJECD.score_number
+     LEFT JOIN logic_subject SUBJECD ON SUBJECD.resume_id=ORE.resume_id
+    -->
+    <select id="page" resultMap="DetailResultMap">
         SELECT
-        orecord.id,subjct.id AS subjectId,orecord.state,orecord.description,orecord.review_stat,
-        orecord.review_desc,orecord.creator_id,orecord.score_type,orecord.created_time,
-        subjct.`code`,subjct.`name`,subjct.score_text,subjct.score_number,ar.semester_name,
-        ar.school_name,ar.grade_name,ar.class_name,ar.student_name,ar.student_id,ar.gender
-        FROM objection_record orecord,
-        academic_resume ar,
-        subject_health subjct
-        WHERE ar.id=orecord.resume_id AND ar.id=subjct.resume_id
-        AND ar.school_id=#{schoolId}
-        AND ar.grade_id=#{gradeId}
-        AND ar.semester_id=#{semesterId}
-        AND subjct.score_type=#{type}
-    </select>
-
-    <!--分页-->
-    <select id="page" resultMap="ResultMap">
-        SELECT
-        <include refid="columns"/>
-        FROM objection_record WHERE resume_id=#{resumeId} AND score_type=#{type}
+        ORE.id,ORE.resume_id,ORE.state,ORE.description,ORE.review_stat,ORE.review_desc,
+        ORE.review_id, ORE.score_type,ORE.created_time,ORE.modified_time,
+        ARE.school_id,ARE.grade_id,ARE.class_id,ARE.semester_name,ARE.school_name, ARE.grade_name,
+        ARE.class_name,ARE.student_id,ARE.student_name,ARE.student_code,ARE.gender,ARE.semester_id
+        FROM objection_record ORE LEFT JOIN academic_resume ARE ON ORE.resume_id=ARE.id
+        WHERE ORE.state=1
+        <if test="schoolId != null">AND ARE.school_id=#{schoolId}</if>
+        <if test="gradeId != null">AND ARE.grade_id=#{gradeId}</if>
+        <if test="classId != null">AND ARE.class_id=#{classId}</if>
+        <if test="semesterId != null">AND ARE.semester_id=#{semesterId}</if>
     </select>
 </mapper>

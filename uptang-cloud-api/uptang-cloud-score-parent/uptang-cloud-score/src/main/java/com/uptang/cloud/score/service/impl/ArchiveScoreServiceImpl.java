@@ -7,11 +7,12 @@ import com.uptang.cloud.score.common.model.ArchiveScore;
 import com.uptang.cloud.score.dto.ArchiveScoreDTO;
 import com.uptang.cloud.score.repository.ArchiveScoreRepository;
 import com.uptang.cloud.score.service.IArchiveScoreService;
+import com.uptang.cloud.score.util.LocalAssert;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author : Lee.m.yin
@@ -25,10 +26,19 @@ public class ArchiveScoreServiceImpl
         implements IArchiveScoreService {
 
     @Override
-    public List<ArchiveScore> batchInsert(List<ArchiveScore> archiveScores) {
+    @Transactional(rollbackFor = Exception.class)
+    public List<List<Long>> batchInsert(Map<Integer, List<ArchiveScore>> archiveScores) {
         if (archiveScores != null && archiveScores.size() > 0) {
-            getBaseMapper().batchInsert(archiveScores);
-            return archiveScores;
+            Set<Map.Entry<Integer, List<ArchiveScore>>> entries = archiveScores.entrySet();
+            ArchiveScoreRepository archiveRepository = getBaseMapper();
+
+            List<List<Long>> ids = new ArrayList<>();
+            for (Map.Entry<Integer, List<ArchiveScore>> entry : entries) {
+                List<ArchiveScore> value = entry.getValue();
+                archiveRepository.batchInsert(value);
+                ids.add(value.stream().map(ArchiveScore::getId).collect(Collectors.toList()));
+            }
+            return ids;
         }
         return Collections.emptyList();
     }
@@ -49,10 +59,9 @@ public class ArchiveScoreServiceImpl
                                       ScoreTypeEnum type,
                                       Integer pageNum,
                                       Integer pageSize) {
-        Assert.notNull(schoolId, "学校ID不能为空");
-        Assert.notNull(gradeId, "年级ID不能为空");
-        Assert.notNull(semesterId, "学期ID不能为空");
-        Assert.notNull(type, "成绩类型不能为空");
+
+        LocalAssert.mustCanNotBeEmpty(schoolId, gradeId, semesterId, type);
+
         PageHelper.startPage(pageNum, pageSize);
         return getBaseMapper().page(schoolId, gradeId, classId, semesterId, type);
     }

@@ -15,8 +15,9 @@
         <result property="className" column="class_name"/>
         <result property="studentName" column="student_name"/>
         <result property="studentCode" column="student_code"/>
-        <result property="gender" column="gender"/>
-        <result property="scoreType" column="score_type"/>
+        <result property="gender" column="gender" typeHandler="com.uptang.cloud.score.handler.GenderEnumTypeHandler"/>
+        <result property="scoreType" column="score_type"
+                typeHandler="com.uptang.cloud.score.handler.ScoreTypeEnumTypeHandler"/>
         <result property="creatorId" column="creator_id"/>
         <result property="modifierId" column="modifier_id"/>
         <result property="createdTime" column="created_time"/>
@@ -42,32 +43,6 @@
         `grade_name`, `class_name`, `semester_id`, `student_code`, `semester_name`, `student_name`,
         `gender`,`score_type`, `score_type`, `creator_id`, `modifier_id`, `created_time`
         ,`modified_time`
-    </sql>
-
-    <!--履历和归档表详情-->
-    <sql id="columnsJoinArchive">
-        ar.`id`,ar.`student_id`, ar.`school_name`, ar.`school_id` AS `schoolId` ,
-        ar.`grade_id` AS `gradeId`, ar.`grade_name` AS `gradeName`,
-        ar.`class_id` AS `classId`, ar.`class_name` AS `className`,
-        ar.`semester_id` AS `semesterId`, ar.`semester_name` AS `semesterName`,
-        ar.`student_name` AS `studentName`, ar.`student_code` AS `studentCode`,
-        ar.`gender`, ar.`score_type` AS `scoreType`,
-        ar.`creator_id` AS `creatorId`, ar.`modifier_id` AS `modifierId`,
-        ar.`created_time` AS `createdTime`, ar.`modified_time` AS `modifiedTime`,
-        archive.`id` AS `archiveId`, archive.`detail` AS `archiveDetail`
-    </sql>
-
-    <!--履历和未归档表详情-->
-    <sql id="columnsJoinUnfiled">
-        ar.`id`,ar.`student_id`, ar.`school_name`, ar.`school_id` AS `schoolId` ,
-        ar.`grade_id` AS `gradeId`, ar.`grade_name` AS `gradeName`,
-        ar.`class_id` AS `classId`, ar.`class_name` AS `className`,
-        ar.`semester_id` AS `semesterId`, ar.`semester_name` AS `semesterName`,
-        ar.`student_name` AS `studentName`, ar.`student_code` AS `studentCode`,
-        ar.`gender`, ar.`score_type` AS `scoreType`,
-        ar.`creator_id` AS `creatorId`, ar.`modifier_id` AS `modifierId`,
-        ar.`created_time` AS `createdTime`, ar.`modified_time` AS `modifiedTime`,
-        score.`subject` AS `subject`, score.`score_text` AS `scoreText`, score.`score_number` AS `scoreNumber`
     </sql>
 
     <!--分页查询-->
@@ -98,135 +73,60 @@
         </where>
     </select>
 
-    <!--履历和归档表详情-->
-    <select id="archiveDetail"
-            parameterType="com.uptang.cloud.score.common.model.AcademicResume"
-            resultType="com.uptang.cloud.score.dto.ResumeJoinArchiveDTO">
+    <resultMap id="PageResultMap" type="com.uptang.cloud.score.dto.ShowScoreDTO">
+        <id property="id" column="id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="semesterId" column="semester_id"/>
+        <result property="schoolId" column="school_id"/>
+        <result property="gradeId" column="grade_id"/>
+        <result property="classId" column="class_id"/>
+        <result property="semesterName" column="semester_name"/>
+        <result property="schoolName" column="school_name"/>
+        <result property="gradeName" column="grade_name"/>
+        <result property="className" column="class_name"/>
+        <result property="studentName" column="student_name"/>
+        <result property="studentCode" column="student_code"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="modifierId" column="modifier_id"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="modifiedTime" column="modified_time"/>
+        <result property="startedTime" column="started_time"/>
+        <result property="finishTime" column="finish_time"/>
+        <result property="state" column="state"
+                typeHandler="com.uptang.cloud.score.handler.ScoreStatusEnumTypeHandler"/>
+        <result property="gender" column="gender" typeHandler="com.uptang.cloud.score.handler.GenderEnumTypeHandler"/>
+        <result property="scoreType" column="score_type"
+                typeHandler="com.uptang.cloud.score.handler.ScoreTypeEnumTypeHandler"/>
+    </resultMap>
 
+
+    <!--查询-->
+    <select id="query" resultMap="PageResultMap" parameterType="com.uptang.cloud.score.common.model.AcademicResume">
         SELECT
-        <include refid="columnsJoinArchive"/>
-        FROM academic_resume ar INNER JOIN archive_score archive on ar.score_id=archive.id and
-        ar.score_type=archive.type
-        <where>
-            <trim suffixOverrides="AND" prefixOverrides="AND">
-                <if test="id != null">AND ar.`id`=#{id}</if>
-                <if test="student_id != null">AND `student_id`=#{studentId}</if>
-                <if test="schoolName != null and schoolName != ''">AND `school_name`=#{schoolName}</if>
-                <if test="schoolId != null">AND ar.`school_id`=#{schoolId}</if>
-                <if test="gradeId != null">AND ar.`grade_id`=#{gradeId}</if>
-                <if test="gradeName != null and gradeName != ''">AND ar.`grade_name`=#{gradeName}</if>
-                <if test="classId != null">AND ar.`class_id`=#{classId}</if>
-                <if test="className != null and className != ''">AND ar.`class_name`=#{className}</if>
-                <if test="semesterId != null">AND ar.`semester_id`=#{semesterId}</if>
-                <if test="semesterName != null and semesterName != ''">AND ar.`semester_name`=#{semesterName}</if>
-                <if test="studentName != null and studentName != ''">AND ar.`student_name`=#{studentName}</if>
-                <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
-                <if test="gender != null">AND ar.`gender`=#{gender}</if>
-                <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
-                <if test="creatorId != null">AND ar.`creator_id`=#{creatorId}</if>
-                <if test="modifierId != null">AND ar.`modifier_id`=#{modifierId}</if>
-                <if test="createdTime != null">AND ar.`created_time`=#{createdTime}</if>
-                <if test="modifiedTime != null">AND ar.`modified_time`=#{modifiedTime}</if>
-            </trim>
-        </where>
-    </select>
-
-
-    <!--履历和未归档表详情-->
-    <select id="unfileDetail"
-            parameterType="com.uptang.cloud.score.common.model.AcademicResume"
-            resultType="com.uptang.cloud.score.dto.ResumeJoinScoreDTO">
-
-        SELECT
-        <include refid="columnsJoinUnfiled"/>
-        FROM academic_resume ar INNER JOIN logic_subject score on ar.score_id=score.id and ar.score_type=score.type
-        <where>
-            <trim suffixOverrides="AND" prefixOverrides="AND">
-                <if test="id != null">AND ar.`id`=#{id}</if>
-                <if test="student_id != null">AND ar.`student_id`=#{studentId}</if>
-                <if test="schoolName != null and schoolName != ''">AND `school_name`=#{schoolName}</if>
-                <if test="schoolId != null">AND ar.`school_id`=#{schoolId}</if>
-                <if test="gradeId != null">AND ar.`grade_id`=#{gradeId}</if>
-                <if test="gradeName != null and gradeName != ''">AND ar.`grade_name`=#{gradeName}</if>
-                <if test="classId != null">AND ar.`class_id`=#{classId}</if>
-                <if test="className != null and className != ''">AND ar.`class_name`=#{className}</if>
-                <if test="semesterId != null">AND ar.`semester_id`=#{semesterId}</if>
-                <if test="studentName != null and studentName != ''">AND ar.`student_name`=#{studentName}</if>
-                <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
-                <if test="gender != null">AND ar.`gender`=#{gender}</if>
-                <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
-                <if test="creatorId != null">AND ar.`creator_id`=#{creatorId}</if>
-                <if test="modifierId != null">AND ar.`modifier_id`=#{modifierId}</if>
-                <if test="createdTime != null">AND ar.`created_time`=#{createdTime}</if>
-                <if test="modifiedTime != null">AND ar.`modified_time`=#{modifiedTime}</if>
-            </trim>
-        </where>
-    </select>
-
-    <!--履历和归档列表-->
-    <select id="archiveList"
-            parameterType="com.uptang.cloud.score.common.model.AcademicResume"
-            resultType="com.uptang.cloud.score.dto.ResumeJoinArchiveDTO">
-
-        SELECT
-        <include refid="columnsJoinArchive"/>
-        FROM academic_resume ar INNER JOIN archive_score archive on ar.score_id=archive.id and
-        ar.score_type=archive.type
-        <where>
-            <trim suffixOverrides="AND" prefixOverrides="AND">
-                <if test="id != null">AND ar.`id`=#{id}</if>
-                <if test="student_id != null">AND ar.`student_id`=#{studentId}</if>
-                <if test="schoolName != null and schoolName != ''">AND `school_name`=#{schoolName}</if>
-                <if test="schoolId != null">AND ar.`school_id`=#{schoolId}</if>
-                <if test="gradeId != null">AND ar.`grade_id`=#{gradeId}</if>
-                <if test="gradeName != null and gradeName != ''">AND ar.`grade_name`=#{gradeName}</if>
-                <if test="classId != null">AND ar.`class_id`=#{classId}</if>
-                <if test="className != null and className != ''">AND ar.`class_name`=#{className}</if>
-                <if test="semesterId != null">AND ar.`semester_id`=#{semesterId}</if>
-                <if test="semesterName != null and semesterName != ''">AND ar.`semester_name`=#{semesterName}</if>
-                <if test="studentName != null and studentName != ''">AND ar.`student_name`=#{studentName}</if>
-                <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
-                <if test="gender != null">AND ar.`gender`=#{gender}</if>
-                <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
-                <if test="creatorId != null">AND ar.`creator_id`=#{creatorId}</if>
-                <if test="modifierId != null">AND ar.`modifier_id`=#{modifierId}</if>
-                <if test="createdTime != null">AND ar.`created_time`=#{createdTime}</if>
-                <if test="modifiedTime != null">AND ar.`modified_time`=#{modifiedTime}</if>
-            </trim>
-        </where>
-    </select>
-
-
-    <!--履历和未归档列表-->
-    <select id="unfileList"
-            parameterType="com.uptang.cloud.score.common.model.AcademicResume"
-            resultType="com.uptang.cloud.score.dto.ResumeJoinScoreDTO">
-
-        SELECT
-        <include refid="columnsJoinUnfiled"/>
-        FROM academic_resume ar INNER JOIN logic_subject score on ar.score_id=score.id and ar.score_type=score.type
-        <where>
-            <trim suffixOverrides="AND" prefixOverrides="AND">
-                <if test="id != null">AND ar.`id`=#{id}</if>
-                <if test="student_id != null">AND ar.`student_id`=#{studentId}</if>
-                <if test="schoolName != null and schoolName != ''">AND `school_name`=#{schoolName}</if>
-                <if test="schoolId != null">AND ar.`school_id`=#{schoolId}</if>
-                <if test="gradeId != null">AND ar.`grade_id`=#{gradeId}</if>
-                <if test="gradeName != null and gradeName != ''">AND ar.`grade_name`=#{gradeName}</if>
-                <if test="classId != null">AND ar.`class_id`=#{classId}</if>
-                <if test="className != null and className != ''">AND ar.`class_name`=#{className}</if>
-                <if test="semesterId != null">AND ar.`semester_id`=#{semesterId}</if>
-                <if test="semesterName != null and semesterName != ''">AND ar.`semester_name`=#{semesterName}</if>
-                <if test="studentName != null and studentName != ''">AND ar.`student_name`=#{studentName}</if>
-                <if test="studentCode != null and studentCode != ''">AND ar.`student_code`=#{studentCode}</if>
-                <if test="gender != null">AND ar.`gender`=#{gender}</if>
-                <if test="scoreType != null">AND ar.`score_type`=#{scoreType}</if>
-                <if test="creatorId != null">AND ar.`creator_id`=#{creatorId}</if>
-                <if test="modifierId != null">AND ar.`modifier_id`=#{modifierId}</if>
-                <if test="createdTime != null">AND ar.`created_time`=#{createdTime}</if>
-                <if test="modifiedTime != null">AND ar.`modified_time`=#{modifiedTime}</if>
-            </trim>
-        </where>
+        resume.`id`, resume.`student_id`, resume.`school_id`, resume.`grade_id`, resume.`class_id`,
+        resume.`school_name`, resume.`grade_name`,resume.`class_name`,resume.`semester_id`,resume.`student_code`,
+        resume.`semester_name`,resume.`student_name`, resume.`gender`,resume.`score_type`,resume.`creator_id`,
+        resume.`modifier_id`,resume.`created_time`, resume.`modified_time`,ss.`state`, ss.`started_time` ,ss.`finish_time`
+        FROM academic_resume resume LEFT JOIN score_status ss ON ss.resume_id=resume.id
+        WHERE ss.state=#{state}
+        <if test="studentId != null">AND resume.`student_id`=#{studentId}</if>
+        <if test="schoolName != null and schoolName != ''">AND resume.`school_name`=#{schoolName}</if>
+        <if test="schoolId != null">AND resume.`school_id`=#{schoolId}</if>
+        <if test="gradeId != null">AND resume.`grade_id`=#{gradeId}</if>
+        <if test="gradeName != null and gradeName != ''">AND resume.`grade_name`=#{gradeName}</if>
+        <if test="classId != null">AND `resume.class_id`=#{classId}</if>
+        <if test="className != null and className != ''">AND resume.`class_name`=#{className}</if>
+        <if test="semesterId != null">AND `semester_id`=#{semesterId}</if>
+        <if test="semesterName != null and semesterName != ''">AND resume.`semester_name`=#{semesterName}</if>
+        <if test="studentName != null and studentName != ''">AND resume.`student_name`=#{studentName}</if>
+        <if test="studentCode != null and studentCode != ''">AND resume.`student_code`=#{studentCode}</if>
+        <if test="gender != null">AND resume.`gender`=#{gender}</if>
+        <if test="scoreType != null">AND resume.`score_type`=#{scoreType}</if>
+        <if test="creatorId != null">AND resume.`creator_id`=#{creatorId}</if>
+        <if test="modifierId != null">AND resume.`modifier_id`=#{modifierId}</if>
+        <if test="createdTime != null">AND resume.`created_time`=#{createdTime}</if>
+        <if test="modifiedTime != null">AND resume.`modified_time`=#{modifiedTime}</if>
+        GROUP BY resume.`id` ORDER BY resume.`id`
     </select>
 
     <!--新增并返回新增的ID-->
@@ -279,12 +179,29 @@
     </select>
 
 
-    <!--获取Resume的ids-->
-    <select id="getResumeIds" resultMap="ResultMap"
+    <!--获取Resume-->
+    <select id="resume" resultMap="ResultMap"
             parameterType="com.uptang.cloud.score.common.model.AcademicResume">
-        SELECT <include refid="columns"/> FROM academic_resume
+        SELECT
+        <include refid="columns"/>
+        FROM academic_resume
         <where>
             <trim suffixOverrides="AND" prefixOverrides="AND">
+                <if test="schoolId != null">AND `school_id`=#{schoolId}</if>
+                <if test="gradeId != null">AND `grade_id`=#{gradeId}</if>
+                <if test="classId != null">AND `class_id`=#{classId}</if>
+                <if test="semesterId != null">AND `semester_id`=#{semesterId}</if>
+                <if test="scoreType != null">AND `score_type`=#{scoreType}</if>
+            </trim>
+        </where>
+    </select>
+
+    <!--是否存在-->
+    <select id="exists" resultType="long"
+            parameterType="com.uptang.cloud.score.common.model.AcademicResume">
+        SELECT COUNT(0) FROM academic_resume
+        <where>
+            <trim prefixOverrides="AND">
                 <if test="schoolId != null">AND `school_id`=#{schoolId}</if>
                 <if test="gradeId != null">AND `grade_id`=#{gradeId}</if>
                 <if test="classId != null">AND `class_id`=#{classId}</if>

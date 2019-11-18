@@ -1,7 +1,10 @@
 package com.uptang.cloud.score.controller;
 
+import com.uptang.cloud.score.common.converter.ObjectionRecordConverter;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ObjectionRecord;
+import com.uptang.cloud.score.common.model.ObjectionRecordResume;
+import com.uptang.cloud.score.common.vo.ObjectionRecordResumeVO;
 import com.uptang.cloud.score.common.vo.ObjectionRecordVO;
 import com.uptang.cloud.score.service.IObjectionRecordService;
 import com.uptang.cloud.starter.web.controller.BaseController;
@@ -16,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.uptang.cloud.score.common.converter.ObjectionRecordConverter.INSTANCE;
+import static com.uptang.cloud.score.common.converter.ObjectionRecordResumeConverter.INSTANCE;
 
 /**
  * @author : Lee.m.yin
@@ -35,18 +38,30 @@ public class ObjectionRecordController extends BaseController {
         this.objectionRecordService = objectionRecordService;
     }
 
-    @GetMapping("/{type}/{resumeId}")
+
+    @GetMapping("/{type}/{schoolId}/{gradeId}/{semesterId}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
-            @ApiImplicitParam(name = "resumeId", value = "履历ID", paramType = "path", required = true)
+            @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query"),
+            @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "显示条数", paramType = "query"),
     })
     @ApiOperation(value = "异议列表", response = ObjectionRecordVO.class)
-    public ApiOut<List<ObjectionRecordVO>> list(@PathVariable("resumeId") @NotNull Long resumeId,
-                                                @PathVariable("type") @NotNull Integer type,
-                                                @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-                                                @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+    public ApiOut<List<ObjectionRecordResumeVO>> list(
+            @PathVariable("type") @NotNull Integer type,
+            @PathVariable("schoolId") @NotNull Long schoolId,
+            @PathVariable("gradeId") @NotNull Long gradeId,
+            @PathVariable("semesterId") @NotNull Long semesterId,
+            @RequestParam(value = "classId", required = false) Long classId,
+            @RequestParam(value = "pageNum", defaultValue = "1", required = false) Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
 
-        List<ObjectionRecord> page = objectionRecordService.page(ScoreTypeEnum.code(type), resumeId, pageNum, pageSize);
+        ScoreTypeEnum typeEnum = ScoreTypeEnum.code(type);
+        List<ObjectionRecordResume> page =
+                objectionRecordService.page(schoolId, gradeId, classId, semesterId, typeEnum, pageNum, pageSize);
         return ApiOut.newSuccessResponse(PageableEntitiesConverter.toVos(page, models -> {
             if (page == null || page.size() == 0) {
                 return Collections.emptyList();
@@ -72,24 +87,22 @@ public class ObjectionRecordController extends BaseController {
         }
 
         objectionRecord.setCreatorId(getUserId());
-        objectionRecordService.add(INSTANCE.toModel(objectionRecord));
-        return ApiOut.newSuccessResponse(true);
+        ObjectionRecord record =
+                ObjectionRecordConverter.INSTANCE.toModel(objectionRecord);
+        return ApiOut.newPrompt(objectionRecordService.add(record));
     }
+
 
     @PutMapping
     @ApiParam(value = "传入json格式", required = true)
     @ApiOperation(value = "异议审核", response = Boolean.class)
-    public ApiOut<Boolean> update(@RequestBody ObjectionRecordVO objectionRecord) {
-        if (objectionRecord.getScoreType() == null) {
-            return ApiOut.newPrompt("成绩类型不能为空");
-        }
-
+    public ApiOut<Boolean> verify(@RequestBody ObjectionRecordVO objectionRecord) {
         if (objectionRecord.getReviewStat() == null) {
             return ApiOut.newPrompt("审核状态不能为空");
         }
 
-        if (objectionRecord.getResumeId() == null) {
-            return ApiOut.newPrompt("履历ID不能为空");
+        if (objectionRecord.getId() == null) {
+            return ApiOut.newPrompt("ID不能为空");
         }
 
         if (StringUtils.isBlank(objectionRecord.getReviewDesc())) {
@@ -97,7 +110,9 @@ public class ObjectionRecordController extends BaseController {
         }
 
         objectionRecord.setReviewId(getUserId());
-        objectionRecordService.update(INSTANCE.toModel(objectionRecord));
+        ObjectionRecord record =
+                ObjectionRecordConverter.INSTANCE.toModel(objectionRecord);
+        objectionRecordService.verify(record);
         return ApiOut.newSuccessResponse(true);
     }
 }

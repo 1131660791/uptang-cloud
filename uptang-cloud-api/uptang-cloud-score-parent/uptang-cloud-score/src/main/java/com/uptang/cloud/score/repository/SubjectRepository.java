@@ -1,10 +1,8 @@
 package com.uptang.cloud.score.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.github.pagehelper.Page;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.Subject;
-import com.uptang.cloud.score.dto.SubjectDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -38,33 +36,12 @@ public interface SubjectRepository extends BaseMapper<Subject> {
                      @Param("scoreType") ScoreTypeEnum scoreType);
 
     /**
-     * 单条插入
-     *
-     * @param score
-     */
-    void save(Subject score);
-
-    /**
      * 修改成绩
      *
      * @param score
      */
     void update(Subject score);
 
-    /**
-     * 分页
-     *
-     * @param schoolId   学校ID
-     * @param gradeId    年级ID
-     * @param semesterId 学期ID
-     * @param type       成绩类型
-     * @return
-     */
-    Page<SubjectDTO> page(@Param("schoolId") Long schoolId,
-                          @Param("gradeId") Long gradeId,
-                          @Param("classId") Long classId,
-                          @Param("semesterId") Long semesterId,
-                          @Param("type") ScoreTypeEnum type);
 
     /**
      * 根据ResumeID进行删除
@@ -74,4 +51,22 @@ public interface SubjectRepository extends BaseMapper<Subject> {
      */
     void batchDeleteResumeIDs(@Param("resumeIds") List<Long> resumeIds,
                               @Param("scoreType") ScoreTypeEnum scoreType);
+
+
+    /**
+     * 分页
+     *
+     * @param sub
+     * @return
+     */
+    List<Subject> queryByProperty(Subject sub);
+
+
+    /**
+     * @param resumeIds
+     * @param scoreType
+     * @return
+     */
+    List<Subject> queryByResumeIds(@Param("resumeIds") List<Long> resumeIds,
+                                   @Param("scoreType") ScoreTypeEnum scoreType);
 }

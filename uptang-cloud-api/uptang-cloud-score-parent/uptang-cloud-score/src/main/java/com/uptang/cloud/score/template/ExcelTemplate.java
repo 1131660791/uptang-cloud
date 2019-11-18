@@ -7,7 +7,7 @@ import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.read.metadata.ReadSheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.uptang.cloud.score.dto.RequestParameter;
-import com.uptang.cloud.score.exceptions.ExcelExceptions;
+import com.uptang.cloud.score.exception.ExcelException;
 import com.uptang.cloud.score.util.Http;
 
 import java.io.InputStream;
@@ -37,7 +37,7 @@ public abstract class ExcelTemplate implements Excel {
                 List<ReadSheet> readSheets = reader.excelExecutor().sheetList();
 
                 if (readSheets == null || readSheets.size() == 0) {
-                    throw new ExcelExceptions("该Excel中并没有数据");
+                    throw new ExcelException("该Excel中并没有数据");
                 }
 
                 // 只读第一页
@@ -47,7 +47,7 @@ public abstract class ExcelTemplate implements Excel {
                     reader.finish();
                 }
             } catch (Exception e) {
-                throw new ExcelExceptions(e);
+                throw new ExcelException(e);
             }
         });
     }

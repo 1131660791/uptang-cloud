@@ -1,8 +1,10 @@
 package com.uptang.cloud.score.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.pagehelper.Page;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ObjectionRecord;
+import com.uptang.cloud.score.common.model.ObjectionRecordResume;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,7 +32,7 @@ public interface ObjectionRecordRepository extends BaseMapper<ObjectionRecord> {
      *
      * @param objectionRecord
      */
-    void update(ObjectionRecord objectionRecord);
+    void verify(ObjectionRecord objectionRecord);
 
     /**
      * 新增
@@ -70,30 +72,38 @@ public interface ObjectionRecordRepository extends BaseMapper<ObjectionRecord> {
                @Param("semesterId") Long semesterId,
                @Param("type") ScoreTypeEnum type);
 
-
-    /**
-     * 异议详情
-     *
-     * @param schoolId   学校
-     * @param gradeId    年级
-     * @param semesterId 学期
-     * @param type       成绩类型
-     * @return
-     */
-    List<Integer> detail(
-            @Param("schoolId") Long schoolId,
-            @Param("gradeId") Long gradeId,
-            @Param("classId") Long classId,
-            @Param("semesterId") Long semesterId,
-            @Param("type") ScoreTypeEnum type);
-
     /**
      * 分页
      *
-     * @param type     分数类型
-     * @param resumeId 履历ID
+     * @param schoolId
+     * @param gradeId
+     * @param classId
+     * @param semesterId
      * @return
      */
-    List<ObjectionRecord> page(@Param("type") ScoreTypeEnum type,
-                               @Param("resumeId") Long resumeId);
+    Page<ObjectionRecordResume> page(@Param("schoolId") Long schoolId,
+                                     @Param("gradeId") Long gradeId,
+                                     @Param("classId") Long classId,
+                                     @Param("semesterId") Long semesterId,
+                                     @Param("type") ScoreTypeEnum type);
+
+    /**
+     * 异议数据
+     *
+     * @param type
+     * @param resumeIds
+     * @return
+     */
+    List<Long> records(@Param("type") ScoreTypeEnum type,
+                       @Param("resumeIds") List<Long> resumeIds);
+
+    /**
+     * @param resumeId  履历ID
+     * @param scoreType 成绩类型
+     * @param creatorId 异议创建人
+     * @return 条数
+     */
+    Long exists(@Param("resumeId") Long resumeId,
+                @Param("scoreType") ScoreTypeEnum scoreType,
+                @Param("creatorId") Long creatorId);
 }

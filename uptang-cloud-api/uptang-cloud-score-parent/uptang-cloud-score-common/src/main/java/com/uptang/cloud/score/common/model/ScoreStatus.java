@@ -60,5 +60,9 @@ public class ScoreStatus implements Serializable {
      * @Column(name = "finish_time")
      */
     private java.util.Date finishTime;
+
+    public ScoreStatus(Long resumeId) {
+        this.resumeId = resumeId;
+    }
 }
 

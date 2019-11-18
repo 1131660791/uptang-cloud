@@ -2,17 +2,20 @@ package com.uptang.cloud.score.template;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.uptang.cloud.core.exception.BusinessException;
-import com.uptang.cloud.score.common.dto.ExcelDto;
+import com.uptang.cloud.score.common.dto.ExcelDTO;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
+import com.uptang.cloud.score.common.model.ScoreStatus;
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.dto.GradeCourseDTO;
 import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.service.IAcademicResumeService;
+import com.uptang.cloud.score.service.IScoreStatusService;
 import com.uptang.cloud.score.service.ISubjectService;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategyFactory;
 import com.uptang.cloud.score.util.ApplicationContextHolder;
+import com.uptang.cloud.starter.common.enums.ResponseCodeEnum;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
@@ -26,15 +29,19 @@ import java.util.stream.Collectors;
  * @createTime : 2019-11-08 21:20
  * @mailTo: webb.lee.cn@gmail.com
  * @summary: FIXME
+ * 抽出去类多 不抽又看它不顺眼...... FIXME 后续优化再说
  */
 @Slf4j
-public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener<ExcelDto> {
+public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener<ExcelDTO> {
 
     private final IAcademicResumeService resumeService =
             ApplicationContextHolder.getBean(IAcademicResumeService.class);
 
     private final ISubjectService scoreService =
             ApplicationContextHolder.getBean(ISubjectService.class);
+
+    private final IScoreStatusService scoreStatusService =
+            ApplicationContextHolder.getBean(IScoreStatusService.class);
 
     public AcademicAnalysisEventListener(RequestParameter excel) {
         super(excel);
@@ -54,22 +61,15 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
      * @param context
      */
     @Override
-    public void doInvoke(List<ExcelDto> data, RequestParameter excel, AnalysisContext context) {
-        AcademicResume resume = new AcademicResume();
-        resume.setScoreType(excel.getScoreType());
-        resume.setSchoolId(excel.getSchoolId());
-        resume.setGradeId(excel.getGradeId());
-        resume.setClassId(excel.getClassId());
-        resume.setSemesterId(excel.getSemesterId());
-
+    public void doInvoke(List<ExcelDTO> data, RequestParameter excel, AnalysisContext context) {
         // 如果重复导入则覆盖原有的分数
-        if (resumeService.importAgain(resume)) {
-            override(data, excel, resume);
+        if (resumeService.importAgain(excel)) {
+            override(data, excel);
             return;
         }
 
         // 批量插入履历表
-        List<AcademicResume> resumes = data.stream().map(ExcelDto::getResume).collect(Collectors.toList());
+        List<AcademicResume> resumes = data.stream().map(ExcelDTO::getResume).collect(Collectors.toList());
         Map<Integer, List<AcademicResume>> groupList = getGroupList(resumes);
         List<Map<Long, Long>> maps = resumeService.batchSave(groupList);
 
@@ -79,11 +79,14 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
             // 插入科目
             Map<Integer, List<Subject>> subjects = getGroupList(Utils.convert2List(data));
             if (subjects == null || subjects.size() == 0) {
-                log.error("导入Excel。插入Subject失败，原因没有Subject需要被插入\n 客户端参数 ==> {} \n 解析Excel数据 ==> {}",
-                        excel, data);
-                throw new BusinessException("系统异常");
+                log.error("导入Excel。插入Subject失败，原因没有Subject需要被插入\n " +
+                        "客户端参数 ==> {} \n 解析Excel数据 ==> {}", excel, data);
+                throw new BusinessException(ResponseCodeEnum.SYSTEM_ERROR.getDesc());
             }
             scoreService.batchInsert(subjects);
+            // 状态表
+            List<ScoreStatus> statuses = Utils.getScoreStatuses(maps);
+            scoreStatusService.batchInsert(statuses);
         } catch (Exception e) {
             maps.stream()
                     .map(Map::values)
@@ -99,7 +102,7 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
      * @param data
      * @param maps
      */
-    private void setResumeId(List<ExcelDto> data, List<Map<Long, Long>> maps) {
+    private void setResumeId(List<ExcelDTO> data, List<Map<Long, Long>> maps) {
         // 设置履历ID以及批量插入科目
         for (Map<Long, Long> map : maps) {
             Iterator<Map.Entry<Long, Long>> iterator = map.entrySet().iterator();
@@ -118,20 +121,26 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
     /**
      * 如果重复导入则覆盖原有的分数
      *
-     * @param data
-     * @param excel
-     * @param resume
+     * @param data      Excel数据
+     * @param parameter web参数
      */
-    private void override(List<ExcelDto> data, RequestParameter excel, AcademicResume resume) {
+    private void override(List<ExcelDTO> data, RequestParameter parameter) {
         try {
+            AcademicResume resume = new AcademicResume();
+            resume.setScoreType(parameter.getScoreType());
+            resume.setSchoolId(parameter.getSchoolId());
+            resume.setGradeId(parameter.getGradeId());
+            resume.setClassId(parameter.getClassId());
+            resume.setSemesterId(parameter.getSemesterId());
             List<Long> ids = setResumeId(data, resume);
             scoreService.batchDelete(ids, ScoreTypeEnum.ACADEMIC);
 
             // 插入科目
             Map<Integer, List<Subject>> subjects = getGroupList(Utils.convert2List(data));
             if (subjects == null || subjects.size() == 0) {
-                log.error("导入Excel并覆盖原有数据失败，原因没有Subject需要被插入\n 客户端参数 ==> {} \n 解析Excel数据 ==> {}", excel, data);
-                throw new BusinessException("系统异常");
+                log.error("导入Excel并覆盖原有数据失败，原因没有Subject需要被插入\n " +
+                        "客户端参数 ==> {} \n 解析Excel数据 ==> {}", parameter, data);
+                throw new BusinessException(ResponseCodeEnum.SYSTEM_ERROR.getDesc());
             }
 
             scoreService.batchInsert(subjects);
@@ -146,16 +155,16 @@ public class AcademicAnalysisEventListener extends AbstractAnalysisEventListener
      * @param data
      * @param resume
      */
-    private List<Long> setResumeId(List<ExcelDto> data, AcademicResume resume) {
-        List<AcademicResume> resumeIds = resumeService.getResumeIds(resume);
+    private List<Long> setResumeId(List<ExcelDTO> data, AcademicResume resume) {
+        List<AcademicResume> resumeIds = resumeService.resume(resume);
         if (resumeIds != null && resumeIds.size() > 0) {
-            for (ExcelDto excelDto : data) {
-                List<Subject> subjects = excelDto.getSubjects();
+            for (ExcelDTO excelDto : data) {
                 for (AcademicResume resumeId : resumeIds) {
-                    for (Subject subject : subjects) {
-                        if (subject.getResumeId().compareTo(resumeId.getId()) == 0) {
-                            subject.setResumeId(resumeId.getId());
-                        }
+                    // 学生名称及学籍号相同则说明是同一人
+                    if (resumeId.getStudentCode().equals(excelDto.getStudentCode())
+                    && resumeId.getStudentName().equals(excelDto.getStudentName())) {
+                        excelDto.getResume().setId(resumeId.getId());
+                        excelDto.getSubjects().forEach(subject -> subject.setResumeId(resumeId.getId()));
                     }
                 }
             }

@@ -1,6 +1,8 @@
 package com.uptang.cloud.pojo.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +57,7 @@ public enum GenderEnum implements IEnumType {
      * @param code 代码
      * @return 转换出来的性别
      */
+    @JsonCreator
     public static GenderEnum parse(Integer code) {
         return BY_CODE_MAP.getOrDefault(code, GenderEnum.UNKNOWN);
     }
@@ -65,5 +68,15 @@ public enum GenderEnum implements IEnumType {
      */
     public static GenderEnum parse(String name) {
         return BY_NAME_MAP.getOrDefault(StringUtils.trimToEmpty(name).toLowerCase(), GenderEnum.UNKNOWN);
+    }
+
+    @JsonValue
+    public String toValue() {
+        for (GenderEnum member : GenderEnum.values()) {
+            if (member.getCode() == this.getCode()) {
+                return member.getDesc();
+            }
+        }
+        return "";
     }
 }

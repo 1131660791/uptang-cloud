@@ -16,11 +16,10 @@ import java.io.Serializable;
  * @Summary : FIXME
  */
 @Data
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class RestRequestDto implements Serializable {
+public class RestRequestDTO implements Serializable {
 
     /**
      * 用户登录后Token信息
@@ -37,4 +36,14 @@ public class RestRequestDto implements Serializable {
      * 查询行数
      */
     private Long rows;
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("{");
+        sb.append("\"token\":\"").append(token).append('\"');
+        sb.append(",\"offset\":").append(offset);
+        sb.append(",\"rows\":").append(rows);
+        sb.append('}');
+        return sb.toString();
+    }
 }

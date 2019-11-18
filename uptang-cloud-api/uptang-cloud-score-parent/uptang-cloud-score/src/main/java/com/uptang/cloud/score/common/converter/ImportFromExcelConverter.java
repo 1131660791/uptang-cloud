@@ -1,6 +1,6 @@
 package com.uptang.cloud.score.common.converter;
 
-import com.uptang.cloud.score.common.vo.ImportFromExcelVo;
+import com.uptang.cloud.score.common.vo.ImportFromExcelVO;
 import com.uptang.cloud.score.dto.RequestParameter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +24,7 @@ public interface ImportFromExcelConverter {
      * @return 转换后的VO
      */
     @Mapping(target = "children", ignore = true)
-    ImportFromExcelVo toVo(RequestParameter excel);
+    ImportFromExcelVO toVo(RequestParameter excel);
 
     /**
      * 将附件VO转换成实体
@@ -32,5 +32,5 @@ public interface ImportFromExcelConverter {
      * @param excel 公示数据
      * @return 转换后实体
      */
-    RequestParameter toModel(ImportFromExcelVo excel);
+    RequestParameter toModel(ImportFromExcelVO excel);
 }

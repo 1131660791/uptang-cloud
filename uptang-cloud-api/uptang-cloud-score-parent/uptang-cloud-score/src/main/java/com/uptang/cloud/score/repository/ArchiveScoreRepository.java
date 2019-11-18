@@ -34,6 +34,7 @@ public interface ArchiveScoreRepository extends BaseMapper<ArchiveScore> {
      */
     void batchDelete(@Param("resumeIds") List<Long> resumeIds);
 
+
     /**
      * 分页
      *

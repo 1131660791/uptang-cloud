@@ -3,7 +3,6 @@ package com.uptang.cloud.score.common.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -76,10 +75,6 @@ public class Subject implements Serializable {
      */
     private Integer scoreNumber;
 
-    /**
-     * 学生ID
-     */
-    @JsonIgnore
     private transient Long studentId;
 }
 

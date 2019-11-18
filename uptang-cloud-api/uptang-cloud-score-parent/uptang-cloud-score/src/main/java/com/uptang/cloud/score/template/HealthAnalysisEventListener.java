@@ -4,11 +4,13 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.uptang.cloud.core.exception.BusinessException;
 import com.uptang.cloud.score.common.dto.HealthScoreDTO;
 import com.uptang.cloud.score.common.model.AcademicResume;
+import com.uptang.cloud.score.common.model.ScoreStatus;
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.common.util.Calculator;
 import com.uptang.cloud.score.dto.GradeCourseDTO;
 import com.uptang.cloud.score.dto.RequestParameter;
 import com.uptang.cloud.score.service.IAcademicResumeService;
+import com.uptang.cloud.score.service.IScoreStatusService;
 import com.uptang.cloud.score.service.ISubjectService;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategy;
 import com.uptang.cloud.score.strategy.ExcelProcessorStrategyFactory;
@@ -38,6 +40,9 @@ public class HealthAnalysisEventListener extends AbstractAnalysisEventListener<H
 
     private final ISubjectService scoreService =
             ApplicationContextHolder.getBean(ISubjectService.class);
+
+    private final IScoreStatusService scoreStatusService =
+            ApplicationContextHolder.getBean(IScoreStatusService.class);
 
     public HealthAnalysisEventListener(RequestParameter excel) {
         super(excel);
@@ -106,6 +111,9 @@ public class HealthAnalysisEventListener extends AbstractAnalysisEventListener<H
         try {
             // 插入免测学生
             scoreService.exemption(excel);
+            // 状态表
+            List<ScoreStatus> statuses = Utils.getScoreStatuses(maps);
+            scoreStatusService.batchInsert(statuses);
         } catch (Exception e) {
             undo(maps);
             scoreService.batchDelete(lists.stream()
@@ -114,6 +122,7 @@ public class HealthAnalysisEventListener extends AbstractAnalysisEventListener<H
             throw new BusinessException(e);
         }
     }
+
 
     /**
      * 回滚履历表

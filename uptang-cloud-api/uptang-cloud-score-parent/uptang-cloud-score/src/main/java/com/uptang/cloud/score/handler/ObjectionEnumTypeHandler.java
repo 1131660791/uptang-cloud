@@ -12,7 +12,7 @@ import org.apache.ibatis.type.MappedTypes;
  * @mailto: webb.lee.cn@gmail.com lmy@uptong.com.cn
  * @Summary : FIXME
  */
-@MappedTypes(Integer.class)
+@MappedTypes(ObjectionEnum.class)
 @MappedJdbcTypes({JdbcType.TINYINT})
 public class ObjectionEnumTypeHandler extends BaseObjectHandler<ObjectionEnum> {
 

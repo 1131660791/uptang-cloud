@@ -1,10 +1,13 @@
 package com.uptang.cloud.score.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.uptang.cloud.score.common.enums.ScoreStatusEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ScoreStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author : Lee.m.yin
@@ -15,13 +18,6 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface ScoreStatusRepository extends BaseMapper<ScoreStatus> {
 
-    /**
-     * 根据属性查询
-     *
-     * @param status
-     * @return
-     */
-    ScoreStatus queryByProperty(ScoreStatus status);
 
     /**
      * 根据ID更新
@@ -43,20 +39,6 @@ public interface ScoreStatusRepository extends BaseMapper<ScoreStatus> {
                    @Param("gradeId") Long gradeId,
                    @Param("semesterId") Long semesterId,
                    @Param("type") ScoreTypeEnum type);
-
-    /**
-     * 归档
-     *
-     * @param schoolId   学校ID
-     * @param gradeId    年级ID
-     * @param semesterId 学期
-     * @param type       成绩类型
-     * @return
-     */
-    void archive(@Param("schoolId") Long schoolId,
-                 @Param("gradeId") Long gradeId,
-                 @Param("semesterId") Long semesterId,
-                 @Param("type") ScoreTypeEnum type);
 
     /**
      * 撤销归档
@@ -97,4 +79,36 @@ public interface ScoreStatusRepository extends BaseMapper<ScoreStatus> {
                 @Param("gradeId") Long gradeId,
                 @Param("semesterId") Long semesterId,
                 @Param("type") ScoreTypeEnum type);
+
+
+    /**
+     * 批量新增
+     *
+     * @param scoreStatuses
+     */
+    void batchInsert(List<ScoreStatus> scoreStatuses);
+
+    /**
+     * 单条插入
+     *
+     * @param scoreStatus
+     */
+    void save(ScoreStatus scoreStatus);
+
+    /**
+     * 归档
+     *
+     * @param state
+     * @param resumeIds
+     */
+    void archive(@Param("state") ScoreStatusEnum state,
+                 @Param("resumeIds") List<Long> resumeIds);
+
+    /**
+     * 检查数据是否在公示期
+     *
+     * @param resumeId
+     * @return 总数
+     */
+    Long checkState(@Param("resumeId") Long resumeId);
 }

@@ -1,7 +1,7 @@
 package com.uptang.cloud.score.strategy;
 
 import com.alibaba.excel.context.AnalysisContext;
-import com.uptang.cloud.score.common.dto.ExcelDto;
+import com.uptang.cloud.score.common.dto.ExcelDTO;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.dto.GradeCourseDTO;
 import com.uptang.cloud.score.dto.RequestParameter;
@@ -24,7 +24,7 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class ArtScoreExcelProcessorStrategy implements ExcelProcessorStrategy<ExcelDto>, InitializingBean {
+public class ArtScoreExcelProcessorStrategy implements ExcelProcessorStrategy<ExcelDTO>, InitializingBean {
 
     @Autowired
     private IRestCallerService restCallerService;
@@ -35,14 +35,14 @@ public class ArtScoreExcelProcessorStrategy implements ExcelProcessorStrategy<Ex
     }
 
     @Override
-    public void check(List<ExcelDto> sheetData, AnalysisContext context, RequestParameter excel) {
+    public void check(List<ExcelDTO> sheetData, AnalysisContext context, RequestParameter excel) {
         Utils.setUserInfo(sheetData,
                 excel,
                 () -> getStuInfo(excel, null, 1, 200),
                 (pageNum, pageSize) -> getStuInfo(excel, null, pageNum, pageSize),
                 (excelDto) -> getStuInfo(excel, excelDto, 0L, 0L));
 
-        for (ExcelDto sheetDatum : sheetData) {
+        for (ExcelDTO sheetDatum : sheetData) {
             Utils.checkUserInfo(sheetDatum.getResume());
         }
     }
@@ -59,7 +59,7 @@ public class ArtScoreExcelProcessorStrategy implements ExcelProcessorStrategy<Ex
      * @param pageNum  页码
      * @param pageSize 条数
      */
-    private StuListDTO getStuInfo(RequestParameter excel, ExcelDto excelDto, long pageNum, long pageSize) {
+    private StuListDTO getStuInfo(RequestParameter excel, ExcelDTO excelDto, long pageNum, long pageSize) {
         StudentRequestDTO student = Utils.getStudentRequestDTO(excel, excelDto, pageNum, pageSize);
         return restCallerService.studentList(student);
     }
