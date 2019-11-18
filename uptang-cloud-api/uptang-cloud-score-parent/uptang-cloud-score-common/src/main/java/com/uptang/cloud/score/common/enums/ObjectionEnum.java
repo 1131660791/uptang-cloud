@@ -45,12 +45,12 @@ public enum ObjectionEnum implements IEnumType {
     }
 
     @JsonValue
-    public int toValue() {
+    public String toValue() {
         for (ObjectionEnum member : ObjectionEnum.values()) {
             if (member.getCode() == this.getCode()) {
-                return member.getCode();
+                return member.desc;
             }
         }
-        return 0;
+        return "";
     }
 }
