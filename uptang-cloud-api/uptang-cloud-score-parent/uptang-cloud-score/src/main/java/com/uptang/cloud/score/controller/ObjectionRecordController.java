@@ -39,12 +39,12 @@ public class ObjectionRecordController extends BaseController {
     }
 
 
-    @GetMapping("/{type}/{schoolId}/{gradeId}/{semesterId}")
+    @GetMapping("/{type}/{school-id}/{grade-id}/{semester-id}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "成绩类型 0 学业成绩 1 体质健康 2 艺术成绩", paramType = "path", required = true),
-            @ApiImplicitParam(name = "schoolId", value = "学校ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "gradeId", value = "年级ID", paramType = "path", required = true),
-            @ApiImplicitParam(name = "semesterId", value = "学期ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "school-id", value = "学校ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "grade-id", value = "年级ID", paramType = "path", required = true),
+            @ApiImplicitParam(name = "semester-id", value = "学期ID", paramType = "path", required = true),
             @ApiImplicitParam(name = "classId", value = "班级ID", paramType = "query"),
             @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "显示条数", paramType = "query"),
@@ -52,9 +52,9 @@ public class ObjectionRecordController extends BaseController {
     @ApiOperation(value = "异议列表", response = ObjectionRecordVO.class)
     public ApiOut<List<ObjectionRecordResumeVO>> list(
             @PathVariable("type") @NotNull Integer type,
-            @PathVariable("schoolId") @NotNull Long schoolId,
-            @PathVariable("gradeId") @NotNull Long gradeId,
-            @PathVariable("semesterId") @NotNull Long semesterId,
+            @PathVariable("school-id") @NotNull Long schoolId,
+            @PathVariable("grade-id") @NotNull Long gradeId,
+            @PathVariable("semester-id") @NotNull Long semesterId,
             @RequestParam(value = "classId", required = false) Long classId,
             @RequestParam(value = "pageNum", defaultValue = "1", required = false) Integer pageNum,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
