@@ -2,6 +2,7 @@ package com.uptang.cloud.score.controller;
 
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.service.IScoreStatusService;
+import com.uptang.cloud.starter.web.controller.BaseController;
 import com.uptang.cloud.starter.web.domain.ApiOut;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -23,7 +24,7 @@ import javax.validation.constraints.NotNull;
 @RestController
 @RequestMapping("/v1/state")
 @Api(value = "ScoreStatusController", tags = {"履历状态管理"})
-public class ScoreStatusController {
+public class ScoreStatusController extends BaseController {
 
     private final IScoreStatusService scoreStatusService;
 
@@ -44,7 +45,8 @@ public class ScoreStatusController {
                                    @PathVariable("semester-id") @NotNull Long semesterId,
                                    @PathVariable("type") @NotNull Integer type) {
         boolean archive = scoreStatusService.archive(schoolId, gradeId, semesterId, ScoreTypeEnum.code(type));
-        return ApiOut.newSuccessResponse(archive);
+        String message = archive ? "成功" : "失败";
+        return ApiOut.newPrompt(message);
     }
 
     @PutMapping("/undoArchive/{type}/{school-id}/{grade-id}/{semester-id}")
@@ -61,7 +63,8 @@ public class ScoreStatusController {
                                        @PathVariable("type") @NotNull Integer type) {
 
         boolean undoArchive = scoreStatusService.undoArchive(schoolId, gradeId, semesterId, ScoreTypeEnum.code(type));
-        return ApiOut.newSuccessResponse(undoArchive);
+        String message = undoArchive ? "成功" : "失败";
+        return ApiOut.newPrompt(message);
     }
 
     @PutMapping("/show/{type}/{school-id}/{grade-id}/{semester-id}")
@@ -72,12 +75,14 @@ public class ScoreStatusController {
             @ApiImplicitParam(name = "semester-id", value = "学期ID", paramType = "path", required = true),
     })
     @ApiOperation(value = "公示", response = Boolean.class)
-    public ApiOut<Boolean> show(@PathVariable("school-id") @NotNull Long schoolId,
-                                @PathVariable("grade-id") @NotNull Long gradeId,
-                                @PathVariable("semester-id") @NotNull Long semesterId,
-                                @PathVariable("type") @NotNull Integer type) {
-        boolean show = scoreStatusService.show(schoolId, gradeId, semesterId, ScoreTypeEnum.code(type));
-        return ApiOut.newSuccessResponse(show);
+    public ApiOut<String> show(@PathVariable("school-id") @NotNull Long schoolId,
+                               @PathVariable("grade-id") @NotNull Long gradeId,
+                               @PathVariable("semester-id") @NotNull Long semesterId,
+                               @PathVariable("type") @NotNull Integer type) {
+        boolean show =
+                scoreStatusService.show(getToken(), schoolId, gradeId, semesterId, ScoreTypeEnum.code(type));
+        String message = show ? "成功" : "失败";
+        return ApiOut.newPrompt(message);
     }
 
     @PutMapping("/cancel/{type}/{school-id}/{grade-id}/{semester-id}")
@@ -93,6 +98,7 @@ public class ScoreStatusController {
                                   @PathVariable("semester-id") @NotNull Long semesterId,
                                   @PathVariable("type") @NotNull Integer type) {
         boolean cancel = scoreStatusService.cancel(schoolId, gradeId, semesterId, ScoreTypeEnum.code(type));
-        return ApiOut.newSuccessResponse(cancel);
+        String message = cancel ? "成功" : "失败";
+        return ApiOut.newPrompt(message);
     }
 }

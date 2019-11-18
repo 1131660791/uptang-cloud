@@ -7,6 +7,7 @@ import com.uptang.cloud.score.common.model.ScoreStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,11 +62,13 @@ public interface ScoreStatusRepository extends BaseMapper<ScoreStatus> {
      * @param gradeId    年级
      * @param semesterId 学期
      * @param type       成绩类型
+     * @param finishTime 公示结束时间
      */
     void show(@Param("schoolId") Long schoolId,
               @Param("gradeId") Long gradeId,
               @Param("semesterId") Long semesterId,
-              @Param("type") ScoreTypeEnum type);
+              @Param("type") ScoreTypeEnum type,
+              @Param("finishTime") Date finishTime);
 
     /**
      * 撤销公示
