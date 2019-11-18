@@ -18,8 +18,8 @@ import java.util.Date;
  * @summary : FIXME
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SubjectVO extends BaseVO<SubjectVO> implements Serializable, Cloneable {
 

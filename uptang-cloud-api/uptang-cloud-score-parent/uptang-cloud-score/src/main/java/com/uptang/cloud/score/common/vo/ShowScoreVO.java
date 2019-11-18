@@ -112,7 +112,10 @@ public class ShowScoreVO extends BaseVO<ShowScoreVO> implements Serializable, Cl
      * 学籍号
      */
     private String studentCode;
+
     private Long creatorId;
+
     private Date createdTime;
+
     private Date modifiedTime;
 }
