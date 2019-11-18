@@ -1,7 +1,6 @@
 package com.uptang.cloud.score.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.uptang.cloud.score.common.enums.ScoreStatusEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ScoreStatus;
 import org.apache.ibatis.annotations.Param;
@@ -53,13 +52,14 @@ public interface IScoreStatusService extends IService<ScoreStatus> {
     /**
      * 公示
      *
+     * @param token
      * @param schoolId   学校ID
      * @param gradeId    年级ID
      * @param semesterId 学期ID
      * @param type       成绩类型
      * @return
      */
-    boolean show(Long schoolId, Long gradeId, Long semesterId, ScoreTypeEnum type);
+    boolean show(String token, Long schoolId, Long gradeId, Long semesterId, ScoreTypeEnum type);
 
     /**
      * 撤销公示

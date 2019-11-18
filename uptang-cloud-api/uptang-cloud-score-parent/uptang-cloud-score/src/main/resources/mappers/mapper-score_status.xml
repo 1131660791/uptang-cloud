@@ -78,21 +78,26 @@
         AND resume.score_type=#{type}
     </update>
 
-    <!--公示-->
+    <!--公示
+     <if test="finishTime != null">ss.finish_time=#{finishTime}</if>
+     <if test="finishTime == null">ss.finish_time=CURRENT_TIMESTAMP()</if>
+    -->
     <update id="show">
         UPDATE score_status ss LEFT JOIN academic_resume resume ON resume.id=ss.resume_id
-        SET ss.state=1, ss.started_time=CURRENT_TIMESTAMP()
+        SET ss.state=1,ss.finish_time=CURRENT_TIMESTAMP(),ss.finish_time=#{finishTime}
         WHERE resume.school_id=#{schoolId} AND ss.state=3
         AND resume.grade_id=#{gradeId}
         AND resume.semester_id=#{semesterId}
         AND resume.score_type=#{type}
     </update>
 
-    <!--撤销公示-->
+    <!--撤销公示 CURRENT_TIMESTAMP()
+    <if test="finishTime != null">ss.finish_time=#{finishTime}</if>
+    <if test="finishTime == null">ss.finish_time=CURRENT_TIMESTAMP()</if>
+    -->
     <update id="cancel">
         UPDATE score_status ss LEFT JOIN academic_resume resume ON resume.id=ss.resume_id
-        SET ss.state=3, ss.finish_time=CURRENT_TIMESTAMP()
-        WHERE resume.school_id=#{schoolId} AND ss.state=1
+        SET ss.state=3 WHERE resume.school_id=#{schoolId} AND ss.state=1
         AND resume.grade_id=#{gradeId}
         AND resume.semester_id=#{semesterId}
         AND resume.score_type=#{type}

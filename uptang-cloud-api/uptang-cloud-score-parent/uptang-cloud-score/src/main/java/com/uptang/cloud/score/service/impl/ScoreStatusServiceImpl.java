@@ -2,24 +2,25 @@ package com.uptang.cloud.score.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
+import com.uptang.cloud.score.common.enums.PublicityTypeEnum;
 import com.uptang.cloud.score.common.enums.ScoreStatusEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ArchiveScore;
 import com.uptang.cloud.score.common.model.ScoreStatus;
 import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.common.util.Calculator;
+import com.uptang.cloud.score.dto.PublicityDTO;
 import com.uptang.cloud.score.dto.ShowScoreDTO;
 import com.uptang.cloud.score.repository.ScoreStatusRepository;
-import com.uptang.cloud.score.service.IArchiveScoreService;
-import com.uptang.cloud.score.service.IObjectionRecordService;
-import com.uptang.cloud.score.service.IScoreStatusService;
-import com.uptang.cloud.score.service.ISubjectService;
+import com.uptang.cloud.score.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,9 @@ public class ScoreStatusServiceImpl
 
     @Autowired
     private ISubjectService subjectService;
+
+    @Autowired
+    private IRestCallerService restCallerService;
 
     @Autowired
     private IArchiveScoreService archiveScoreService;
@@ -133,13 +137,31 @@ public class ScoreStatusServiceImpl
     }
 
     @Override
-    public boolean show(Long schoolId, Long gradeId, Long semesterId, ScoreTypeEnum type) {
+    public boolean show(String token,
+                        Long schoolId,
+                        Long gradeId,
+                        Long semesterId,
+                        ScoreTypeEnum type) {
+
         Assert.notNull(schoolId, "学校ID不能为空");
         Assert.notNull(gradeId, "年级ID不能为空");
         Assert.notNull(semesterId, "学期ID不能为空");
         Assert.notNull(type, "成绩类型不能为空");
-        getBaseMapper().show(schoolId, gradeId, semesterId, type);
-        return true;
+
+        // 获取公示时间周期
+        restCallerService.publicity(token, PublicityTypeEnum.ACADEMIC_ACHIEVEMENT);
+        if (type == ScoreTypeEnum.ACADEMIC) {
+            PublicityDTO publicity = restCallerService.publicity("", PublicityTypeEnum.ACADEMIC_ACHIEVEMENT);
+            if (publicity != null) {
+                Integer days = publicity.getDays();
+                days = days == null ? 0 : days;
+                LocalDate endTime = LocalDate.now().plusDays(days);
+                Date endDate = Date.from(endTime.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+                getBaseMapper().show(schoolId, gradeId, semesterId, type, endDate);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -148,6 +170,7 @@ public class ScoreStatusServiceImpl
         Assert.notNull(gradeId, "年级ID不能为空");
         Assert.notNull(semesterId, "学期ID不能为空");
         Assert.notNull(type, "成绩类型不能为空");
+
         getBaseMapper().cancel(schoolId, gradeId, semesterId, type);
         return true;
     }

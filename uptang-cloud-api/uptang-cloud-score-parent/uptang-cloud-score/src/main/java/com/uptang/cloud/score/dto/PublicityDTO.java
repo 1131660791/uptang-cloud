@@ -112,8 +112,14 @@ public class PublicityDTO {
     @AllArgsConstructor
     public enum Review {
 
+        /**
+         * NO
+         */
         NO(0),
 
+        /**
+         * YES
+         */
         YES(1),
 
         /**
@@ -156,6 +162,7 @@ public class PublicityDTO {
          * 确认
          */
         YES(1),
+
         /**
          * 未确认
          */
