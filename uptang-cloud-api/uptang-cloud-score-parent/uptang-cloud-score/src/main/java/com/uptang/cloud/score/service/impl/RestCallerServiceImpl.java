@@ -58,6 +58,7 @@ public class RestCallerServiceImpl implements IRestCallerService {
     /**
      * FIXME 记得修改
      * Local: "http://192.168.0.127:8083"
+     *
      * @param moduleSwitchDto 请求参数
      * @return
      */
@@ -166,15 +167,14 @@ public class RestCallerServiceImpl implements IRestCallerService {
 
     @Override
     public PublicityDTO publicity(String token, PublicityTypeEnum type) {
-        String api = Api.getApi(serverHost, Api.Manager.PUBLICITY, type.getCode() + "");
+        String api = Api.getApi(serverHost, Api.Manager.PUBLICITY, type.getCode());
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("Token", token);
         httpHeaders.set("token", token);
 
         ResponseEntity<JSONObject> response =
-                restTemplate.postForEntity(api, httpHeaders, JSONObject.class);
-
+                restTemplate.exchange(api, GET, new HttpEntity<>(httpHeaders), JSONObject.class);
         if (log.isDebugEnabled()) {
             log.debug("request ==> {} response ==> {}", api, response);
         }

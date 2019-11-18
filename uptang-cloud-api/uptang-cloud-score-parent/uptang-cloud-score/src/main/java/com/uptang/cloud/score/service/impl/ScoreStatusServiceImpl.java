@@ -2,7 +2,6 @@ package com.uptang.cloud.score.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
-import com.uptang.cloud.score.common.enums.PublicityTypeEnum;
 import com.uptang.cloud.score.common.enums.ScoreStatusEnum;
 import com.uptang.cloud.score.common.enums.ScoreTypeEnum;
 import com.uptang.cloud.score.common.model.ArchiveScore;
@@ -24,6 +23,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.uptang.cloud.score.common.enums.PublicityTypeEnum.ACADEMIC_ACHIEVEMENT;
 import static com.uptang.cloud.score.util.Collections.groupList;
 
 /**
@@ -149,9 +149,8 @@ public class ScoreStatusServiceImpl
         Assert.notNull(type, "成绩类型不能为空");
 
         // 获取公示时间周期
-        restCallerService.publicity(token, PublicityTypeEnum.ACADEMIC_ACHIEVEMENT);
         if (type == ScoreTypeEnum.ACADEMIC) {
-            PublicityDTO publicity = restCallerService.publicity("", PublicityTypeEnum.ACADEMIC_ACHIEVEMENT);
+            PublicityDTO publicity = restCallerService.publicity(token, ACADEMIC_ACHIEVEMENT);
             if (publicity != null) {
                 Integer days = publicity.getDays();
                 days = days == null ? 0 : days;
@@ -161,7 +160,9 @@ public class ScoreStatusServiceImpl
                 return true;
             }
         }
-        return false;
+
+        getBaseMapper().show(schoolId, gradeId, semesterId, type, new Date());
+        return true;
     }
 
     @Override
