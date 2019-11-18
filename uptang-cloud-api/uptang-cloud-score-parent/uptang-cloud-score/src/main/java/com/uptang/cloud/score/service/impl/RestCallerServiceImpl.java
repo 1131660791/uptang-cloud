@@ -11,6 +11,7 @@ import com.uptang.cloud.score.common.Api;
 import com.uptang.cloud.score.common.enums.PublicityTypeEnum;
 import com.uptang.cloud.score.common.model.AcademicResume;
 import com.uptang.cloud.score.dto.*;
+import com.uptang.cloud.score.handler.PrimitiveResolver;
 import com.uptang.cloud.score.service.IRestCallerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
@@ -25,6 +26,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,7 +47,7 @@ public class RestCallerServiceImpl implements IRestCallerService {
     /**
      * FIXME 记得改
      */
-    @Value("${gate.pj.hostxxxxxxxxxxxxxxxxxxx:http://192.168.0.127:8081}")
+    @Value("${gate.pj.host:http://192.168.0.127:8081}")
     private String serverHost;
 
     @Autowired
@@ -55,23 +57,22 @@ public class RestCallerServiceImpl implements IRestCallerService {
 
     /**
      * FIXME 记得修改
-     *
+     * Local: "http://192.168.0.127:8083"
      * @param moduleSwitchDto 请求参数
      * @return
      */
     @Override
     public boolean moduleSwitch(ModuleSwitchDTO moduleSwitchDto) {
-        return true;
-//        String api = Api.getApi("http://192.168.0.127:8083", Api.Manager.MODULE_SWITCH);
-//        ModuleSwitchResponseDTO moduleSwitch =
-//                postJson(api, moduleSwitchDto, ModuleSwitchResponseDTO.class);
-//        if (moduleSwitch == null) {
-//            throw new BusinessException("未设置任务");
-//        }
-//
-//        // 用当前时间比较任务结束时间
-//        Instant endTime = moduleSwitch.getEnd().toInstant();
-//        return endTime.compareTo(Instant.now()) > 0 ? true : false;
+        String api = Api.getApi(serverHost, Api.Manager.MODULE_SWITCH);
+        ModuleSwitchResponseDTO moduleSwitch =
+                postJson(api, moduleSwitchDto, ModuleSwitchResponseDTO.class);
+        if (moduleSwitch == null) {
+            throw new BusinessException("未设置任务");
+        }
+
+        // 用当前时间比较任务结束时间
+        Instant endTime = moduleSwitch.getEnd().toInstant();
+        return endTime.compareTo(Instant.now()) > 0 ? true : false;
     }
 
     @Override
@@ -108,8 +109,8 @@ public class RestCallerServiceImpl implements IRestCallerService {
         if (log.isWarnEnabled()) {
             log.warn("用户鉴权失败 userType ==> {}", userType);
         }
-        // FIXME DEV true
-        return true;
+
+        return false;
     }
 
     @Override
@@ -124,6 +125,7 @@ public class RestCallerServiceImpl implements IRestCallerService {
                 if (body != null && body.size() > 0) {
 
                     Object status = body.getOrDefault("status", SC_INTERNAL_SERVER_ERROR);
+                    status = PrimitiveResolver.String_.convert(status);
                     if (status.equals(String.valueOf(HttpStatus.SC_OK))) {
 
                         Object data = body.getOrDefault("data", Strings.EMPTY);
@@ -183,7 +185,8 @@ public class RestCallerServiceImpl implements IRestCallerService {
                 if (body != null && body.size() > 0) {
 
                     Object status = body.getOrDefault("status", SC_INTERNAL_SERVER_ERROR);
-                    if (status.equals(HttpStatus.SC_OK)) {
+                    status = PrimitiveResolver.String_.convert(status);
+                    if (status.equals(String.valueOf(HttpStatus.SC_OK))) {
                         Object data = body.getOrDefault("data", Strings.EMPTY);
                         return mapper.readValue(mapper.writeValueAsString(data), PublicityDTO.class);
                     }
@@ -220,6 +223,7 @@ public class RestCallerServiceImpl implements IRestCallerService {
                 if (body != null && body.size() > 0) {
 
                     Object status = body.getOrDefault("status", SC_INTERNAL_SERVER_ERROR);
+                    status = PrimitiveResolver.String_.convert(status);
                     if (status.equals(String.valueOf(HttpStatus.SC_OK))) {
 
                         // FIXME  可以将try catch 范围缩小到这里
