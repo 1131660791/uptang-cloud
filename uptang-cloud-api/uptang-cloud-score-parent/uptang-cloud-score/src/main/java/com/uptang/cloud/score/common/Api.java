@@ -15,7 +15,7 @@ public interface Api extends com.uptang.cloud.core.Constants {
          * 任务是否开放接口
          * api/everyday/page_module_switch
          */
-        String MODULE_SWITCH = "%s/switch/score";
+        String MODULE_SWITCH = "%s/api/everyday/switch/score";
 
         /**
          * 公示时间接口
@@ -43,26 +43,14 @@ public interface Api extends com.uptang.cloud.core.Constants {
          * 学生信息查询接口
          * api/base/student/list
          */
-        String STUDENT_INFO = "%s/student/list";
+        String STUDENT_INFO = "%s/api/base/student/list";
 
         /**
          * 免测学生列表
          * %s/api/base/student/exemption
          * http://192.168.0.127:8081/student/exemption
          */
-        String EXEMPTION = "http://192.168.0.127:8081/student/exemption";
-    }
-
-    /**
-     * 权限
-     */
-    interface Promission {
-
-        /**
-         * 当前用户权限校验接口
-         * /api/base/baseUser/sessionuser
-         */
-        String CHECK = "%s/baseUser/sessionuser";
+        String EXEMPTION = "%s/api/base/student/exemption";
     }
 
     /**
@@ -73,7 +61,7 @@ public interface Api extends com.uptang.cloud.core.Constants {
          * 年级课程信息
          * /api/base/subject/detail/{gradeId} 年级ID
          */
-        String INFO = "%s/course/detail/%d";
+        String INFO = "%s/api/base/course/detail/%d";
     }
 
     /**
