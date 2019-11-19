@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>uptang-cloud-user-parent</artifactId>
+        <groupId>com.uptang.cloud</groupId>
+        <version>4.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>uptang-cloud-user</artifactId>
+    <name>uptang-cloud-user</name>
+    <packaging>jar</packaging>
+    <description>学唐云 - 用户基础服务</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.uptang.cloud</groupId>
+            <artifactId>uptang-cloud-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.uptang.cloud</groupId>
+            <artifactId>uptang-cloud-starter-data</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.uptang.cloud</groupId>
+            <artifactId>uptang-cloud-user-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.uptang.cloud</groupId>
+            <artifactId>uptang-cloud-user-feign</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.uptang.cloud</groupId>
+            <artifactId>uptang-cloud-sequence-feign</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

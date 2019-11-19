@@ -72,13 +72,13 @@ public class FeignProviderConfiguration extends FeignClientsConfiguration implem
      */
     @Override
     public void apply(RequestTemplate template) {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        Optional.ofNullable(attributes.getRequest()).ifPresent(request -> {
-            Enumeration<String> headerNames = request.getHeaderNames();
+        Optional.ofNullable(RequestContextHolder.getRequestAttributes()).ifPresent(requestAttributes -> {
+            ServletRequestAttributes request = (ServletRequestAttributes) requestAttributes;
+            Enumeration<String> headerNames = request.getRequest().getHeaderNames();
             if (Objects.nonNull(headerNames)) {
                 while (headerNames.hasMoreElements()) {
                     String name = headerNames.nextElement();
-                    String values = request.getHeader(name);
+                    String values = request.getRequest().getHeader(name);
                     template.header(name, values);
                 }
             }
