@@ -64,14 +64,14 @@ public enum PrimitiveResolver {
     Float_() {
         @Override
         public Object convert(Object number) {
-            return number != null ? java.lang.Float.parseFloat((String) String_.convert(number)) : null;
+            return number != null ? Float.parseFloat((String) String_.convert(number)) : null;
         }
     },
 
     Double_() {
         @Override
         public Object convert(Object number) {
-            return number != null ? java.lang.Double.parseDouble((String) String_.convert(number)) : null;
+            return number != null ? Double.parseDouble((String) String_.convert(number)) : null;
         }
     },
 

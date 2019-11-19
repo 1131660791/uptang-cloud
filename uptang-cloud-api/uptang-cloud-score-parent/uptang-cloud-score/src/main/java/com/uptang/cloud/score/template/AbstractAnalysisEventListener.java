@@ -54,6 +54,12 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
     private final List<T> DATA = new ArrayList<>();
 
     /**
+     * 先解决有的问题
+     * 表头
+     */
+    protected Map<Integer, String> headMap;
+
+    /**
      * Rest接口调用Service
      */
     protected final IRestCallerService restCallerService =
@@ -102,7 +108,8 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
                     } else {
                         if (setSubject[0]) {
                             ReflectionUtils.makeAccessible(field);
-                            field.set(newInstance, getSubjects(rawData, lineNumber, fixedCell[0] - 1, gradeCourse));
+                            int startIndex = fixedCell[0] - 1;
+                            field.set(newInstance, getSubjects(rawData, lineNumber, startIndex, gradeCourse));
                             setSubject[0] = false;
                         }
                     }
@@ -111,7 +118,8 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
 
             DATA.add(newInstance);
         } catch (Exception e) {
-            DATA.clear();
+            this.DATA.clear();
+            this.headMap.clear();
             this.gradeCourse = null;
             log.error(e.getMessage());
             throw new ExcelException(e);
@@ -128,7 +136,8 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
             throw new ExcelException(e);
         } finally {
             this.gradeCourse = null;
-            DATA.clear();
+            this.DATA.clear();
+            this.headMap.clear();
         }
     }
 
@@ -164,6 +173,12 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
         return Collections.groupList(data);
     }
 
+    /**
+     * 处理表头
+     *
+     * @param headMap 表头<下标，表头名称>
+     * @param context Excel上下文
+     */
     @Override
     public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
         if (log.isDebugEnabled()) {
@@ -176,6 +191,7 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
         studentRequestDTO.setToken(excel.getToken());
         studentRequestDTO.setGradeId(excel.getGradeId());
         this.gradeCourse = restCallerService.gradeInfo(studentRequestDTO);
+        this.headMap = headMap;
         getStrategy().headMap(headMap, gradeCourse);
     }
 
@@ -196,7 +212,8 @@ public abstract class AbstractAnalysisEventListener<T> extends AnalysisEventList
     @Override
     public void onException(Exception exception, AnalysisContext context) {
         if (DATA.size() != 0) {
-            DATA.clear();
+            this.DATA.clear();
+            this.headMap.clear();
             this.gradeCourse = null;
         }
 

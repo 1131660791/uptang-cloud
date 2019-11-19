@@ -9,6 +9,7 @@ import com.uptang.cloud.score.common.model.Subject;
 import com.uptang.cloud.score.common.util.Calculator;
 import com.uptang.cloud.score.dto.GradeCourseDTO;
 import com.uptang.cloud.score.dto.RequestParameter;
+import com.uptang.cloud.score.handler.PrimitiveResolver;
 import com.uptang.cloud.score.service.IAcademicResumeService;
 import com.uptang.cloud.score.service.IScoreStatusService;
 import com.uptang.cloud.score.service.ISubjectService;
@@ -18,13 +19,16 @@ import com.uptang.cloud.score.util.ApplicationContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.uptang.cloud.score.common.enums.ScoreTypeEnum.HEALTH;
 import static com.uptang.cloud.score.common.util.Calculator.defaultNumberScore;
 import static com.uptang.cloud.score.handler.PrimitiveResolver.Double_;
-import static com.uptang.cloud.score.handler.PrimitiveResolver.String_;
+import static com.uptang.cloud.score.handler.PrimitiveResolver.getConverter;
 
 /**
  * @author : Lee.m.yin
@@ -50,24 +54,21 @@ public class HealthAnalysisEventListener extends AbstractAnalysisEventListener<H
 
     @Override
     public List<Subject> getSubjects(Map<Integer, Object> rawData,
-                                     Integer lineNumber, int startIndex,
+                                     Integer lineNumber,
+                                     int startIndex,
                                      List<GradeCourseDTO> gradeCourse) {
 
         List<GradeCourseDTO> courses = gradeCourse.stream()
                 .filter(course -> course.getScoreType() == HEALTH)
                 .collect(Collectors.toList());
 
-        // FIXME 没成绩
         List<Subject> subjects = new ArrayList<>();
-        Iterator<GradeCourseDTO> iterator = courses.iterator();
-        for (int i = startIndex; i < rawData.size(); i++) {
-            while (iterator.hasNext()) {
-                GradeCourseDTO course = iterator.next();
-                if (course.getOrderNumber().compareTo(i) == 0) {
-                    Object value = rawData.get(course.getOrderNumber());
-                    subjects.add(getSubject(value, course));
-                    iterator.remove();
-                    break;
+        for (GradeCourseDTO course : courses) {
+            Set<Map.Entry<Integer, String>> entries = headMap.entrySet();
+            for (Map.Entry<Integer, String> entry : entries) {
+                String subjectName = entry.getValue();
+                if (course.getSubjectName().equals(subjectName)) {
+                    subjects.add(getSubject(rawData.get(entry.getKey()), course));
                 }
             }
         }
@@ -156,16 +157,20 @@ public class HealthAnalysisEventListener extends AbstractAnalysisEventListener<H
         subject.setScoreText(Strings.EMPTY);
         subject.setScoreNumber(Calculator.UNSIGNED_SMALLINT_MAX_VALUE);
 
-        switch (course.getDataType()) {
-            case NUMBER:
-                // 数值类型
+        if (value == null) {
+            return subject;
+        }
+
+        PrimitiveResolver converter = getConverter(value.getClass());
+        switch (converter) {
+            // 字符串类型
+            case String_:
+                subject.setScoreText((String) converter.convert(value));
+                break;
+            // 数值类型
+            default:
                 Double convert = (Double) Double_.convert(value);
                 subject.setScoreNumber(defaultNumberScore(convert));
-                break;
-            case String:
-            default:
-                // 字符串类型
-                subject.setScoreText((String) String_.convert(value));
         }
         return subject;
     }
