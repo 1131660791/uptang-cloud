@@ -13,6 +13,8 @@ public interface UserService extends IService<User> {
 
     /**
      * 分页查询用户信息
+     * @param pageNum 页码
+     * @param pageSize 每页数量
      * @return 用户信息分页查询结果
      */
     Page<User> page(Integer pageNum, Integer pageSize);

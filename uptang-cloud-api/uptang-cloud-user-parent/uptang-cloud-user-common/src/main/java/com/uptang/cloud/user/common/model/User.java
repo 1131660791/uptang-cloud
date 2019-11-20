@@ -10,11 +10,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * 用户信息 领域对象
- * @author ChengHaiTao
+ * 用户信息 领域模型
+ * @author cht
  * @date 2019-11-19
  */
-@ApiModel(value = "用户信息 领域对象")
+@ApiModel(value = "用户信息 领域模型")
 @Data
 @TableName(value = "user")
 public class User {

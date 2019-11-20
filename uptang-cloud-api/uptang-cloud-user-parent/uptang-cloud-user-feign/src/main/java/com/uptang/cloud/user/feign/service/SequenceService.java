@@ -16,9 +16,18 @@ public interface SequenceService {
     String SERVICE_NAME = "uptang-cloud-sequence";
     String API_PREFIX = "/v1/inner/sequence";
 
+    /**
+     * 获取单个序列
+     * @return 单个序列
+     */
     @RequestMapping(value = API_PREFIX, method= RequestMethod.GET)
     long getSequence();
 
+    /**
+     * 获取多个序列
+     * @param count 获取序列数量
+     * @return 多个序列
+     */
     @RequestMapping(path = API_PREFIX + "/{count}", method= RequestMethod.GET)
     long[] getSequences(@PathVariable(name = "count") Integer count);
 
