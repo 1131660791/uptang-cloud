@@ -22,7 +22,7 @@ import lombok.ToString;
 public class Area extends BaseModel {
     private static final long serialVersionUID = 6545751452680215897L;
 
-    @TableId(value = "area_id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
     private Integer parentId;
     private String name;

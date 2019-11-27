@@ -27,6 +27,7 @@
         <module>uptang-cloud-sequence-parent</module>
         <module>uptang-cloud-base-parent</module>
         <module>uptang-cloud-score-parent</module>
+        <module>uptang-cloud-user-parent</module>
     </modules>
 
 </project>

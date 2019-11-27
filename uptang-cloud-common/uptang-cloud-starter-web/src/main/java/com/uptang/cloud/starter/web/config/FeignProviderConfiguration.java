@@ -1,6 +1,8 @@
 package com.uptang.cloud.starter.web.config;
 
 import feign.Logger;
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
 import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
@@ -14,6 +16,12 @@ import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.Enumeration;
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -23,7 +31,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * @date 2019-09-18
  */
 @Configuration
-public class FeignProviderConfiguration extends FeignClientsConfiguration {
+public class FeignProviderConfiguration extends FeignClientsConfiguration implements RequestInterceptor {
 
     @Autowired
     private ObjectFactory<HttpMessageConverters> messageConverters;
@@ -54,5 +62,26 @@ public class FeignProviderConfiguration extends FeignClientsConfiguration {
     @Bean
     public Logger.Level feignLoggerLevel() {
         return Logger.Level.FULL;
+    }
+
+
+    /**
+     * Feign请求拦截器（设置请求头，传递请求参数）
+     *
+     * @param template RequestTemplate
+     */
+    @Override
+    public void apply(RequestTemplate template) {
+        Optional.ofNullable(RequestContextHolder.getRequestAttributes()).ifPresent(requestAttributes -> {
+            ServletRequestAttributes request = (ServletRequestAttributes) requestAttributes;
+            Enumeration<String> headerNames = request.getRequest().getHeaderNames();
+            if (Objects.nonNull(headerNames)) {
+                while (headerNames.hasMoreElements()) {
+                    String name = headerNames.nextElement();
+                    String values = request.getRequest().getHeader(name);
+                    template.header(name, values);
+                }
+            }
+        });
     }
 }
